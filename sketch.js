@@ -1,13 +1,15 @@
+// Configuration Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
   authDomain: "date-d927b.firebaseapp.com",
   projectId: "date-d927b",
-  storageBucket: "date-d927b.firebasestorage.app",
+  storageBucket: "date-d927b.appspot.com", // ✅ corrigé
   messagingSenderId: "353304192798",
   appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
   measurementId: "G-T4N8PMNC3G"
 };
-const app = firebase.initializeApp(firebaseConfig);
+
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 function ajouterIdee() {
@@ -52,7 +54,7 @@ function afficherIdees() {
 window.addEventListener('DOMContentLoaded', () => {
   afficherIdees();
 
-  // Ajout de l'option "Entrée" pour valider plus vite
+  // Entrée pour valider
   document.getElementById('nouvelleIdee').addEventListener('keydown', function(event) {
     if (event.key === "Enter") {
       ajouterIdee();
