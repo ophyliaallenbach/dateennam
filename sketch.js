@@ -51,7 +51,6 @@ function afficherIdees() {
     snapshot.forEach(doc => {
       const data = doc.data();
 
-      // Création d'une carte
       const card = document.createElement('div');
       card.className = 'carte';
 
@@ -61,7 +60,7 @@ function afficherIdees() {
 
       const infos = [
         `📅 Date : ${data.date || 'Non précisée'}`,
-        `📂 Catégorie : ${data.categorie || 'Non précisée'}`,
+        `📂 Catégories : ${data.categories && data.categories.length > 0 ? data.categories.join(', ') : 'Non précisées'}`,
         `💸 Prix : ${data.prix ? data.prix + '€' : 'Non précisé'}`,
         `📍 Lieu : ${data.lieu || 'Non précisé'}`
       ];
@@ -72,7 +71,6 @@ function afficherIdees() {
         card.appendChild(p);
       });
 
-      // Bouton supprimer
       const btn = document.createElement('button');
       btn.textContent = "Supprimer";
       btn.onclick = () => {
