@@ -44,15 +44,23 @@
     <h1>Idées de sorties 💑</h1>
     <div class="phrase">Pour un petit date ensemble <3</div>
 
-    <!-- Formulaire -->
+    <!-- Formulaire unique -->
     <div>
       <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
       <input type="date" id="dateIdee" />
-      <select id="categorieIdee">
-        <option value="restaurant">Restaurant</option>
-        <option value="cinema">Cinéma</option>
-        <option value="balade">Balade</option>
-      </select>
+
+      <!-- Catégories multiples -->
+      <div id="categories">
+        <label><input type="checkbox" value="restaurant"> Restaurant</label>
+        <label><input type="checkbox" value="cinema"> Cinéma</label>
+        <label><input type="checkbox" value="balade"> Balade</label>
+        <label><input type="checkbox" value="maison"> Maison</label>
+        <label><input type="checkbox" value="detente"> Détente</label>
+        <label><input type="checkbox" value="sortie"> Sortie</label>
+        <label><input type="checkbox" value="gratuit"> Gratuit</label>
+        <label><input type="checkbox" value="surprise"> Surprise</label>
+      </div>
+
       <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
       <input type="text" id="lieuIdee" placeholder="Lieu (ex: Paris, parc...)" />
       <button onclick="ajouterIdee()">Ajouter</button>
