@@ -3,7 +3,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
   authDomain: "date-d927b.firebaseapp.com",
   projectId: "date-d927b",
-  storageBucket: "date-d927b.appspot.com", // ✅ corrigé
+  storageBucket: "date-d927b.appspot.com",
   messagingSenderId: "353304192798",
   appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
   measurementId: "G-T4N8PMNC3G"
@@ -14,12 +14,26 @@ const db = firebase.firestore();
 
 function ajouterIdee() {
   const idee = document.getElementById('nouvelleIdee').value.trim();
+  const date = document.getElementById('dateIdee').value;
+  const jour = document.getElementById('jourIdee').value;
+  const categorie = document.getElementById('categorieIdee').value;
+  const prix = document.getElementById('prixIdee').value;
+
   if (!idee) {
     alert("Propose quelque chose !");
     return;
   }
-  db.collection('sorties').add({ texte: idee }).then(() => {
+
+  db.collection('sorties').add({
+    texte: idee,
+    date: date,
+    jour: jour,
+    categorie: categorie,
+    prix: prix
+  }).then(() => {
     document.getElementById('nouvelleIdee').value = '';
+    document.getElementById('dateIdee').value = '';
+    document.getElementById('prixIdee').value = '';
     afficherIdees();
   });
 }
@@ -35,7 +49,7 @@ function afficherIdees() {
     snapshot.forEach(doc => {
       const data = doc.data();
       const p = document.createElement('p');
-      p.textContent = data.texte;
+      p.textContent = `${data.texte} | ${data.date || '📅'} | ${data.jour || '❓'} | ${data.categorie || '❓'} | ${data.prix ? data.prix + '€' : '💸'}`;
 
       // Bouton supprimer
       const btn = document.createElement('button');
