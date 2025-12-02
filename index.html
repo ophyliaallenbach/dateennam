@@ -3,32 +3,30 @@
   <head>
     <meta charset="utf-8">
     <title>Idées de sorties</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-    <script src="sketch.js"></script>
     <style>
       body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
-      h1      { color:#d9336f; margin-top:20px; }
+      h1 { color:#d9336f; margin-top:20px; }
       .phrase { font-style:italic; color:#a51c49; margin-bottom:10px; }
       #sorties { margin-top: 20px; }
-      #sorties p { 
-        background:#fff; 
+      #sorties p {
+        background:#fff;
         display:inline-block;
-        margin:8px; 
-        padding:8px 20px; 
-        border-radius:20px; 
+        margin:8px;
+        padding:8px 20px;
+        border-radius:20px;
         box-shadow:0px 2px 5px rgba(0,0,0,0.07);
       }
-      input, button { 
-        padding:10px; 
-        border-radius:10px; 
-        margin-top:10px; 
-        border:1px solid #d9336f; 
+      input, button {
+        padding:10px;
+        border-radius:10px;
+        margin-top:10px;
+        border:1px solid #d9336f;
       }
       button {
-        background:#d9336f; 
-        color:#fff; 
+        background:#d9336f;
+        color:#fff;
         cursor:pointer;
         border:none;
         transition:background .2s;
@@ -44,5 +42,8 @@
       <button onclick="ajouterIdee()">Ajouter</button>
     </div>
     <div id="sorties"></div>
+
+    <!-- Ton script -->
+    <script src="sketch.js"></script>
   </body>
 </html>
