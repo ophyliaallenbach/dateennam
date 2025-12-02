@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>Idées de sorties</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <!-- Firebase compat (important pour ton code v8 style) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
       body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
       h1 { color:#d9336f; margin-top:20px; }
@@ -18,7 +19,7 @@
         border-radius:20px;
         box-shadow:0px 2px 5px rgba(0,0,0,0.07);
       }
-      input, button {
+      input, select, button {
         padding:10px;
         border-radius:10px;
         margin-top:10px;
@@ -37,22 +38,21 @@
   <body>
     <h1>Idées de sorties 💑</h1>
     <div class="phrase">Pour Ophylia & son chéri, toutes vos envies ici 🎈</div>
+
+    <!-- Formulaire unique -->
     <div>
       <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
+      <input type="date" id="dateIdee" />
+      <select id="categorieIdee">
+        <option value="restaurant">Restaurant</option>
+        <option value="cinema">Cinéma</option>
+        <option value="balade">Balade</option>
+      </select>
+      <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
       <button onclick="ajouterIdee()">Ajouter</button>
     </div>
+
     <div id="sorties"></div>
-<div>
-  <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
-  <input type="date" id="dateIdee" />
-  <select id="categorieIdee">
-    <option value="restaurant">Restaurant</option>
-    <option value="cinema">Cinéma</option>
-    <option value="balade">Balade</option>
-  </select>
-  <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
-  <button onclick="ajouterIdee()">Ajouter</button>
-</div>
 
     <!-- Ton script -->
     <script src="sketch.js"></script>
