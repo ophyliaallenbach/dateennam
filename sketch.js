@@ -15,9 +15,12 @@ const db = firebase.firestore();
 function ajouterIdee() {
   const idee = document.getElementById('nouvelleIdee').value.trim();
   const date = document.getElementById('dateIdee').value;
-  const categorie = document.getElementById('categorieIdee').value;
   const prix = document.getElementById('prixIdee').value;
   const lieu = document.getElementById('lieuIdee').value.trim();
+
+  // Récupérer les catégories cochées (max 3)
+  const checkboxes = document.querySelectorAll('#categories input[type="checkbox"]:checked');
+  const categories = Array.from(checkboxes).map(cb => cb.value).slice(0,3);
 
   if (!idee) {
     alert("Propose quelque chose !");
@@ -27,15 +30,16 @@ function ajouterIdee() {
   db.collection('sorties').add({
     texte: idee,
     date: date,
-    categorie: categorie,
     prix: prix,
-    lieu: lieu
+    lieu: lieu,
+    categories: categories
   }).then(() => {
-    // Réinitialiser les champs
+    // Reset
     document.getElementById('nouvelleIdee').value = '';
     document.getElementById('dateIdee').value = '';
     document.getElementById('prixIdee').value = '';
     document.getElementById('lieuIdee').value = '';
+    document.querySelectorAll('#categories input[type="checkbox"]').forEach(cb => cb.checked = false);
     afficherIdees();
   });
 }
