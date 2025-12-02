@@ -17,6 +17,7 @@ function ajouterIdee() {
   const date = document.getElementById('dateIdee').value;
   const categorie = document.getElementById('categorieIdee').value;
   const prix = document.getElementById('prixIdee').value;
+  const lieu = document.getElementById('lieuIdee').value.trim();
 
   if (!idee) {
     alert("Propose quelque chose !");
@@ -27,12 +28,14 @@ function ajouterIdee() {
     texte: idee,
     date: date,
     categorie: categorie,
-    prix: prix
+    prix: prix,
+    lieu: lieu
   }).then(() => {
     // Réinitialiser les champs
     document.getElementById('nouvelleIdee').value = '';
     document.getElementById('dateIdee').value = '';
     document.getElementById('prixIdee').value = '';
+    document.getElementById('lieuIdee').value = '';
     afficherIdees();
   });
 }
@@ -47,27 +50,43 @@ function afficherIdees() {
     }
     snapshot.forEach(doc => {
       const data = doc.data();
-      const p = document.createElement('p');
-      p.textContent = `${data.texte} | ${data.date || '📅'} | ${data.categorie || '❓'} | ${data.prix ? data.prix + '€' : '💸'}`;
+
+      // Création d'une carte
+      const card = document.createElement('div');
+      card.className = 'carte';
+
+      const titre = document.createElement('h3');
+      titre.textContent = data.texte;
+      card.appendChild(titre);
+
+      const infos = [
+        `📅 Date : ${data.date || 'Non précisée'}`,
+        `📂 Catégorie : ${data.categorie || 'Non précisée'}`,
+        `💸 Prix : ${data.prix ? data.prix + '€' : 'Non précisé'}`,
+        `📍 Lieu : ${data.lieu || 'Non précisé'}`
+      ];
+
+      infos.forEach(txt => {
+        const p = document.createElement('p');
+        p.textContent = txt;
+        card.appendChild(p);
+      });
 
       // Bouton supprimer
       const btn = document.createElement('button');
       btn.textContent = "Supprimer";
-      btn.style.marginLeft = "10px";
       btn.onclick = () => {
         db.collection('sorties').doc(doc.id).delete().then(afficherIdees);
       };
-      p.appendChild(btn);
+      card.appendChild(btn);
 
-      sortiesDiv.appendChild(p);
+      sortiesDiv.appendChild(card);
     });
   });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   afficherIdees();
-
-  // Entrée pour valider
   document.getElementById('nouvelleIdee').addEventListener('keydown', function(event) {
     if (event.key === "Enter") {
       ajouterIdee();
