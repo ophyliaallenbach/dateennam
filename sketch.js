@@ -15,7 +15,6 @@ const db = firebase.firestore();
 function ajouterIdee() {
   const idee = document.getElementById('nouvelleIdee').value.trim();
   const date = document.getElementById('dateIdee').value;
-  const jour = document.getElementById('jourIdee').value;
   const categorie = document.getElementById('categorieIdee').value;
   const prix = document.getElementById('prixIdee').value;
 
@@ -27,10 +26,10 @@ function ajouterIdee() {
   db.collection('sorties').add({
     texte: idee,
     date: date,
-    jour: jour,
     categorie: categorie,
     prix: prix
   }).then(() => {
+    // Réinitialiser les champs
     document.getElementById('nouvelleIdee').value = '';
     document.getElementById('dateIdee').value = '';
     document.getElementById('prixIdee').value = '';
@@ -49,7 +48,7 @@ function afficherIdees() {
     snapshot.forEach(doc => {
       const data = doc.data();
       const p = document.createElement('p');
-      p.textContent = `${data.texte} | ${data.date || '📅'} | ${data.jour || '❓'} | ${data.categorie || '❓'} | ${data.prix ? data.prix + '€' : '💸'}`;
+      p.textContent = `${data.texte} | ${data.date || '📅'} | ${data.categorie || '❓'} | ${data.prix ? data.prix + '€' : '💸'}`;
 
       // Bouton supprimer
       const btn = document.createElement('button');
