@@ -24,7 +24,7 @@
       .carte:hover { transform: scale(1.03); }
       .carte h3 { margin:0; color:#d9336f; }
       .carte p { margin:5px 0; font-size:14px; }
-      input, select, button {
+      input, button {
         padding:10px;
         border-radius:10px;
         margin-top:10px;
@@ -38,13 +38,15 @@
         transition:background .2s;
       }
       button:hover { background:#a51c49; }
+      #categories { margin-top:10px; }
+      #categories label { margin-right:10px; font-size:14px; }
     </style>
   </head>
   <body>
     <h1>Idées de sorties 💑</h1>
     <div class="phrase">Pour un petit date ensemble <3</div>
 
-    <!-- Formulaire unique -->
+    <!-- Formulaire -->
     <div>
       <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
       <input type="date" id="dateIdee" />
