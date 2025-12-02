@@ -3,22 +3,27 @@
   <head>
     <meta charset="utf-8">
     <title>Idées de sorties</title>
-    <!-- Firebase compat (important pour ton code v8 style) -->
+    <!-- Firebase compat -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
       body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
       h1 { color:#d9336f; margin-top:20px; }
-      .phrase { font-style:italic; color:#a51c49; margin-bottom:10px; }
-      #sorties { margin-top: 20px; }
-      #sorties p {
+      .phrase { font-style:italic; color:#a51c49; margin-bottom:20px; }
+      #sorties { margin-top: 20px; display:flex; flex-wrap:wrap; justify-content:center; }
+      .carte {
         background:#fff;
-        display:inline-block;
-        margin:8px;
-        padding:8px 20px;
-        border-radius:20px;
-        box-shadow:0px 2px 5px rgba(0,0,0,0.07);
+        width:240px;
+        margin:10px;
+        padding:15px;
+        border-radius:15px;
+        box-shadow:0px 2px 5px rgba(0,0,0,0.1);
+        text-align:left;
+        transition: transform .2s;
       }
+      .carte:hover { transform: scale(1.03); }
+      .carte h3 { margin:0; color:#d9336f; }
+      .carte p { margin:5px 0; font-size:14px; }
       input, select, button {
         padding:10px;
         border-radius:10px;
@@ -37,9 +42,9 @@
   </head>
   <body>
     <h1>Idées de sorties 💑</h1>
-    <div class="phrase">Pour Ophylia & son chéri, toutes vos envies ici 🎈</div>
+    <div class="phrase">Pour un petit date ensemble <3</div>
 
-    <!-- Formulaire unique -->
+    <!-- Formulaire -->
     <div>
       <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
       <input type="date" id="dateIdee" />
@@ -49,12 +54,12 @@
         <option value="balade">Balade</option>
       </select>
       <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
+      <input type="text" id="lieuIdee" placeholder="Lieu (ex: Paris, parc...)" />
       <button onclick="ajouterIdee()">Ajouter</button>
     </div>
 
     <div id="sorties"></div>
 
-    <!-- Ton script -->
     <script src="sketch.js"></script>
   </body>
 </html>
