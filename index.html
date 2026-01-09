@@ -19,7 +19,6 @@
       }
       .actif { background: #d9336f; color: white; }
       
-   
       #sorties { margin-top: 20px; display:flex; flex-wrap:wrap; justify-content:center; }
       .carte {
         background:#fff; width:240px; margin:10px; padding:15px;
@@ -28,12 +27,13 @@
       }
       .carte:hover { transform: scale(1.03); }
       .carte h3 { margin:0; color:#d9336f; }
+      
       input, button { padding:10px; border-radius:10px; margin-top:10px; border:1px solid #d9336f; }
       button.add { background:#d9336f; color:#fff; cursor:pointer; border:none; }
       button.add:hover { background:#a51c49; }
-      #categories label { margin-right:10px; font-size:14px; }
       
- 
+      #categories label { margin-right:10px; font-size:14px; cursor: pointer; }
+      
       .btn-delete {
           background: #ffcccc; color: red; border: none; padding: 5px 10px; 
           border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 12px;
@@ -46,24 +46,14 @@
 
     <nav>
         <span class="btn-nav actif">💡 Idées de sorties</span>
-        </nav>
+        <button onclick="deconnexion()" style="background:#555; font-size:12px; margin-left:20px; color:white;">🔒 Sortir</button>
+    </nav>
 
     <div>
       <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
       <input type="date" id="dateIdee" />
+
       <div id="categories" style="margin-top:10px;">
         <label><input type="checkbox" value="restaurant"> Restaurant</label>
         <label><input type="checkbox" value="cinema"> Cinéma</label>
-        <label><input type="checkbox" value="balade"> Balade</label>
-        <label><input type="checkbox" value="maison"> Maison</label>
-        <label><input type="checkbox" value="gratuit"> Gratuit</label>
-      </div>
-      <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
-      <input type="text" id="lieuIdee" placeholder="Lieu (ex: Paris...)" />
-      <button class="add" onclick="ajouterIdee()">Ajouter</button>
-    </div>
-
-    <div id="sorties"></div>
-    <script src="sketch.js"></script>
-  </body>
-</html>
+        <label><input type
