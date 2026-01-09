@@ -2,71 +2,41 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Notre Album Photo</title>
+    <title>Notre Album</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
     <style>
       body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
-      h1 { color:#d9336f; margin-top:20px; }
-      
-      nav { margin-bottom: 30px; }
-      .btn-nav {
-        text-decoration: none; padding: 10px 20px; margin: 0 5px;
-        border-radius: 20px; font-weight: bold; transition: 0.2s; display: inline-block;
-      }
+      nav { margin-bottom: 30px; margin-top: 20px;}
+      .btn-nav { text-decoration: none; padding: 10px 20px; margin: 0 5px; border-radius: 20px; font-weight: bold; }
       .actif { background: #d9336f; color: white; }
       .inactif { background: #ffc2d1; color: #a51c49; }
-      .inactif:hover { background: #ff9eb5; }
-
-      /* Zone d'ajout de photo */
-      .ajout-photo {
-        background: rgba(255,255,255,0.5);
-        padding: 15px;
-        margin: 0 auto 30px auto;
-        width: 80%;
-        max-width: 500px;
-        border-radius: 15px;
-      }
-      input, button { padding:10px; border-radius:10px; margin:5px; border:1px solid #d9336f; width: 70%;}
-      button { background:#d9336f; color:white; cursor:pointer; width: auto; }
-      button:hover { background:#a51c49; }
-
-      /* Galerie */
-      .galerie { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-      .photo-card {
-        background: white; padding: 10px; padding-bottom: 20px;
-        border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        width: 200px; 
-        transition: 0.3s;
-        /* Animation d'apparition */
-        animation: pop 0.5s ease-out;
-      }
-      @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
       
-      .photo-card:hover { transform: scale(1.1) rotate(2deg); z-index: 10; }
-      .photo-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; background: #eee; }
-      .photo-card p { margin: 10px 0 0 0; font-family: 'Comic Sans MS', cursive; color: #555; font-size: 14px;}
+      .ajout-photo { background: rgba(255,255,255,0.6); padding: 15px; margin: 20px auto; width: 80%; max-width: 500px; border-radius: 15px; }
+      input { padding:8px; border-radius:5px; border:1px solid #d9336f; width: 60%; margin-bottom: 5px;}
+      button { background:#d9336f; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; }
       
-      /* Petit bouton pour supprimer une photo (croix rouge) */
-      .btn-suppr {
-        background: none; border: none; color: red; font-size: 20px; cursor: pointer; float: right; margin-top: -5px;
-      }
+      .galerie { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
+      .photo-card { background: white; padding: 10px; width: 200px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; position: relative; }
+      .photo-card:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 10; }
+      .photo-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+      .btn-suppr { position: absolute; top: 5px; right: 5px; background: red; width: 25px; height: 25px; padding: 0; border-radius: 50%; font-weight: bold; }
     </style>
   </head>
   <body>
-
     <h1>Nos Souvenirs ❤️</h1>
     
     <nav>
-        <a href="index.html" class="btn-nav inactif">💡 Idées de sorties</a>
-        <a href="album.html" class="btn-nav actif">📸 Album Photo</a>
+        <a href="index.html" class="btn-nav inactif">💡 Idées</a>
+        <a href="album.html" class="btn-nav actif">📸 Album</a>
     </nav>
 
     <div class="ajout-photo">
-    <input type="text" id="urlPhoto" placeholder="Lien de l'image..." />
-    <input type="text" id="titrePhoto" placeholder="Petit mot..." />
-    <button onclick="ajouterPhoto()">Ajouter</button>
-</div>
-
-<div id="zone-photos" class="galerie"></div>
+        <input type="text" id="urlPhoto" placeholder="Colle le lien de l'image ici..." />
+        <input type="text" id="titrePhoto" placeholder="Un petit titre..." />
+        <button onclick="ajouterPhoto()">Ajouter</button>
+    </div>
 
     <div id="zone-photos" class="galerie"></div>
 
