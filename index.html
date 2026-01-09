@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>Idées de sorties</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
       body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
       h1 { color:#d9336f; margin-top:20px; }
@@ -17,7 +21,6 @@
       .inactif { background: #ffc2d1; color: #a51c49; }
       .inactif:hover { background: #ff9eb5; }
 
-      /* Le reste du design */
       #sorties { margin-top: 20px; display:flex; flex-wrap:wrap; justify-content:center; }
       .carte {
         background:#fff; width:240px; margin:10px; padding:15px;
@@ -57,7 +60,6 @@
     </div>
 
     <div id="sorties"></div>
-    
     <script src="sketch.js"></script>
   </body>
 </html>
