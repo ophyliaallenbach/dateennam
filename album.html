@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Notre Album Photo</title>
+    <style>
+      /* On remet le même style pour que ça soit joli */
+      body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
+      h1 { color:#d9336f; margin-top:20px; }
+      
+      nav { margin-bottom: 30px; }
+      .btn-nav {
+        text-decoration: none; padding: 10px 20px; margin: 0 5px;
+        border-radius: 20px; font-weight: bold; transition: 0.2s; display: inline-block;
+      }
+      .actif { background: #d9336f; color: white; }
+      .inactif { background: #ffc2d1; color: #a51c49; }
+      .inactif:hover { background: #ff9eb5; }
+
+      /* Style spécial pour les photos */
+      .galerie { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+      .photo-card {
+        background: white; padding: 10px; padding-bottom: 20px;
+        border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        width: 200px; transform: rotate(-2deg); /* Un petit effet "Polaroid" penché */
+        transition: 0.3s;
+      }
+      .photo-card:hover { transform: scale(1.1) rotate(0deg); z-index: 10; }
+      .photo-card img { width: 100%; border-radius: 5px; }
+      .photo-card p { margin: 10px 0 0 0; font-family: 'Comic Sans MS', cursive; color: #555; font-size: 14px;}
+    </style>
+  </head>
+  <body>
+
+    <h1>Nos Souvenirs ❤️</h1>
+    
+    <nav>
+        <a href="index.html" class="btn-nav inactif">💡 Idées de sorties</a>
+        <a href="album.html" class="btn-nav actif">📸 Album Photo</a>
+    </nav>
+
+    <div class="galerie">
+        
+        <div class="photo-card">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400" alt="Exemple">
+            <p>Notre premier date 🥰</p>
+        </div>
+
+        <div class="photo-card">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400" alt="Exemple">
+            <p>Balade à Paris 🗼</p>
+        </div>
+
+        <div class="photo-card" style="transform: rotate(3deg);"> <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400" alt="Exemple">
+            <p>Le restau indien 🍛</p>
+        </div>
+
+    </div>
+
+  </body>
+</html>
