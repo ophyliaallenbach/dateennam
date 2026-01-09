@@ -3,42 +3,40 @@
   <head>
     <meta charset="utf-8">
     <title>Idées de sorties</title>
-    <!-- Firebase compat -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
       body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
       h1 { color:#d9336f; margin-top:20px; }
       .phrase { font-style:italic; color:#a51c49; margin-bottom:20px; }
+      
+      /* Nouveau : Le menu de navigation */
+      nav { margin-bottom: 30px; }
+      .btn-nav {
+        text-decoration: none; /* Enlève le soulignement */
+        padding: 10px 20px;
+        margin: 0 5px;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: 0.2s;
+        display: inline-block;
+      }
+      /* Style du bouton "Actif" (la page où on est) */
+      .actif { background: #d9336f; color: white; }
+      /* Style du bouton "Inactif" (l'autre page) */
+      .inactif { background: #ffc2d1; color: #a51c49; }
+      .inactif:hover { background: #ff9eb5; }
+
+      /* Le reste de ton CSS habituel */
       #sorties { margin-top: 20px; display:flex; flex-wrap:wrap; justify-content:center; }
       .carte {
-        background:#fff;
-        width:240px;
-        margin:10px;
-        padding:15px;
-        border-radius:15px;
-        box-shadow:0px 2px 5px rgba(0,0,0,0.1);
-        text-align:left;
-        transition: transform .2s;
+        background:#fff; width:240px; margin:10px; padding:15px;
+        border-radius:15px; box-shadow:0px 2px 5px rgba(0,0,0,0.1);
+        text-align:left; transition: transform .2s;
       }
       .carte:hover { transform: scale(1.03); }
       .carte h3 { margin:0; color:#d9336f; }
-      .carte p { margin:5px 0; font-size:14px; }
-      input, button {
-        padding:10px;
-        border-radius:10px;
-        margin-top:10px;
-        border:1px solid #d9336f;
-      }
-      button {
-        background:#d9336f;
-        color:#fff;
-        cursor:pointer;
-        border:none;
-        transition:background .2s;
-      }
-      button:hover { background:#a51c49; }
-      #categories { margin-top:10px; }
+      input, button { padding:10px; border-radius:10px; margin-top:10px; border:1px solid #d9336f; }
+      button.add { background:#d9336f; color:#fff; cursor:pointer; border:none; }
+      button.add:hover { background:#a51c49; }
       #categories label { margin-right:10px; font-size:14px; }
     </style>
   </head>
@@ -46,30 +44,27 @@
     <h1>Idées de sorties 💑</h1>
     <div class="phrase">Pour un petit date ensemble <3</div>
 
-    <!-- Formulaire -->
+    <nav>
+        <a href="index.html" class="btn-nav actif">💡 Idées de sorties</a>
+        <a href="album.html" class="btn-nav inactif">📸 Album Photo</a>
+    </nav>
+
     <div>
       <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
       <input type="date" id="dateIdee" />
-
-      <!-- Catégories multiples -->
-      <div id="categories">
+      <div id="categories" style="margin-top:10px;">
         <label><input type="checkbox" value="restaurant"> Restaurant</label>
         <label><input type="checkbox" value="cinema"> Cinéma</label>
         <label><input type="checkbox" value="balade"> Balade</label>
         <label><input type="checkbox" value="maison"> Maison</label>
-        <label><input type="checkbox" value="detente"> Détente</label>
-        <label><input type="checkbox" value="sortie"> Sortie</label>
         <label><input type="checkbox" value="gratuit"> Gratuit</label>
-        <label><input type="checkbox" value="surprise"> Surprise</label>
       </div>
-
       <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
-      <input type="text" id="lieuIdee" placeholder="Lieu (ex: Paris, parc...)" />
-      <button onclick="ajouterIdee()">Ajouter</button>
+      <input type="text" id="lieuIdee" placeholder="Lieu (ex: Paris...)" />
+      <button class="add" onclick="ajouterIdee()">Ajouter</button>
     </div>
 
     <div id="sorties"></div>
-
     <script src="sketch.js"></script>
   </body>
 </html>
