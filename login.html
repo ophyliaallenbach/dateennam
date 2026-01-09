@@ -14,8 +14,8 @@
 <body>
   <div class="login-box">
     <h1>C'est nous ? 💑</h1>
-    <p>Quelle est notre date ? (JJ/MM/AAAA)</p>
-    <input type="password" id="codeSecret" placeholder="Ex: 01012024">
+    <p>Quelle est notre date ? (JJMMAA)</p>
+    <input type="password" id="codeSecret" placeholder="Ex: 010124">
     <br>
     <button onclick="verifierCode()">Entrer</button>
     <p id="erreur" style="color: red; font-size: 12px; margin-top: 10px;"></p>
@@ -26,12 +26,12 @@
         const code = document.getElementById("codeSecret").value;
         const message = document.getElementById("erreur");
         
-        // 👇 METS VOTRE VRAIE DATE ICI ! 👇
+
         const LE_VRAI_CODE = "060317"; 
 
         if (code === LE_VRAI_CODE) {
-            localStorage.setItem("estConnecte", "OUI"); // On donne le badge d'accès
-            window.location.href = "index.html"; // On ouvre le site
+            localStorage.setItem("estConnecte", "OUI"); 
+            window.location.href = "index.html"; 
         } else {
             message.textContent = "Mauvaise date... T'es qui toi ?! 🤨";
         }
