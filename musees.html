@@ -10,20 +10,35 @@
     <style>
         body { background-color: #E3F2FD; color: #0D47A1; font-family: 'Segoe UI', sans-serif; padding: 20px; }
         h1 { text-align: center; color: #1565C0; }
+        
+        /* MISE EN PAGE */
         .top-section { display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
         .cards-container { flex: 1; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        
+        /* CARTES ET LISTES */
         .card-tinder { background: white; width: 100%; max-width: 300px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 1px solid #BBDEFB; transition: transform 0.2s; position: relative; }
-        .card-tinder:hover { transform: translateY(-5px); }
         .history-section { max-width: 1200px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .visite-row { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* CHAMPS DE SAISIE */
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 20px 0; border: 1px solid #90CAF9; border-radius: 8px; box-sizing: border-box; }
         
-        /* C'est ici que ça se joue pour cacher/montrer */
-        #detailsVisite { display: none; background-color: #E1F5FE; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed #81D4FA; }
+        /* ZONE CACHÉE IMPORTANTE */
+        #detailsVisite { 
+            display: none; /* Caché au début */
+            background-color: #E1F5FE; 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            border: 2px dashed #81D4FA; 
+        }
         
+        /* BOUTONS */
         button.btn-save { width: 100%; padding: 12px; background-color: #1976D2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; }
         button.btn-check { background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; }
+        
+        /* CASE A COCHER */
         .checkbox-container { display: flex; align-items: center; margin-bottom: 20px; cursor: pointer; font-weight: bold; color: #1565C0; }
         .checkbox-container input { width: auto; margin: 0 10px 0 0; transform: scale(1.5); }
     </style>
@@ -47,6 +62,7 @@
             <div id="detailsVisite">
                 <label>Date de visite :</label>
                 <input type="date" id="dateVisite">
+                
                 <label>Ta note :</label>
                 <select id="noteVisite">
                     <option value="5">⭐⭐⭐⭐⭐ (Incroyable)</option>
@@ -55,6 +71,7 @@
                     <option value="2">⭐⭐ (Bof)</option>
                     <option value="1">⭐ (Nul)</option>
                 </select>
+
                 <textarea id="commentaire" rows="3" placeholder="Tes petits mots à ajouter..."></textarea>
             </div>
 
@@ -72,7 +89,7 @@
     </div>
 
     <script>
-        // CONFIG FIREBASE
+        // --- 1. CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -82,25 +99,34 @@
             appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
             measurementId: "G-T4N8PMNC3G"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
 
-        // --- FONCTION QUI AFFICHE LA ZONE CACHÉE ---
+        // On vérifie si Firebase est chargé
+        if (typeof firebase !== 'undefined') {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            var db = firebase.firestore();
+            console.log("Firebase connecté !");
+        } else {
+            alert("ERREUR CRITIQUE : Firebase ne s'est pas chargé ! Vérifie ta connexion internet.");
+        }
+
+        // --- 2. FONCTION POUR AFFICHER LA ZONE CACHÉE ---
         function basculerDetails() {
-            // Test pour voir si le clic marche
-            console.log("Clic détecté !");
+            // J'ai mis cette alerte pour tester le clic
+            // Si elle s'affiche, c'est que le bouton marche !
+            // Tu pourras l'enlever plus tard.
+            // alert("Clic détecté sur la case !"); 
             
             const caseCochee = document.getElementById("estVisite").checked;
             const zoneCachee = document.getElementById("detailsVisite");
 
             if (caseCochee === true) {
-                zoneCachee.style.display = "block"; // AFFICHE
+                zoneCachee.style.display = "block";
             } else {
-                zoneCachee.style.display = "none";  // CACHE
+                zoneCachee.style.display = "none";
             }
         }
 
-        // --- AJOUTER ---
+        // --- 3. AJOUTER UN MUSÉE ---
         function ajouterMusee() {
             const nom = document.getElementById('nomMusee').value;
             const expo = document.getElementById('nomExpo').value;
@@ -124,16 +150,20 @@
             }
 
             db.collection('musees').add(data).then(() => {
-                alert("Enregistré !");
-                // Reset simple
+                alert("Enregistré avec succès !");
+                // Remise à zéro
                 document.getElementById('nomMusee').value = '';
+                document.getElementById('nomExpo').value = '';
+                document.getElementById('prixMusee').value = '';
                 document.getElementById('commentaire').value = '';
                 document.getElementById('estVisite').checked = false;
                 basculerDetails(); 
+            }).catch((error) => {
+                alert("Erreur : " + error.message);
             });
         }
 
-        // --- CHARGEMENT ---
+        // --- 4. AFFICHER LES MUSÉES ---
         function chargerMusees() {
             const divAVisiter = document.getElementById('listeAVisiter');
             const divVisites = document.getElementById('listeVisites');
@@ -150,22 +180,40 @@
                         // VISITÉ
                         const row = document.createElement('div');
                         row.className = 'visite-row';
-                        row.innerHTML = `<div><strong>${data.nom}</strong> (${data.expo})<br><small>${data.dateVisite || ''}</small><br><em>${data.commentaire || ''}</em></div><div>${"⭐".repeat(data.note)} <button onclick="supprimerMusee('${id}')">🗑️</button></div>`;
+                        row.innerHTML = `
+                            <div>
+                                <strong>${data.nom}</strong> (${data.expo})<br>
+                                <small>📅 ${data.dateVisite || '?'} | 💸 ${data.prix}€</small><br>
+                                <em>"${data.commentaire || ''}"</em>
+                            </div>
+                            <div>
+                                ${"⭐".repeat(data.note || 1)} 
+                                <button onclick="supprimerMusee('${id}')" style="margin-left:10px; cursor:pointer;">🗑️</button>
+                            </div>`;
                         divVisites.appendChild(row);
                     } else {
                         // A FAIRE
                         const card = document.createElement('div');
                         card.className = 'card-tinder';
-                        card.innerHTML = `<h3>${data.nom}</h3><p>${data.expo}</p><p>${data.prix}€</p><button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button><button onclick="supprimerMusee('${id}')" style="float:right;color:red;border:none;background:none">🗑️</button>`;
+                        card.innerHTML = `
+                            <h3>${data.nom}</h3>
+                            <p>${data.expo}</p>
+                            <p>${data.prix}€</p>
+                            <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button>
+                            <button onclick="supprimerMusee('${id}')" style="float:right;color:red;border:none;background:none;cursor:pointer;">🗑️</button>
+                        `;
                         divAVisiter.appendChild(card);
                     }
                 });
+                
+                if(divAVisiter.innerHTML == "") divAVisiter.innerHTML = "<p>Rien de prévu...</p>";
             });
         }
 
         function passerEnVisite(id) {
             const note = prompt("Note /5 ?");
-            if(note) db.collection('musees').doc(id).update({ estVisite: true, note: note });
+            const date = prompt("Date ? (AAAA-MM-JJ)", new Date().toISOString().split('T')[0]);
+            if(note) db.collection('musees').doc(id).update({ estVisite: true, note: note, dateVisite: date });
         }
 
         function supprimerMusee(id) {
@@ -174,6 +222,11 @@
 
         // Lancement
         chargerMusees();
+        
+        // Message de test pour voir si le script se lance
+        // Si tu ne vois pas cette alerte au démarrage, le script a planté.
+        console.log("Le script fonctionne !");
+        
     </script>
 </body>
 </html>
