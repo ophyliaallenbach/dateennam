@@ -1,7 +1,4 @@
-if (localStorage.getItem("estConnecte") !== "OUI") {
-    window.location.href = "login.html";
-}
-
+// --- 1. CONFIGURATION FIREBASE (La tienne) ---
 const firebaseConfig = {
   apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
   authDomain: "date-d927b.firebaseapp.com",
@@ -12,82 +9,138 @@ const firebaseConfig = {
   measurementId: "G-T4N8PMNC3G"
 };
 
+// Initialisation
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
 
-function ajouterIdee() {
-  const idee = document.getElementById('nouvelleIdee').value.trim();
-  const date = document.getElementById('dateIdee').value;
-  const prix = document.getElementById('prixIdee').value;
-  const lieu = document.getElementById('lieuIdee').value.trim();
 
-  const checkboxes = document.querySelectorAll('#categories input[type="checkbox"]:checked');
-  const categories = Array.from(checkboxes).map(cb => cb.value).slice(0,3);
+// --- 2. FONCTIONS D'AFFICHAGE ---
 
-  if (!idee) { alert("Il faut donner un titre !"); return; }
-
-  db.collection('sorties').add({
-    texte: idee,
-    date: date,
-    prix: prix,
-    lieu: lieu,
-    categories: categories,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(() => {
-    document.getElementById('nouvelleIdee').value = '';
-    document.getElementById('dateIdee').value = '';
-    document.getElementById('prixIdee').value = '';
-    document.getElementById('lieuIdee').value = '';
-    document.querySelectorAll('#categories input').forEach(cb => cb.checked = false);
+// Fonction pour montrer/cacher les détails (date/note) dans le formulaire
+function basculerDetails() {
+    const isChecked = document.getElementById("estVisite").checked;
+    const detailsDiv = document.getElementById("detailsVisite");
     
-    afficherIdees();
-  });
+    if (isChecked) {
+        detailsDiv.style.display = "block";
+    } else {
+        detailsDiv.style.display = "none";
+    }
 }
 
-function afficherIdees() {
-  const sortiesDiv = document.getElementById('sorties');
-  
-  db.collection('sorties').orderBy('texte').get().then(snapshot => {
-    sortiesDiv.innerHTML = '';
-    
-    if (snapshot.empty) {
-      sortiesDiv.innerHTML = "<p>Pas encore d'idées... À toi de jouer ! 👆</p>";
-      return;
+// Fonction pour ajouter un musée
+function ajouterMusee() {
+    const nom = document.getElementById('nomMusee').value;
+    const expo = document.getElementById('nomExpo').value;
+    const prix = document.getElementById('prixMusee').value;
+    const estVisite = document.getElementById('estVisite').checked;
+
+    if (!nom) { alert("Il faut au moins le nom du musée !"); return; }
+
+    // Préparation des données
+    let data = {
+        nom: nom,
+        expo: expo,
+        prix: prix,
+        estVisite: estVisite,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Si c'est visité, on ajoute les détails
+    if (estVisite) {
+        data.dateVisite = document.getElementById('dateVisite').value;
+        data.note = document.getElementById('noteVisite').value;
+        data.commentaire = document.getElementById('commentaire').value;
     }
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      
-      const card = document.createElement('div');
-      card.className = 'carte';
-      card.innerHTML = `
-        <h3>${data.texte}</h3>
-        <p>📅 ${data.date || 'Non précisée'}</p>
-        <p>📂 ${data.categories && data.categories.length > 0 ? data.categories.join(', ') : 'Aucune'}</p>
-        <p>💸 ${data.prix ? data.prix + '€' : 'Non précisé'}</p>
-        <p>📍 ${data.lieu || 'Non précisé'}</p>
-        <button class="btn-delete" onclick="supprimerIdee('${doc.id}')">Supprimer</button>
-      `;
-      sortiesDiv.appendChild(card);
+    // Envoi vers Firebase
+    db.collection('musees').add(data).then(() => {
+        // Reset du formulaire
+        document.getElementById('nomMusee').value = '';
+        document.getElementById('nomExpo').value = '';
+        document.getElementById('prixMusee').value = '';
+        document.getElementById('commentaire').value = '';
+        document.getElementById('estVisite').checked = false;
+        basculerDetails(); // On recache la zone
+        alert("C'est enregistré ! 🏛️");
     });
-  });
 }
 
-function supprimerIdee(id) {
-    if(confirm("Tu veux vraiment supprimer cette idée ?")) {
-        db.collection('sorties').doc(id).delete().then(() => {
-            afficherIdees();
+// Fonction pour récupérer et afficher les musées
+function chargerMusees() {
+    const divAVisiter = document.getElementById('listeAVisiter');
+    const divVisites = document.getElementById('listeVisites');
+
+    // On écoute la base de données en temps réel
+    db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+        divAVisiter.innerHTML = '';
+        divVisites.innerHTML = '';
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+
+            if (data.estVisite) {
+                // --- CAS 1 : DÉJÀ VISITÉ (Affichage en liste en bas) ---
+                let etoiles = "⭐".repeat(data.note || 1);
+                
+                const row = document.createElement('div');
+                row.className = 'visite-row';
+                row.innerHTML = `
+                    <div>
+                        <strong>${data.nom}</strong> (${data.expo})<br>
+                        <small>📅 ${data.dateVisite || 'Date inconnue'} | 💸 ${data.prix}€</small><br>
+                        <em>"${data.commentaire || ''}"</em>
+                    </div>
+                    <div style="text-align:right; font-size: 1.2em;">
+                        ${etoiles}
+                    </div>
+                `;
+                divVisites.appendChild(row);
+
+            } else {
+                // --- CAS 2 : À VISITER (Affichage Carte à droite) ---
+                const card = document.createElement('div');
+                card.className = 'card-tinder';
+                card.innerHTML = `
+                    <span class="card-tag">${data.expo || 'Général'}</span>
+                    <h3>${data.nom}</h3>
+                    <p>💸 ${data.prix ? data.prix + ' €' : 'Gratuit ?'}</p>
+                    <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Je l'ai fait !</button>
+                    <button style="background:none; border:none; color:red; float:right; cursor:pointer;" onclick="supprimerMusee('${id}')">🗑️</button>
+                `;
+                divAVisiter.appendChild(card);
+            }
+        });
+
+        if(divAVisiter.innerHTML === '') divAVisiter.innerHTML = "<p>Rien de prévu pour l'instant...</p>";
+        if(divVisites.innerHTML === '') divVisites.innerHTML = "<p>Pas encore de visites notées.</p>";
+    });
+}
+
+// Fonction pour passer une carte de "À faire" vers "Fait"
+function passerEnVisite(id) {
+    const note = prompt("Note sur 5 ? (1-5)");
+    const date = prompt("Quelle date ? (AAAA-MM-JJ)", new Date().toISOString().split('T')[0]);
+    const comment = prompt("Un petit mot ?");
+
+    if(note) {
+        db.collection('musees').doc(id).update({
+            estVisite: true,
+            note: note,
+            dateVisite: date,
+            commentaire: comment
         });
     }
 }
 
-function deconnexion() {
-  localStorage.removeItem("estConnecte");
-  window.location.href = "login.html";
+function supprimerMusee(id) {
+    if(confirm("Supprimer ?")) {
+        db.collection('musees').doc(id).delete();
+    }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    afficherIdees();
-});
+// Lancer le chargement au démarrage
+document.addEventListener('DOMContentLoaded', chargerMusees);
