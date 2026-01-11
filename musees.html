@@ -32,22 +32,22 @@
         .top-section { display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
         
-        /* --- STYLE DU CAROUSEL (CORRIGÉ) --- */
+        /* CAROUSEL */
         .carousel-container { 
             flex: 1; 
             display: flex; 
             align-items: center; 
-            justify-content: space-between; /* Ecarte les éléments */
+            justify-content: space-between;
             gap: 10px; 
-            min-height: 350px; /* Un peu plus haut */
-            background: rgba(255,255,255,0.6); /* Fond légèrement blanc */
+            min-height: 350px;
+            background: rgba(255,255,255,0.6);
             border-radius: 20px;
             padding: 20px;
-            border: 2px dashed #BBDEFB; /* Pour bien voir la zone */
+            border: 2px dashed #BBDEFB;
         }
         
         #zoneCarteUnique {
-            flex: 1; /* Prend toute la place au milieu */
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -57,13 +57,12 @@
         .card-tinder { 
             background: white; 
             width: 100%; 
-            max-width: 300px; /* Taille fixe de la carte */
+            max-width: 300px; 
             padding: 25px; 
             border-radius: 15px; 
             box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
             border: 1px solid #90CAF9; 
             text-align: center;
-            /* Animation d'apparition */
             animation: fadeIn 0.5s ease;
         }
 
@@ -74,7 +73,7 @@
         
         .arrow-btn {
             background: #1976D2; color: white; border: none; 
-            min-width: 45px; height: 45px; /* Boutons plus gros */
+            min-width: 45px; height: 45px;
             border-radius: 50%; font-size: 22px; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -82,7 +81,7 @@
         }
         .arrow-btn:hover { background: #1565C0; transform: scale(1.1); }
         
-        /* BADGES ET LISTE */
+        /* BADGES & LISTE */
         .badge-gratuit { display: inline-block; background: #ffecb3; color: #f57f17; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin: 2px; }
         .history-section { max-width: 1200px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .visite-row { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
@@ -182,22 +181,20 @@
         const db = firebase.firestore();
 
         // --- VARIABLES GLOBALES ---
-        let listeAVisiter = []; // Tableau de cartes HTML
-        let indexActuel = 0;    // Index de la carte affichée
+        let listeAVisiter = []; 
+        let indexActuel = 0;    
+        let globalMuseesData = {}; // On stocke les données ici pour éviter les bugs
 
-        // --- DECONNEXION ---
         function deconnexion() {
             localStorage.removeItem("estConnecte");
             window.location.href = "login.html";
         }
 
-        // --- AFFICHAGE FORMULAIRE ---
         function basculerDetails() {
             const caseCochee = document.getElementById("estVisite").checked;
             document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none";
         }
 
-        // --- SAUVEGARDE ---
         function gererEnregistrement() {
             const idModif = document.getElementById('editId').value;
             const nom = document.getElementById('nomMusee').value;
@@ -231,19 +228,27 @@
             }
         }
 
-        // --- CHARGEMENT DONNÉES ---
         function chargerMusees() {
             const divVisites = document.getElementById('listeVisites');
 
             db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-                // RESET
                 listeAVisiter = [];
                 divVisites.innerHTML = '';
+                globalMuseesData = {}; // Reset des données globales
+
+                if (snapshot.empty) {
+                     document.getElementById('zoneCarteUnique').innerHTML = "<p>Aucune idée pour le moment...</p>";
+                     divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
+                     return;
+                }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
                     data.id = id; 
+                    
+                    // SAUVEGARDE EN MÉMOIRE (C'est ça qui répare le bug)
+                    globalMuseesData[id] = data;
 
                     let tagsHtml = '';
                     if (data.tags && data.tags.length > 0) {
@@ -251,7 +256,7 @@
                     }
 
                     if (data.estVisite) {
-                        // AFFICHER EN BAS (LISTE)
+                        // AFFICHER EN BAS
                         const row = document.createElement('div');
                         row.className = 'visite-row';
                         row.innerHTML = `
@@ -262,12 +267,12 @@
                             </div>
                             <div style="text-align:right; min-width:120px;">
                                 <div style="margin-bottom:5px;">${"⭐".repeat(data.note || 1)}</div>
-                                <button onclick='preparerModification(${JSON.stringify(data).replace(/'/g, "&#39;")})' style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; cursor:pointer; padding:2px 5px; font-size:0.8em;">✏️ Modif</button>
+                                <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; cursor:pointer; padding:2px 5px; font-size:0.8em;">✏️ Modif</button>
                                 <button onclick="supprimerMusee('${id}')" style="background:none; border:1px solid #d32f2f; color:#d32f2f; border-radius:5px; cursor:pointer; padding:2px 5px; font-size:0.8em; margin-left:5px;">🗑️ Suppr</button>
                             </div>`;
                         divVisites.appendChild(row);
                     } else {
-                        // AJOUTER AU CAROUSEL (TABLEAU)
+                        // AJOUTER AU CAROUSEL
                         let carteHtml = `
                             <div class="card-tinder">
                                 <h3>${data.nom}</h3>
@@ -282,26 +287,18 @@
                     }
                 });
 
-                // AFFICHER LA PREMIERE CARTE
                 afficherCarteCarousel();
-                if(divVisites.innerHTML === "") divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
             });
         }
 
-        // --- LOGIQUE CAROUSEL ---
         function afficherCarteCarousel() {
             const zone = document.getElementById('zoneCarteUnique');
-            
             if (listeAVisiter.length === 0) {
                 zone.innerHTML = "<p>Aucune idée en attente... Ajoutes-en une ! 👆</p>";
                 return;
             }
-
-            // Correction index si hors limites
             if (indexActuel >= listeAVisiter.length) indexActuel = 0;
             if (indexActuel < 0) indexActuel = listeAVisiter.length - 1;
-
-            // Affichage
             zone.innerHTML = listeAVisiter[indexActuel];
         }
 
@@ -319,7 +316,6 @@
             }
         }
 
-        // --- ACTIONS ---
         function passerEnVisite(id) {
             const note = prompt("Note sur 5 ? (1-5)");
             if (!note) return;
@@ -334,8 +330,12 @@
             });
         }
 
-        function preparerModification(data) {
-            document.getElementById('editId').value = data.id;
+        // --- NOUVELLE FONCTION DE MODIFICATION (SÉCURISÉE) ---
+        function preparerModification(id) {
+            const data = globalMuseesData[id]; // On récupère depuis la mémoire
+            if (!data) return;
+
+            document.getElementById('editId').value = id;
             document.getElementById('nomMusee').value = data.nom;
             document.getElementById('nomExpo').value = data.expo;
             document.getElementById('prixMusee').value = data.prix;
