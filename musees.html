@@ -15,19 +15,13 @@
         .form-container { flex: 1; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
         .cards-container { flex: 1; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
         .card-tinder { background: white; width: 100%; max-width: 300px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 1px solid #BBDEFB; transition: transform 0.2s; position: relative; }
+        .card-tinder:hover { transform: translateY(-5px); }
         .history-section { max-width: 1200px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .visite-row { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 20px 0; border: 1px solid #90CAF9; border-radius: 8px; box-sizing: border-box; }
         
-        #detailsVisite { 
-            display: none; 
-            background-color: #E1F5FE; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin-bottom: 20px; 
-            border: 2px dashed #81D4FA; 
-        }
+        #detailsVisite { display: none; background-color: #E1F5FE; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed #81D4FA; }
         
         button.btn-save { width: 100%; padding: 12px; background-color: #1976D2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; }
         button.btn-check { background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; }
@@ -68,9 +62,7 @@
             <button class="btn-save" onclick="ajouterMusee()">Enregistrer</button>
         </div>
 
-        <div class="cards-container" id="listeAVisiter">
-            <p>Chargement...</p>
-        </div>
+        <div class="cards-container" id="listeAVisiter"></div>
     </div>
 
     <div class="history-section">
@@ -79,7 +71,6 @@
     </div>
 
     <script>
-        // 1. CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -90,37 +81,24 @@
             measurementId: "G-T4N8PMNC3G"
         };
 
-        // 2. INITIALISATION
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
 
-        // 3. FONCTIONS VISUELLES
         function basculerDetails() {
             const caseCochee = document.getElementById("estVisite").checked;
             const zoneCachee = document.getElementById("detailsVisite");
-            if (caseCochee) {
-                zoneCachee.style.display = "block";
-            } else {
-                zoneCachee.style.display = "none";
-            }
+            zoneCachee.style.display = caseCochee ? "block" : "none";
         }
 
-        // 4. FONCTION ENREGISTRER (AVEC TEST)
         function ajouterMusee() {
-            // TEST : Est-ce que le bouton marche ?
-            alert("👆 J'essaie d'enregistrer... Si tu vois ce message, le bouton fonctionne !");
-
             const nom = document.getElementById('nomMusee').value;
             const expo = document.getElementById('nomExpo').value;
             const prix = document.getElementById('prixMusee').value;
             const estVisite = document.getElementById('estVisite').checked;
 
-            if (!nom) { 
-                alert("⚠️ Il manque le nom du musée !"); 
-                return; 
-            }
+            if (!nom) return;
 
             let data = {
                 nom: nom,
@@ -136,26 +114,16 @@
                 data.commentaire = document.getElementById('commentaire').value;
             }
 
-            console.log("Envoi des données...", data);
-
-            // ENVOI VERS FIREBASE
-            db.collection('musees').add(data)
-            .then(() => {
-                alert("✅ C'est enregistré dans la base de données !");
-                // Reset du formulaire
+            db.collection('musees').add(data).then(() => {
                 document.getElementById('nomMusee').value = '';
+                document.getElementById('nomExpo').value = '';
+                document.getElementById('prixMusee').value = '';
                 document.getElementById('commentaire').value = '';
                 document.getElementById('estVisite').checked = false;
                 basculerDetails(); 
-            })
-            .catch((error) => {
-                // C'est ici qu'on verra l'erreur technique si ça plante
-                alert("❌ ERREUR : " + error.message);
-                console.error("Erreur Firebase : ", error);
             });
         }
 
-        // 5. CHARGEMENT DES DONNÉES
         function chargerMusees() {
             const divAVisiter = document.getElementById('listeAVisiter');
             const divVisites = document.getElementById('listeVisites');
@@ -171,28 +139,32 @@
                     if (data.estVisite) {
                         const row = document.createElement('div');
                         row.className = 'visite-row';
-                        row.innerHTML = `<div><strong>${data.nom}</strong> (${data.expo})<br><small>${data.dateVisite || '?'} | ${data.prix}€</small><br><em>"${data.commentaire || ''}"</em></div><div>${"⭐".repeat(data.note || 1)} <button onclick="supprimerMusee('${id}')" style="color:red;border:none;background:none;cursor:pointer;">🗑️</button></div>`;
+                        row.innerHTML = `<div><strong>${data.nom}</strong> (${data.expo})<br><small>${data.dateVisite || '?'} | ${data.prix}€</small><br><em>"${data.commentaire || ''}"</em></div><div>${"⭐".repeat(data.note || 1)} <button onclick="supprimerMusee('${id}')" style="color:#d32f2f;border:none;background:none;cursor:pointer;margin-left:10px;">🗑️</button></div>`;
                         divVisites.appendChild(row);
                     } else {
                         const card = document.createElement('div');
                         card.className = 'card-tinder';
-                        card.innerHTML = `<h3>${data.nom}</h3><p>${data.expo}</p><p>${data.prix}€</p><button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button><button onclick="supprimerMusee('${id}')" style="float:right;color:red;border:none;background:none;cursor:pointer;">🗑️</button>`;
+                        card.innerHTML = `<h3>${data.nom}</h3><p>${data.expo}</p><p>${data.prix}€</p><button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button><button onclick="supprimerMusee('${id}')" style="float:right;color:#d32f2f;border:none;background:none;cursor:pointer;">🗑️</button>`;
                         divAVisiter.appendChild(card);
                     }
                 });
+
+                if(divAVisiter.innerHTML === "") divAVisiter.innerHTML = "<p style='color:#777'>Rien de prévu pour l'instant...</p>";
             });
         }
 
         function passerEnVisite(id) {
             const note = prompt("Note /5 ?");
-            if(note) db.collection('musees').doc(id).update({ estVisite: true, note: note });
+            if(note) {
+                const date = prompt("Date ? (AAAA-MM-JJ)", new Date().toISOString().split('T')[0]);
+                db.collection('musees').doc(id).update({ estVisite: true, note: note, dateVisite: date });
+            }
         }
 
         function supprimerMusee(id) {
             if(confirm("Supprimer ?")) db.collection('musees').doc(id).delete();
         }
 
-        // LANCEMENT
         chargerMusees();
     </script>
 </body>
