@@ -11,6 +11,22 @@
         body { background-color: #E3F2FD; color: #0D47A1; font-family: 'Segoe UI', sans-serif; padding: 20px; }
         h1 { text-align: center; color: #1565C0; margin-bottom: 40px; }
         
+        /* BOUTON DECONNEXION (En haut à droite) */
+        .btn-logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-logout:hover { background-color: #d32f2f; }
+
         /* LAYOUT */
         .top-section { display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
@@ -28,7 +44,7 @@
         /* CHAMPS */
         input[type="text"], input[type="number"], input[type="date"], select, textarea { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 1px solid #90CAF9; border-radius: 8px; box-sizing: border-box; }
         
-        /* NOUVEAU : STYLE DES CHECKBOX GRATUITÉS */
+        /* STYLE DES CHECKBOX GRATUITÉS */
         .gratuites-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
         .gratuites-container label { 
             background: #E1F5FE; color: #0277BD; padding: 5px 10px; border-radius: 15px; font-size: 0.9em; cursor: pointer; display: flex; align-items: center; border: 1px solid #B3E5FC;
@@ -51,6 +67,8 @@
 </head>
 <body>
 
+    <button class="btn-logout" onclick="deconnexion()">Déconnexion ✌️</button>
+
     <h1>🏛️ Mes Musées en 2026</h1>
 
     <div class="top-section">
@@ -68,6 +86,7 @@
                 <label><input type="checkbox" value="-26ans"> -26 ans</label>
                 <label><input type="checkbox" value="Navigo"> Navigo</label>
                 <label><input type="checkbox" value="Pour tous"> Pour tous</label>
+                <label><input type="checkbox" value="Autre"> Autre</label>
             </div>
 
             <label class="main-checkbox">
@@ -114,6 +133,12 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
+        // Fonction de déconnexion
+        function deconnexion() {
+            localStorage.removeItem("estConnecte");
+            window.location.href = "login.html";
+        }
+
         function basculerDetails() {
             const caseCochee = document.getElementById("estVisite").checked;
             document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none";
@@ -125,7 +150,6 @@
             const prix = document.getElementById('prixMusee').value;
             const estVisite = document.getElementById('estVisite').checked;
 
-            // Récupérer les tags cochés
             const checkboxes = document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked');
             const tags = Array.from(checkboxes).map(cb => cb.value);
 
@@ -135,7 +159,7 @@
                 nom: nom,
                 expo: expo || "Permanente",
                 prix: prix || "0",
-                tags: tags, // On ajoute la liste des gratuités
+                tags: tags,
                 estVisite: estVisite,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -152,7 +176,6 @@
                 document.getElementById('prixMusee').value = '';
                 document.getElementById('commentaire').value = '';
                 
-                // Décocher tout
                 document.getElementById('estVisite').checked = false;
                 document.querySelectorAll('#tagsContainer input').forEach(cb => cb.checked = false);
                 
@@ -172,7 +195,6 @@
                     const data = doc.data();
                     const id = doc.id;
 
-                    // Création des petits badges HTML pour les tags
                     let tagsHtml = '';
                     if (data.tags && data.tags.length > 0) {
                         tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
