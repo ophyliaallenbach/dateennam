@@ -4,85 +4,49 @@
     <meta charset="UTF-8">
     <title>Mes Musées 2026 🏛️</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
     <style>
         body { background-color: #E3F2FD; color: #0D47A1; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
         h1 { text-align: center; color: #1565C0; margin-bottom: 30px; margin-top: 40px; }
-        
-        /* BOUTON DECONNEXION */
-        .btn-logout {
-            position: fixed; top: 15px; right: 15px; background-color: #ff5252; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;
-        }
+        .btn-logout { position: fixed; top: 15px; right: 15px; background-color: #ff5252; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; }
         .btn-logout:hover { background-color: #d32f2f; }
-
-        /* LAYOUT GENERAL */
         .top-section { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
-        
-        /* CAROUSEL */
-        .carousel-container { 
-            flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 5px; 
-            min-height: 400px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 15px; border: 2px dashed #BBDEFB;
-        }
+        .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 400px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 15px; border: 2px dashed #BBDEFB; }
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
-
-        .card-tinder { 
-            background: white; width: 100%; max-width: 300px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #90CAF9; text-align: center; animation: fadeIn 0.5s ease;
-        }
+        .card-tinder { background: white; width: 100%; max-width: 300px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #90CAF9; text-align: center; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .arrow-btn {
-            background: #1976D2; color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+        .arrow-btn { background: #1976D2; color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .arrow-btn:hover { background: #1565C0; transform: scale(1.1); }
-        
-        /* LISTE BAS */
         .history-section { max-width: 1200px; margin: 40px auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .visite-row { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        
-        /* CHAMPS */
         input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #90CAF9; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
-        /* TAGS */
         .gratuites-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
         .gratuites-container label { background: #E1F5FE; color: #0277BD; padding: 5px 10px; border-radius: 15px; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; border: 1px solid #B3E5FC; }
         .gratuites-container input { margin-right: 5px; }
         .badge-gratuit { display: inline-block; background: #ffecb3; color: #f57f17; padding: 3px 6px; border-radius: 10px; font-size: 0.75em; margin: 2px; }
-
-        /* DETAILS ET BOUTONS */
         #detailsVisite { display: none; background-color: #E1F5FE; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed #81D4FA; }
         .label-date-fin { font-weight: bold; font-size: 0.9em; color:#d32f2f; display:block; margin-bottom:5px; text-align:left;}
-
         button.btn-save { width: 100%; padding: 12px; background-color: #1976D2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
         button.btn-save.mode-edit { background-color: #FF9800; } 
         button.btn-check { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-size: 15px; }
-        
         .main-checkbox { display: flex; align-items: center; margin-bottom: 20px; cursor: pointer; font-weight: bold; color: #1565C0; border-top: 1px solid #eee; padding-top: 15px; }
         .main-checkbox input { transform: scale(1.3); margin-right: 10px; }
     </style>
 </head>
 <body>
-
     <button class="btn-logout" onclick="deconnexion()">Déconnexion ✌️</button>
-
     <h1>🏛️ Mes Musées en 2026</h1>
-
     <div class="top-section">
         <div class="form-container">
             <h2 id="titreFormulaire">Ajouter un musée</h2>
             <input type="hidden" id="editId">
-
             <input type="text" id="nomMusee" placeholder="Nom du musée (ex: Louvre)">
             <input type="text" id="nomExpo" placeholder="Nom de l'expo (ou 'Permanente')">
-            
             <label class="label-date-fin">📅 Fin de l'expo (si temporaire) :</label>
             <input type="date" id="dateFinExpo">
-
             <input type="number" id="prixMusee" placeholder="Prix (€)">
-
             <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 0.9em; color:#555;">Réductions / Gratuités :</p>
             <div class="gratuites-container" id="tagsContainer">
                 <label><input type="checkbox" value="Icom"> Icom</label>
@@ -93,12 +57,10 @@
                 <label><input type="checkbox" value="Pour tous"> Pour tous</label>
                 <label><input type="checkbox" value="Autre"> Autre</label>
             </div>
-
             <label class="main-checkbox">
                 <input type="checkbox" id="estVisite" onchange="basculerDetails()">
                 C'est déjà fait (Déjà visité)
             </label>
-
             <div id="detailsVisite">
                 <label>Date de visite :</label>
                 <input type="date" id="dateVisite">
@@ -112,11 +74,9 @@
                 </select>
                 <textarea id="commentaire" rows="3" placeholder="Tes petits mots à ajouter..."></textarea>
             </div>
-
             <button id="btnAction" class="btn-save" onclick="gererEnregistrement()">Enregistrer</button>
             <button id="btnAnnuler" onclick="resetForm()" style="display:none; width:100%; margin-top:10px; background:#ddd; border:none; padding:10px; border-radius:8px; cursor:pointer;">Annuler la modification</button>
         </div>
-
         <div class="carousel-container">
             <button class="arrow-btn" onclick="cartePrecedente()">&#10094;</button>
             <div id="zoneCarteUnique">
@@ -125,12 +85,10 @@
             <button class="arrow-btn" onclick="carteSuivante()">&#10095;</button>
         </div>
     </div>
-
     <div class="history-section">
         <h2>✅ Déjà visités (Souvenirs)</h2>
         <div id="listeVisites"></div>
     </div>
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
@@ -141,34 +99,27 @@
             appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
             measurementId: "G-T4N8PMNC3G"
         };
-
-        // Protection contre double initialisation
         if (typeof firebase !== 'undefined' && !firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        
         let db;
         try {
             db = firebase.firestore();
         } catch (e) {
             console.error("Erreur Firebase:", e);
         }
-
         let listeAVisiter = [];
         let indexActuel = 0;
-        let globalMuseesData = {}; // MEMOIRE DES DONNEES
+        let globalMuseesData = {}; 
 
         function deconnexion() {
             localStorage.removeItem("estConnecte");
             window.location.href = "login.html";
         }
-
         function basculerDetails() {
             const caseCochee = document.getElementById("estVisite").checked;
             document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none";
         }
-
-        // --- ENREGISTREMENT ---
         function gererEnregistrement() {
             try {
                 const idModif = document.getElementById('editId').value;
@@ -177,12 +128,10 @@
                 const prix = document.getElementById('prixMusee').value;
                 const dateFin = document.getElementById('dateFinExpo').value;
                 const estVisite = document.getElementById('estVisite').checked;
-
                 const checkboxes = document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked');
                 const tags = Array.from(checkboxes).map(cb => cb.value);
 
                 if (!nom) { alert("Il faut un nom !"); return; }
-
                 let data = {
                     nom: nom,
                     expo: expo || "Permanente",
@@ -192,13 +141,11 @@
                     estVisite: estVisite,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
-
                 if (estVisite) {
                     data.dateVisite = document.getElementById('dateVisite').value;
                     data.note = document.getElementById('noteVisite').value;
                     data.commentaire = document.getElementById('commentaire').value;
                 }
-
                 if (idModif) {
                     db.collection('musees').doc(idModif).update(data).then(() => { resetForm(); alert("Mis à jour !"); });
                 } else {
@@ -208,43 +155,38 @@
                 alert("Erreur lors de l'enregistrement : " + error.message);
             }
         }
-
-        // --- CHARGEMENT ---
         function chargerMusees() {
             const divVisites = document.getElementById('listeVisites');
             const zoneCarte = document.getElementById('zoneCarteUnique');
-
             db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 listeAVisiter = [];
                 divVisites.innerHTML = '';
                 globalMuseesData = {}; 
-
                 if (snapshot.empty) {
                     zoneCarte.innerHTML = "<p>Aucune idée pour le moment...</p>";
                     divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
                     return;
                 }
-
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
                     data.id = id;
-                    globalMuseesData[id] = data; // IMPORTANT
-
-                    // TAGS HTML
+                    globalMuseesData[id] = data; 
                     let tagsHtml = '';
                     if (data.tags && data.tags.length > 0) {
                         tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
                     }
-
                     if (data.estVisite) {
-                        // VISITES (BAS)
+                        let infoFinExpo = "";
+                        if (data.dateFinExpo) {
+                            infoFinExpo = ` <span style="color:#d32f2f; font-size:0.9em; margin-left:5px;">(Fin expo : ${data.dateFinExpo})</span>`;
+                        }
                         const row = document.createElement('div');
                         row.className = 'visite-row';
                         row.innerHTML = `
                             <div style="flex:1; min-width:200px;">
                                 <strong>${data.nom}</strong> (${data.expo})<br>
-                                <small>📅 ${data.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br>
+                                <small>📅 Visité le ${data.dateVisite || '?'} ${infoFinExpo} | 💸 ${data.prix}€ ${tagsHtml}</small><br>
                                 <em style="color:#555">"${data.commentaire || ''}"</em>
                             </div>
                             <div style="text-align:right;">
@@ -254,12 +196,10 @@
                             </div>`;
                         divVisites.appendChild(row);
                     } else {
-                        // CAROUSEL (HAUT)
                         let finExpoHtml = "";
                         if (data.dateFinExpo) {
                             finExpoHtml = `<p style="color:#d32f2f; font-weight:bold; margin:5px 0;">⚠️ L'expo fini le ${data.dateFinExpo}</p>`;
                         }
-
                         let carteHtml = `
                             <div class="card-tinder">
                                 <h3>${data.nom}</h3>
@@ -267,9 +207,7 @@
                                 <p>💸 ${data.prix}€</p>
                                 ${finExpoHtml}
                                 <div style="margin-bottom:10px;">${tagsHtml}</div>
-                                
                                 <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button>
-                                
                                 <div style="margin-top:15px; display:flex; justify-content:center; gap:10px;">
                                     <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; padding:5px 10px; cursor:pointer;">✏️ Modif</button>
                                     <button onclick="supprimerMusee('${id}')" style="background:none; border:1px solid #d32f2f; color:#d32f2f; border-radius:5px; padding:5px 10px; cursor:pointer;">🗑️ Suppr</button>
@@ -279,12 +217,9 @@
                         listeAVisiter.push(carteHtml);
                     }
                 });
-
                 afficherCarteCarousel();
             });
         }
-
-        // --- CAROUSEL ---
         function afficherCarteCarousel() {
             const zone = document.getElementById('zoneCarteUnique');
             if (listeAVisiter.length === 0) {
@@ -295,28 +230,23 @@
             if (indexActuel < 0) indexActuel = listeAVisiter.length - 1;
             zone.innerHTML = listeAVisiter[indexActuel];
         }
-
         function carteSuivante() {
             if (listeAVisiter.length > 0) {
                 indexActuel++;
                 afficherCarteCarousel();
             }
         }
-
         function cartePrecedente() {
             if (listeAVisiter.length > 0) {
                 indexActuel--;
                 afficherCarteCarousel();
             }
         }
-
-        // --- ACTIONS ---
         function passerEnVisite(id) {
             const note = prompt("Note sur 5 ? (1-5)");
             if (!note) return;
             const date = prompt("Quelle date ? (AAAA-MM-JJ)", new Date().toISOString().split('T')[0]);
             const comm = prompt("Un petit commentaire ?");
-
             db.collection('musees').doc(id).update({ 
                 estVisite: true, 
                 note: note, 
@@ -324,30 +254,24 @@
                 commentaire: comm 
             });
         }
-
         function preparerModification(id) {
             const data = globalMuseesData[id];
             if (!data) return;
-
             document.getElementById('editId').value = id;
             document.getElementById('nomMusee').value = data.nom;
             document.getElementById('nomExpo').value = data.expo;
             document.getElementById('prixMusee').value = data.prix;
-            document.getElementById('dateFinExpo').value = data.dateFinExpo || ''; // REPARATION
-            
+            document.getElementById('dateFinExpo').value = data.dateFinExpo || ''; 
             document.querySelectorAll('#tagsContainer input').forEach(cb => {
                 cb.checked = data.tags && data.tags.includes(cb.value);
             });
-
             document.getElementById('estVisite').checked = data.estVisite;
             basculerDetails(); 
-            
             if(data.estVisite) {
                 document.getElementById('dateVisite').value = data.dateVisite;
                 document.getElementById('noteVisite').value = data.note;
                 document.getElementById('commentaire').value = data.commentaire;
             }
-
             const btn = document.getElementById('btnAction');
             btn.textContent = "Mettre à jour";
             btn.classList.add('mode-edit');
@@ -355,7 +279,6 @@
             document.getElementById('btnAnnuler').style.display = "block";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
         function resetForm() {
             document.getElementById('editId').value = '';
             document.getElementById('nomMusee').value = '';
@@ -366,19 +289,15 @@
             document.getElementById('estVisite').checked = false;
             document.querySelectorAll('#tagsContainer input').forEach(cb => cb.checked = false);
             basculerDetails();
-
             const btn = document.getElementById('btnAction');
             btn.textContent = "Enregistrer";
             btn.classList.remove('mode-edit');
             document.getElementById('titreFormulaire').textContent = "Ajouter un musée";
             document.getElementById('btnAnnuler').style.display = "none";
         }
-
         function supprimerMusee(id) {
             if(confirm("Supprimer définitivement ?")) db.collection('musees').doc(id).delete();
         }
-
-        // Lancement au chargement
         document.addEventListener('DOMContentLoaded', chargerMusees);
     </script>
 </body>
