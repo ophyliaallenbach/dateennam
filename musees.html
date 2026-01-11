@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mes Musées 2026</title>
+    <style>
+        /* FOND BLEU DEMANDÉ */
+        body {
+            background-color: #E3F2FD; /* Bleu très clair et apaisant */
+            color: #0D47A1; /* Texte bleu foncé */
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; color: #1565C0; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #90CAF9;
+            border-radius: 5px;
+            box-sizing: border-box; /* Important pour la largeur */
+        }
+
+        /* La zone cachée par défaut */
+        #detailsVisite {
+            display: none; /* Caché au début */
+            background-color: #E1F5FE;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px dashed #29B6F6;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #1565C0; }
+        
+        /* Style pour la case à cocher "Visité" */
+        .checkbox-container {
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-container input {
+            width: auto;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏛️ Mes Musées en 2026</h1>
+
+    <input type="text" id="nomMusee" placeholder="Nom du musée (ex: Louvre)">
+    <input type="text" id="nomExpo" placeholder="Nom de l'expo (ou 'Permanente')">
+    <input type="number" id="prixMusee" placeholder="Prix (€)">
+
+    <div class="checkbox-container">
+        <input type="checkbox" id="estVisite" onchange="basculerDetails()">
+        <label for="estVisite">Déjà visité ?</label>
+    </div>
+
+    <div id="detailsVisite">
+        <label>Date de visite :</label>
+        <input type="date" id="dateVisite">
+        
+        <label>Ta note :</label>
+        <select id="noteVisite">
+            <option value="5">⭐⭐⭐⭐⭐ (Incroyable)</option>
+            <option value="4">⭐⭐⭐⭐ (Super)</option>
+            <option value="3">⭐⭐⭐ (Sympa)</option>
+            <option value="2">⭐⭐ (Bof)</option>
+            <option value="1">⭐ (Nul)</option>
+        </select>
+
+        <textarea id="commentaire" rows="3" placeholder="Tes petits mots à ajouter..."></textarea>
+    </div>
+
+    <button onclick="ajouterMusee()">Enregistrer</button>
+</div>
+
+<script src="musees.js"></script>
+
+</body>
+</html>
