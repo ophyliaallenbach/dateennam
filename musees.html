@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Mes Musées 2026 🏛️</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
+    
     <style>
         body {
             background-color: #E3F2FD;
@@ -17,18 +15,18 @@
 
         h1 { text-align: center; color: #1565C0; margin-bottom: 40px; }
 
-        /* MEO : Organisation en 2 colonnes (Haut) */
+        /* Organisation en 2 colonnes */
         .top-section {
             display: flex;
             gap: 30px;
             max-width: 1200px;
             margin: 0 auto;
-            align-items: flex-start; /* Aligne en haut */
+            align-items: flex-start;
         }
 
         /* COLONNE GAUCHE : FORMULAIRE */
         .form-container {
-            flex: 1; /* Prend 1 part de l'espace */
+            flex: 1;
             background: white;
             padding: 25px;
             border-radius: 20px;
@@ -39,11 +37,12 @@
 
         /* COLONNE DROITE : CARTES "A VISITER" */
         .cards-container {
-            flex: 1; /* Prend 1 part de l'espace */
+            flex: 1;
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             justify-content: center;
+            min-height: 200px; /* Pour voir la zone même vide */
         }
 
         /* Style des cartes "Tinder" */
@@ -78,9 +77,8 @@
             justify-content: space-between;
             align-items: center;
         }
-        .visite-row:last-child { border-bottom: none; }
-
-        /* Éléments de formulaire */
+        
+        /* Formulaire */
         input, select, textarea {
             width: 100%;
             padding: 12px;
@@ -88,9 +86,9 @@
             border: 1px solid #90CAF9;
             border-radius: 8px;
             box-sizing: border-box;
-            font-family: inherit;
         }
 
+        /* Zone cachée (CSS important) */
         #detailsVisite {
             display: none; /* Caché par défaut */
             background-color: #E1F5FE;
@@ -114,7 +112,7 @@
         button.btn-save:hover { background-color: #0D47A1; }
 
         button.btn-check {
-            background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 10px;
+            background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 10px; width: 100%;
         }
         
         .checkbox-container {
@@ -165,7 +163,7 @@
         </div>
 
         <div class="cards-container" id="listeAVisiter">
-            <p style="color:#888">Chargement des idées...</p>
+            <p style="color:#666">Chargement...</p>
         </div>
     </div>
 
@@ -175,7 +173,62 @@
             </div>
     </div>
 
-    <script src="musees.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-</body>
-</html>
+    <script>
+        // --- 1. CONFIGURATION FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
+            authDomain: "date-d927b.firebaseapp.com",
+            projectId: "date-d927b",
+            storageBucket: "date-d927b.appspot.com",
+            messagingSenderId: "353304192798",
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
+            measurementId: "G-T4N8PMNC3G"
+        };
+
+        // Initialisation de Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // --- 2. FONCTIONS VISUELLES ---
+        
+        // Affiche/Cache les champs date et note
+        function basculerDetails() {
+            const isChecked = document.getElementById("estVisite").checked;
+            const detailsDiv = document.getElementById("detailsVisite");
+            
+            if (isChecked) {
+                detailsDiv.style.display = "block";
+            } else {
+                detailsDiv.style.display = "none";
+            }
+        }
+
+        // --- 3. FONCTIONS DATABASE ---
+
+        function ajouterMusee() {
+            const nom = document.getElementById('nomMusee').value;
+            const expo = document.getElementById('nomExpo').value;
+            const prix = document.getElementById('prixMusee').value;
+            const estVisite = document.getElementById('estVisite').checked;
+
+            if (!nom) { alert("Il faut au moins le nom du musée !"); return; }
+
+            // Préparation des données
+            let data = {
+                nom: nom,
+                expo: expo || "Permanente",
+                prix: prix || "0",
+                estVisite: estVisite,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Si c'est visité, on ajoute les détails
+            if (estVisite) {
+                data.dateVisite = document.getElementById('dateVisite').value;
+                data.note = document.getElementById('noteVisite').value;
+                data.commentaire = document.getElementById('commentaire').
