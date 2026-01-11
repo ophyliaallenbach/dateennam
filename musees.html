@@ -13,18 +13,7 @@
         
         /* BOUTON DECONNEXION */
         .btn-logout {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #ff5252;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
+            position: fixed; top: 20px; right: 20px; background-color: #ff5252; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;
         }
         .btn-logout:hover { background-color: #d32f2f; }
 
@@ -34,50 +23,17 @@
         
         /* CAROUSEL */
         .carousel-container { 
-            flex: 1; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            gap: 10px; 
-            min-height: 350px;
-            background: rgba(255,255,255,0.6);
-            border-radius: 20px;
-            padding: 20px;
-            border: 2px dashed #BBDEFB;
+            flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 400px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 20px; border: 2px dashed #BBDEFB;
         }
-        
-        #zoneCarteUnique {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
+        #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
 
         .card-tinder { 
-            background: white; 
-            width: 100%; 
-            max-width: 300px; 
-            padding: 25px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
-            border: 1px solid #90CAF9; 
-            text-align: center;
-            animation: fadeIn 0.5s ease;
+            background: white; width: 100%; max-width: 300px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #90CAF9; text-align: center; animation: fadeIn 0.5s ease;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .arrow-btn {
-            background: #1976D2; color: white; border: none; 
-            min-width: 45px; height: 45px;
-            border-radius: 50%; font-size: 22px; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: 0.2s;
+            background: #1976D2; color: white; border: none; min-width: 45px; height: 45px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.2s;
         }
         .arrow-btn:hover { background: #1565C0; transform: scale(1.1); }
         
@@ -93,6 +49,9 @@
         .gratuites-container input { width: auto; margin-right: 5px; }
         #detailsVisite { display: none; background-color: #E1F5FE; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed #81D4FA; }
         
+        /* DATE FIN EXPO (Style spécial pour le label) */
+        .label-date-fin { font-weight: bold; font-size: 0.9em; color:#d32f2f; display:block; margin-bottom:5px; text-align:left;}
+
         /* BOUTONS */
         button.btn-save { width: 100%; padding: 12px; background-color: #1976D2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; }
         button.btn-save.mode-edit { background-color: #FF9800; } 
@@ -114,6 +73,10 @@
 
             <input type="text" id="nomMusee" placeholder="Nom du musée (ex: Louvre)">
             <input type="text" id="nomExpo" placeholder="Nom de l'expo (ou 'Permanente')">
+            
+            <label class="label-date-fin">📅 Fin de l'expo (si temporaire) :</label>
+            <input type="date" id="dateFinExpo">
+
             <input type="number" id="prixMusee" placeholder="Prix (€)">
 
             <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 0.9em; color:#555;">Réductions / Gratuités :</p>
@@ -180,10 +143,9 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        // --- VARIABLES GLOBALES ---
         let listeAVisiter = []; 
         let indexActuel = 0;    
-        let globalMuseesData = {}; // On stocke les données ici pour éviter les bugs
+        let globalMuseesData = {}; 
 
         function deconnexion() {
             localStorage.removeItem("estConnecte");
@@ -200,6 +162,7 @@
             const nom = document.getElementById('nomMusee').value;
             const expo = document.getElementById('nomExpo').value;
             const prix = document.getElementById('prixMusee').value;
+            const dateFin = document.getElementById('dateFinExpo').value; // NOUVEAU
             const estVisite = document.getElementById('estVisite').checked;
             const checkboxes = document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked');
             const tags = Array.from(checkboxes).map(cb => cb.value);
@@ -210,6 +173,7 @@
                 nom: nom,
                 expo: expo || "Permanente",
                 prix: prix || "0",
+                dateFinExpo: dateFin, // SAUVEGARDE
                 tags: tags,
                 estVisite: estVisite,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -234,7 +198,7 @@
             db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 listeAVisiter = [];
                 divVisites.innerHTML = '';
-                globalMuseesData = {}; // Reset des données globales
+                globalMuseesData = {}; 
 
                 if (snapshot.empty) {
                      document.getElementById('zoneCarteUnique').innerHTML = "<p>Aucune idée pour le moment...</p>";
@@ -246,8 +210,6 @@
                     const data = doc.data();
                     const id = doc.id;
                     data.id = id; 
-                    
-                    // SAUVEGARDE EN MÉMOIRE (C'est ça qui répare le bug)
                     globalMuseesData[id] = data;
 
                     let tagsHtml = '';
@@ -273,14 +235,27 @@
                         divVisites.appendChild(row);
                     } else {
                         // AJOUTER AU CAROUSEL
+                        // Gestion de l'affichage de la date de fin
+                        let finExpoHtml = "";
+                        if (data.dateFinExpo) {
+                            // On reformate la date pour qu'elle soit jolie (optionnel mais mieux)
+                            finExpoHtml = `<p style="color:#d32f2f; font-weight:bold; margin:5px 0;">⚠️ L'expo fini le ${data.dateFinExpo}</p>`;
+                        }
+
                         let carteHtml = `
                             <div class="card-tinder">
                                 <h3>${data.nom}</h3>
                                 <p style="color:#666">${data.expo}</p>
                                 <p>💸 ${data.prix}€</p>
+                                ${finExpoHtml}
                                 <div style="margin-bottom:10px;">${tagsHtml}</div>
+                                
                                 <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button>
-                                <button onclick="supprimerMusee('${id}')" style="margin-top:10px; background:none; border:none; color:#d32f2f; cursor:pointer;">🗑️ Supprimer</button>
+                                
+                                <div style="margin-top:15px; display:flex; justify-content:space-between;">
+                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; cursor:pointer; padding:5px 10px;">✏️ Modif</button>
+                                    <button onclick="supprimerMusee('${id}')" style="background:none; border:1px solid #d32f2f; color:#d32f2f; border-radius:5px; cursor:pointer; padding:5px 10px;">🗑️ Suppr</button>
+                                </div>
                             </div>
                         `;
                         listeAVisiter.push(carteHtml);
@@ -330,15 +305,15 @@
             });
         }
 
-        // --- NOUVELLE FONCTION DE MODIFICATION (SÉCURISÉE) ---
         function preparerModification(id) {
-            const data = globalMuseesData[id]; // On récupère depuis la mémoire
+            const data = globalMuseesData[id];
             if (!data) return;
 
             document.getElementById('editId').value = id;
             document.getElementById('nomMusee').value = data.nom;
             document.getElementById('nomExpo').value = data.expo;
             document.getElementById('prixMusee').value = data.prix;
+            document.getElementById('dateFinExpo').value = data.dateFinExpo || ''; // REMPLIT LA DATE
             
             document.querySelectorAll('#tagsContainer input').forEach(cb => {
                 cb.checked = data.tags && data.tags.includes(cb.value);
@@ -366,6 +341,7 @@
             document.getElementById('nomMusee').value = '';
             document.getElementById('nomExpo').value = '';
             document.getElementById('prixMusee').value = '';
+            document.getElementById('dateFinExpo').value = ''; // RESET DATE
             document.getElementById('commentaire').value = '';
             document.getElementById('estVisite').checked = false;
             document.querySelectorAll('#tagsContainer input').forEach(cb => cb.checked = false);
