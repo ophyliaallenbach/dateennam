@@ -1,20 +1,22 @@
 <script>
+  <script>
     function verifierCode() {
         const code = document.getElementById("codeSecret").value;
         const message = document.getElementById("erreur");
-        
-        const LE_VRAI_CODE = "060317";
+        const CODE_COUPLE = "060317"; 
+        const CODE_ANNIV = "171103";
 
-        if (code === LE_VRAI_CODE) {
+        if (code === CODE_COUPLE) {
             localStorage.setItem("estConnecte", "OUI"); 
             window.location.href = "index.html"; 
 
-        } else if (code === "171103") {
-            localStorage.setItem("estConnecte", "OUI");
+        } else if (code === CODE_ANNIV) {
+            localStorage.setItem("estConnecte", "SPECIAL"); 
             window.location.href = "musees.html"; 
 
         } else {
             message.textContent = "Mauvaise date... T'es qui toi ?! 🤨";
         }
     }
+</script>
   </script>
