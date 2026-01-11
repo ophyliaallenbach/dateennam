@@ -1,41 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Connexion 🔒</title>
-  <style>
-    body { font-family: 'Arial', sans-serif; background: #ffe3e7; color: #d9336f; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    .login-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-    input { padding: 10px; border-radius: 10px; border: 1px solid #d9336f; font-size: 16px; text-align: center; margin-top: 10px;}
-    button { padding: 10px 20px; margin-top: 10px; background: #d9336f; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; }
-    button:hover { background: #a51c49; }
-  </style>
-</head>
-<body>
-  <div class="login-box">
-    <h1>C'est nous ? 💑</h1>
-    <p>Quelle est notre date ? (JJMMAA)</p>
-    <input type="password" id="codeSecret" placeholder="Ex: 010124">
-    <br>
-    <button onclick="verifierCode()">Entrer</button>
-    <p id="erreur" style="color: red; font-size: 12px; margin-top: 10px;"></p>
-  </div>
-
-  <script>
+<script>
     function verifierCode() {
         const code = document.getElementById("codeSecret").value;
         const message = document.getElementById("erreur");
         
-
-        const LE_VRAI_CODE = "060317"; 
+        const LE_VRAI_CODE = "060317";
 
         if (code === LE_VRAI_CODE) {
             localStorage.setItem("estConnecte", "OUI"); 
             window.location.href = "index.html"; 
+
+        } else if (code === "171103") {
+            localStorage.setItem("estConnecte", "OUI");
+            window.location.href = "musees.html"; 
+
         } else {
             message.textContent = "Mauvaise date... T'es qui toi ?! 🤨";
         }
     }
   </script>
-</body>
-</html>
