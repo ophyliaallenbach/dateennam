@@ -27,7 +27,7 @@
         .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 400px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 15px; border: 2px dashed #BA68C8; }
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
 
-        .card-tinder { background: white; width: 100%; max-width: 320px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #E1BEE7; text-align: center; animation: fadeIn 0.5s ease; position: relative; }
+        .card-tinder { background: white; width: 100%; max-width: 320px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #E1BEE7; text-align: center; animation: fadeIn 0.5s ease; position: relative; overflow: hidden; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .arrow-btn { background: #8E24AA; color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
@@ -53,6 +53,15 @@
         /* DETAILS ET BOUTONS */
         #detailsVisite { display: none; background-color: #F3E5F5; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed #AB47BC; }
         
+        /* NOUVEAU : ZONE RESERVATION */
+        .reserv-checkbox { display: flex; align-items: center; margin-bottom: 10px; cursor: pointer; font-weight: bold; color: #E65100; border: 1px solid #FFE0B2; background: #FFF3E0; padding: 10px; border-radius: 8px; }
+        .reserv-checkbox input { transform: scale(1.3); margin-right: 10px; }
+        #dateReservEffectiveDiv { display: none; margin-left: 10px; margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #FF9800; }
+
+        /* BADGE SUR CARTE */
+        .badge-reservation { background: #FFF3E0; color: #E65100; padding: 8px; margin: 10px 0; border-radius: 8px; border: 1px solid #FFE0B2; font-weight: bold; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); } }
+
         button.btn-save { width: 100%; padding: 12px; background-color: #8E24AA; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
         button.btn-save.mode-edit { background-color: #FF9800; } 
         button.btn-check { background: #66BB6A; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-size: 15px; }
@@ -60,7 +69,6 @@
         .main-checkbox { display: flex; align-items: center; margin-bottom: 20px; cursor: pointer; font-weight: bold; color: #4A148C; border-top: 1px solid #eee; padding-top: 15px; }
         .main-checkbox input { transform: scale(1.3); margin-right: 10px; }
 
-        /* TAGS TYPE */
         .tag-type { position: absolute; top: 10px; right: 10px; font-size: 0.7em; padding: 3px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .tag-perm { background: #E1BEE7; color: #4A148C; }
         .tag-temp { background: #FFCCBC; color: #D84315; }
@@ -107,6 +115,15 @@
             </div>
 
             <input type="text" id="prix" placeholder="Prix / Tarifs">
+
+            <label class="reserv-checkbox">
+                <input type="checkbox" id="estReserve" onchange="basculerReservation()">
+                🎟️ J'ai réservé (Billets pris)
+            </label>
+            <div id="dateReservEffectiveDiv">
+                <label style="font-weight:bold; color:#E65100;">Pour le :</label>
+                <input type="date" id="dateEffectiveReserv">
+            </div>
 
             <label class="main-checkbox">
                 <input type="checkbox" id="estFait" onchange="basculerDetails()">
@@ -189,6 +206,11 @@
             document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none";
         }
 
+        function basculerReservation() {
+            const caseCochee = document.getElementById("estReserve").checked;
+            document.getElementById("dateReservEffectiveDiv").style.display = caseCochee ? "block" : "none";
+        }
+
         // --- ENREGISTREMENT ---
         function gererEnregistrement() {
             try {
@@ -197,6 +219,10 @@
                 const titre = document.getElementById('titre').value;
                 const lieu = document.getElementById('lieu').value;
                 const prix = document.getElementById('prix').value;
+                
+                const estReserve = document.getElementById('estReserve').checked;
+                const dateEffectiveReserv = document.getElementById('dateEffectiveReserv').value;
+
                 const estFait = document.getElementById('estFait').checked;
 
                 if (!titre) { alert("Il faut un titre !"); return; }
@@ -206,6 +232,8 @@
                     titre: titre,
                     lieu: lieu,
                     prix: prix,
+                    estReserve: estReserve,
+                    dateEffectiveReserv: dateEffectiveReserv,
                     estFait: estFait,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
@@ -278,6 +306,7 @@
                         // CARTE A FAIRE
                         let tagType = "";
                         let infoSup = "";
+                        let reservationBadge = "";
 
                         if (data.type === 'permanente') {
                             tagType = `<span class="tag-type tag-perm">💎 Perm</span>`;
@@ -289,6 +318,12 @@
                             infoSup = `<p>${range}${reserv}</p>`;
                         }
 
+                        // BADGE SI RÉSERVÉ
+                        if (data.estReserve) {
+                            const dateR = data.dateEffectiveReserv ? data.dateEffectiveReserv : "Date inconnue";
+                            reservationBadge = `<div class="badge-reservation">🎟️ Réservé pour le ${dateR} !</div>`;
+                        }
+
                         let carteHtml = `
                             <div class="card-tinder">
                                 ${tagType}
@@ -296,6 +331,8 @@
                                 <p style="color:#666">${data.lieu || 'Lieu inconnu'}</p>
                                 <p>💸 ${data.prix || '?'}</p>
                                 ${infoSup}
+                                
+                                ${reservationBadge}
                                 
                                 <button class="btn-check" onclick="passerEnFait('${id}')">✅ C'est vu !</button>
                                 
@@ -312,7 +349,7 @@
             });
         }
 
-        // --- CAROUSEL ---
+        // --- CAROUSEL ETC ---
         function afficherCarteCarousel() {
             const zone = document.getElementById('zoneCarteUnique');
             if (listeASortir.length === 0) { zone.innerHTML = "<p>Rien de prévu... Ajoute une idée ! 👆</p>"; return; }
@@ -328,6 +365,7 @@
             if (!note) return;
             const date = prompt("Date ?", new Date().toISOString().split('T')[0]);
             const comm = prompt("C'était comment ?");
+            // Quand c'est fait, on peut éventuellement retirer le flag "réservé" car c'est passé
             db.collection('sorties').doc(id).update({ estFait: true, note: note, dateSortie: date, commentaire: comm });
         }
 
@@ -349,6 +387,11 @@
                 document.getElementById('dateFin').value = data.dateFin || '';
                 document.getElementById('dateReserv').value = data.dateReserv || '';
             }
+
+            // Gestion Reservation
+            document.getElementById('estReserve').checked = data.estReserve || false;
+            document.getElementById('dateEffectiveReserv').value = data.dateEffectiveReserv || '';
+            basculerReservation();
 
             document.getElementById('estFait').checked = data.estFait;
             basculerDetails();
@@ -377,6 +420,11 @@
             document.getElementById('dateFin').value = '';
             document.getElementById('dateReserv').value = '';
             document.getElementById('commentaire').value = '';
+            
+            document.getElementById('estReserve').checked = false;
+            document.getElementById('dateEffectiveReserv').value = '';
+            basculerReservation();
+
             document.getElementById('estFait').checked = false;
             basculerDetails();
 
