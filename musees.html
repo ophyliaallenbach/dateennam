@@ -109,7 +109,7 @@
         <div id="listeVisites"></div>
     </div>
 
-    <script>
+<script>
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -122,17 +122,16 @@
         if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
 
-        let listeAVisiter = [];
-        let indexActuel = 0;
         let globalMuseesData = {};
         let tempExpos = []; 
+        let globalPropositions = {}; // Pour stocker les propositions en mémoire
 
         function deconnexion() {
             localStorage.removeItem("estConnecte");
             window.location.href = "login.html";
         }
 
-        // --- NOUVEAU : GESTION DES PROPOSITIONS ---
+        // --- GESTION DES PROPOSITIONS (BOITE A IDEES) ---
         function chargerPropositions() {
             const divProp = document.getElementById('listePropositions');
             const container = document.getElementById('inbox-container');
@@ -143,12 +142,14 @@
                     return;
                 }
                 
-                container.style.display = 'block'; // Affiche la boite si y'a des trucs
+                container.style.display = 'block';
                 divProp.innerHTML = '';
 
                 snapshot.forEach(doc => {
                     const d = doc.data();
                     const id = doc.id;
+                    globalPropositions[id] = d; // On sauvegarde les datas pour le clic
+
                     const typeLabel = (d.typeCible === 'musees') ? '🏛️ Musée' : '🎭 Sortie';
                     
                     const el = document.createElement('div');
@@ -156,10 +157,11 @@
                     el.innerHTML = `
                         <div>
                             <strong>${typeLabel} : ${d.nom || d.titre}</strong><br>
+                            <small>📍 ${d.lieu || '?'} | 💸 ${d.prix || '?'}</small><br>
                             <small>Note: ${d.commentaire || ''}</small>
                         </div>
                         <div class="prop-actions">
-                            <button class="btn-accept" onclick="accepterProposition('${id}', '${d.typeCible}', '${d.nom || d.titre}')">✅</button>
+                            <button class="btn-accept" onclick="accepterProposition('${id}')">✅</button>
                             <button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button>
                         </div>
                     `;
@@ -168,34 +170,41 @@
             });
         }
 
-        function accepterProposition(propId, type, titre) {
-            if(!confirm("Valider et ajouter '" + titre + "' à la liste officielle ?")) return;
+        function accepterProposition(propId) {
+            const prop = globalPropositions[propId];
+            if(!prop) return;
+
+            if(!confirm("Valider et ajouter '" + (prop.nom || prop.titre) + "' ?")) return;
 
             let dataToAdd = {};
-            if(type === 'musees') {
+            
+            if(prop.typeCible === 'musees') {
                 dataToAdd = {
-                    nom: titre,
-                    prix: "0",
+                    nom: prop.nom || prop.titre,
+                    prix: prop.prix || "0",
+                    lieu: prop.lieu || "", // Ajouté (même si pas affiché partout, c'est stocké)
                     tags: [],
                     expositions: [{ nom: "Général", estVisite: false }],
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
             } else {
+                // Pour les SORTIES (Théâtre etc)
                 dataToAdd = {
-                    titre: titre,
+                    titre: prop.titre || prop.nom,
                     type: 'temporaire',
-                    lieu: 'A définir',
-                    prix: "0",
+                    lieu: prop.lieu || 'A définir', // On récupère le lieu visiteur
+                    prix: prop.prix || "0",        // On récupère le prix visiteur
                     estFait: false,
+                    estReserve: false,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
             }
 
-            // 1. Ajouter à la vraie collection
-            db.collection(type).add(dataToAdd).then(() => {
+            // 1. Ajouter à la vraie collection (musees ou sorties)
+            db.collection(prop.typeCible).add(dataToAdd).then(() => {
                 // 2. Supprimer de la liste d'attente
                 db.collection('propositions').doc(propId).delete();
-                alert("Ajouté avec succès !");
+                alert("Ajouté avec succès ! (Lieu et Prix inclus)");
             });
         }
 
@@ -203,6 +212,9 @@
             if(confirm("Refuser cette idée ?")) db.collection('propositions').doc(id).delete();
         }
 
+        // --- LE RESTE DU CODE (Formulaire, Affichage Musées...) ---
+        // (Garde tes fonctions chargerMusees, gererEnregistrement, etc. telles quelles en dessous)
+        
         // --- GESTION FORMULAIRE MULTI-EXPOS ---
         function ajouterExpoAuFormulaire() {
             const nom = document.getElementById('newExpoName').value;
@@ -231,7 +243,6 @@
             afficherListeExposForm();
         }
 
-        // --- ENREGISTREMENT ---
         function gererEnregistrement() {
             try {
                 const idModif = document.getElementById('editId').value;
@@ -261,7 +272,6 @@
             }
         }
 
-        // --- CHARGEMENT ---
         function chargerMusees() {
             const divVisites = document.getElementById('listeVisites');
             const zoneCarte = document.getElementById('zoneCarteUnique');
@@ -424,7 +434,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             chargerMusees();
-            chargerPropositions(); // Lancement de l'écoute des propositions
+            chargerPropositions(); 
         });
     </script>
 </body>
