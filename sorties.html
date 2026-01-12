@@ -20,7 +20,7 @@
         .btn-logout { background-color: #ff5252; }
         .btn-logout:hover { background-color: #d32f2f; }
 
-        /* BOITE A IDEES (NOUVEAU) */
+        /* BOITE A IDEES */
         #inbox-container { max-width: 1200px; margin: 20px auto; display: none; }
         .inbox-alert { background: #E1F5FE; border: 2px solid #039BE5; padding: 15px; border-radius: 15px; }
         .prop-item { background: white; padding: 10px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -174,4 +174,208 @@
 
     <div class="history-section">
         <h2>✅ Spectacles vus (Souvenirs)</h2>
-        <div id="listeVisites">
+        <div id="listeVisites"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
+            authDomain: "date-d927b.firebaseapp.com",
+            projectId: "date-d927b",
+            storageBucket: "date-d927b.appspot.com",
+            messagingSenderId: "353304192798",
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
+            measurementId: "G-T4N8PMNC3G"
+        };
+
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
+
+        let listeASortir = [];
+        let indexActuel = 0;
+        let globalSortiesData = {}; 
+        let globalPropositions = {};
+
+        function deconnexion() {
+            localStorage.removeItem("estConnecte");
+            window.location.href = "login.html";
+        }
+
+        // --- GESTION PROPOSITIONS (BOITE A IDEES) ---
+        function chargerPropositions() {
+            const divProp = document.getElementById('listePropositions');
+            const container = document.getElementById('inbox-container');
+
+            db.collection('propositions').onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                divProp.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    const id = doc.id;
+                    globalPropositions[id] = d;
+
+                    const typeLabel = (d.typeCible === 'musees') ? '🏛️ Musée' : '🎭 Sortie';
+                    
+                    const el = document.createElement('div');
+                    el.className = 'prop-item';
+                    el.innerHTML = `
+                        <div>
+                            <strong>${typeLabel} : ${d.nom || d.titre}</strong><br>
+                            <small>📍 ${d.lieu || '?'} | 💸 ${d.prix || '?'}</small><br>
+                            <small>Note: ${d.commentaire || ''}</small>
+                        </div>
+                        <div class="prop-actions">
+                            <button class="btn-accept" onclick="accepterProposition('${id}')">✅</button>
+                            <button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button>
+                        </div>
+                    `;
+                    divProp.appendChild(el);
+                });
+            });
+        }
+
+        function accepterProposition(propId) {
+            const prop = globalPropositions[propId];
+            if(!prop) return;
+
+            if(!confirm("Valider et ajouter '" + (prop.nom || prop.titre) + "' ?")) return;
+
+            let dataToAdd = {};
+            if(prop.typeCible === 'musees') {
+                dataToAdd = {
+                    nom: prop.nom || prop.titre,
+                    prix: prop.prix || "0",
+                    tags: [],
+                    expositions: [{ nom: "Général", estVisite: false }],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+            } else {
+                dataToAdd = {
+                    titre: prop.titre || prop.nom,
+                    type: 'temporaire',
+                    lieu: prop.lieu || 'A définir',
+                    prix: prop.prix || "0",
+                    estFait: false,
+                    estReserve: false,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+            }
+
+            db.collection(prop.typeCible).add(dataToAdd).then(() => {
+                db.collection('propositions').doc(propId).delete();
+                alert("Ajouté avec succès !");
+            });
+        }
+
+        function supprimerProposition(id) {
+            if(confirm("Refuser cette idée ?")) db.collection('propositions').doc(id).delete();
+        }
+
+        // --- UI : BASCULE PERM / TEMP ---
+        function changerType(type) {
+            document.getElementById('typeSortie').value = type;
+            if(type === 'permanente') {
+                document.getElementById('optPerm').classList.add('active');
+                document.getElementById('optTemp').classList.remove('active');
+                document.getElementById('champsPerm').classList.add('visible');
+                document.getElementById('champsTemp').classList.remove('visible');
+            } else {
+                document.getElementById('optPerm').classList.remove('active');
+                document.getElementById('optTemp').classList.add('active');
+                document.getElementById('champsPerm').classList.remove('visible');
+                document.getElementById('champsTemp').classList.add('visible');
+            }
+        }
+
+        function basculerDetails() {
+            const caseCochee = document.getElementById("estFait").checked;
+            document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none";
+        }
+
+        function basculerReservation() {
+            const caseCochee = document.getElementById("estReserve").checked;
+            document.getElementById("dateReservEffectiveDiv").style.display = caseCochee ? "block" : "none";
+        }
+
+        // --- ENREGISTREMENT ---
+        function gererEnregistrement() {
+            try {
+                const idModif = document.getElementById('editId').value;
+                const type = document.getElementById('typeSortie').value;
+                const titre = document.getElementById('titre').value;
+                const lieu = document.getElementById('lieu').value;
+                const prix = document.getElementById('prix').value;
+                
+                const estReserve = document.getElementById('estReserve').checked;
+                const dateEffectiveReserv = document.getElementById('dateEffectiveReserv').value;
+                const estFait = document.getElementById('estFait').checked;
+
+                if (!titre) { alert("Il faut un titre !"); return; }
+
+                let data = {
+                    type: type,
+                    titre: titre,
+                    lieu: lieu,
+                    prix: prix,
+                    estReserve: estReserve,
+                    dateEffectiveReserv: dateEffectiveReserv,
+                    estFait: estFait,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Champs spécifiques
+                if (type === 'permanente') {
+                    data.datesInfos = document.getElementById('datesPerm').value;
+                } else {
+                    data.dateDebut = document.getElementById('dateDebut').value;
+                    data.dateFin = document.getElementById('dateFin').value;
+                    data.dateReserv = document.getElementById('dateReserv').value;
+                }
+
+                if (estFait) {
+                    data.dateSortie = document.getElementById('dateSortie').value;
+                    data.note = document.getElementById('noteSortie').value;
+                    data.commentaire = document.getElementById('commentaire').value;
+                }
+
+                if (idModif) {
+                    db.collection('sorties').doc(idModif).update(data).then(() => { resetForm(); alert("Mis à jour !"); });
+                } else {
+                    db.collection('sorties').add(data).then(() => { resetForm(); alert("Enregistré !"); });
+                }
+            } catch (error) {
+                alert("Erreur : " + error.message);
+            }
+        }
+
+        // --- CHARGEMENT ROBUSTE (C'est ici que j'ai sécurisé le code) ---
+        function chargerSorties() {
+            const divVisites = document.getElementById('listeVisites');
+            const zoneCarte = document.getElementById('zoneCarteUnique');
+
+            db.collection('sorties').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                listeASortir = [];
+                divVisites.innerHTML = '';
+                globalSortiesData = {}; 
+
+                if (snapshot.empty) {
+                    zoneCarte.innerHTML = "<p>Aucune sortie prévue...</p>";
+                    divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    // On sécurise les données pour éviter les plantages
+                    const data = doc.data();
+                    const id = doc.id;
+                    data.id = id;
+                    globalSortiesData[id] = data; 
+                    
+                    // Valeurs par défaut pour éviter les "undefined"
+                    const titreAffiche
