@@ -34,21 +34,21 @@
     </div>
 
     <div class="visitor-link">
-        <a href="visiteur.html">👀 Accès Visiteur (Idées & Lecture seule)</a>
+        <a href="visiteur.html">👀 Accès Visiteur (Lecture seule & Idées)</a>
     </div>
 
     <script>
         function checkPassword() {
             const pass = document.getElementById("password").value;
             
-            // LOGIQUE DES 2 MOTS DE PASSE
+            // SYSTEME A 2 MOTS DE PASSE
             if (pass === "060317") {
-                // Premier mot de passe -> page Date
+                // Code 1 -> vers la page 'date'
                 localStorage.setItem("estConnecte", "true");
                 window.location.href = "date.html";
                 
             } else if (pass === "171103") {
-                // Deuxième mot de passe -> Musées & Spectacles
+                // Code 2 -> vers l'espace complet Musées/Sorties
                 localStorage.setItem("estConnecte", "true");
                 window.location.href = "musees.html";
                 
