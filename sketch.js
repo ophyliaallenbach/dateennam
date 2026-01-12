@@ -1,4 +1,4 @@
-// --- 1. CONFIGURATION FIREBASE (La tienne) ---
+// --- 1. CONFIGURATION FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
   authDomain: "date-d927b.firebaseapp.com",
@@ -15,132 +15,86 @@ if (!firebase.apps.length) {
 }
 const db = firebase.firestore();
 
+// --- 2. AJOUTER UNE IDEE ---
+function ajouterIdee() {
+    const titre = document.getElementById("nouvelleIdee").value;
+    const date = document.getElementById("dateIdee").value;
+    const prix = document.getElementById("prixIdee").value;
+    const lieu = document.getElementById("lieuIdee").value;
 
-// --- 2. FONCTIONS D'AFFICHAGE ---
+    // Récupérer les catégories cochées
+    const checkedBoxes = document.querySelectorAll('#categories input:checked');
+    const categories = Array.from(checkedBoxes).map(cb => cb.value);
 
-// Fonction pour montrer/cacher les détails (date/note) dans le formulaire
-function basculerDetails() {
-    const isChecked = document.getElementById("estVisite").checked;
-    const detailsDiv = document.getElementById("detailsVisite");
-    
-    if (isChecked) {
-        detailsDiv.style.display = "block";
-    } else {
-        detailsDiv.style.display = "none";
+    if (!titre) {
+        alert("Il faut au moins donner un titre à ton idée !");
+        return;
     }
-}
 
-// Fonction pour ajouter un musée
-function ajouterMusee() {
-    const nom = document.getElementById('nomMusee').value;
-    const expo = document.getElementById('nomExpo').value;
-    const prix = document.getElementById('prixMusee').value;
-    const estVisite = document.getElementById('estVisite').checked;
-
-    if (!nom) { alert("Il faut au moins le nom du musée !"); return; }
-
-    // Préparation des données
-    let data = {
-        nom: nom,
-        expo: expo,
+    db.collection("date_ideas").add({
+        titre: titre,
+        date: date,
         prix: prix,
-        estVisite: estVisite,
+        lieu: lieu,
+        categories: categories,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Si c'est visité, on ajoute les détails
-    if (estVisite) {
-        data.dateVisite = document.getElementById('dateVisite').value;
-        data.note = document.getElementById('noteVisite').value;
-        data.commentaire = document.getElementById('commentaire').value;
-    }
-
-    // Envoi vers Firebase
-    db.collection('musees').add(data).then(() => {
-        // Reset du formulaire
-        document.getElementById('nomMusee').value = '';
-        document.getElementById('nomExpo').value = '';
-        document.getElementById('prixMusee').value = '';
-        document.getElementById('commentaire').value = '';
-        document.getElementById('estVisite').checked = false;
-        basculerDetails(); // On recache la zone
-        alert("C'est enregistré ! 🏛️");
+    }).then(() => {
+        // Vider le formulaire
+        document.getElementById("nouvelleIdee").value = "";
+        document.getElementById("dateIdee").value = "";
+        document.getElementById("prixIdee").value = "";
+        document.getElementById("lieuIdee").value = "";
+        document.querySelectorAll('#categories input').forEach(cb => cb.checked = false);
+    }).catch((error) => {
+        console.error("Erreur: ", error);
+        alert("Erreur lors de l'ajout");
     });
 }
 
-// Fonction pour récupérer et afficher les musées
-function chargerMusees() {
-    const divAVisiter = document.getElementById('listeAVisiter');
-    const divVisites = document.getElementById('listeVisites');
+// --- 3. AFFICHER LES IDEES ---
+function chargerIdees() {
+    const container = document.getElementById("sorties");
 
-    // On écoute la base de données en temps réel
-    db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-        divAVisiter.innerHTML = '';
-        divVisites.innerHTML = '';
+    db.collection("date_ideas").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+        container.innerHTML = ""; // On vide avant de remplir
 
-        snapshot.forEach(doc => {
+        if(snapshot.empty) {
+            container.innerHTML = "<p>Aucune idée pour le moment... propose un truc !</p>";
+            return;
+        }
+
+        snapshot.forEach((doc) => {
             const data = doc.data();
             const id = doc.id;
 
-            if (data.estVisite) {
-                // --- CAS 1 : DÉJÀ VISITÉ (Affichage en liste en bas) ---
-                let etoiles = "⭐".repeat(data.note || 1);
-                
-                const row = document.createElement('div');
-                row.className = 'visite-row';
-                row.innerHTML = `
-                    <div>
-                        <strong>${data.nom}</strong> (${data.expo})<br>
-                        <small>📅 ${data.dateVisite || 'Date inconnue'} | 💸 ${data.prix}€</small><br>
-                        <em>"${data.commentaire || ''}"</em>
-                    </div>
-                    <div style="text-align:right; font-size: 1.2em;">
-                        ${etoiles}
-                    </div>
-                `;
-                divVisites.appendChild(row);
+            // Création des badges catégories
+            let badges = data.categories ? data.categories.map(cat => 
+                `<span style="background:#eee; padding:2px 5px; border-radius:4px; font-size:10px; margin-right:3px;">${cat}</span>`
+            ).join('') : '';
 
-            } else {
-                // --- CAS 2 : À VISITER (Affichage Carte à droite) ---
-                const card = document.createElement('div');
-                card.className = 'card-tinder';
-                card.innerHTML = `
-                    <span class="card-tag">${data.expo || 'Général'}</span>
-                    <h3>${data.nom}</h3>
-                    <p>💸 ${data.prix ? data.prix + ' €' : 'Gratuit ?'}</p>
-                    <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Je l'ai fait !</button>
-                    <button style="background:none; border:none; color:red; float:right; cursor:pointer;" onclick="supprimerMusee('${id}')">🗑️</button>
-                `;
-                divAVisiter.appendChild(card);
-            }
+            const card = document.createElement("div");
+            card.className = "carte";
+            card.innerHTML = `
+                <h3>${data.titre}</h3>
+                <div style="margin:5px 0;">${badges}</div>
+                <p style="font-size:14px; color:#555;">
+                    📍 ${data.lieu || "Lieu mystère"}<br>
+                    📅 ${data.date || "Pas de date"}<br>
+                    💸 ${data.prix ? data.prix + "€" : "Gratuit ?"}
+                </p>
+                <button class="btn-delete" onclick="supprimerIdee('${id}')">Supprimer 🗑️</button>
+            `;
+            container.appendChild(card);
         });
-
-        if(divAVisiter.innerHTML === '') divAVisiter.innerHTML = "<p>Rien de prévu pour l'instant...</p>";
-        if(divVisites.innerHTML === '') divVisites.innerHTML = "<p>Pas encore de visites notées.</p>";
     });
 }
 
-// Fonction pour passer une carte de "À faire" vers "Fait"
-function passerEnVisite(id) {
-    const note = prompt("Note sur 5 ? (1-5)");
-    const date = prompt("Quelle date ? (AAAA-MM-JJ)", new Date().toISOString().split('T')[0]);
-    const comment = prompt("Un petit mot ?");
-
-    if(note) {
-        db.collection('musees').doc(id).update({
-            estVisite: true,
-            note: note,
-            dateVisite: date,
-            commentaire: comment
-        });
+// --- 4. SUPPRIMER UNE IDEE ---
+function supprimerIdee(id) {
+    if(confirm("Tu veux vraiment supprimer cette idée ?")) {
+        db.collection("date_ideas").doc(id).delete();
     }
 }
 
-function supprimerMusee(id) {
-    if(confirm("Supprimer ?")) {
-        db.collection('musees').doc(id).delete();
-    }
-}
-
-// Lancer le chargement au démarrage
-document.addEventListener('DOMContentLoaded', chargerMusees);
+// Lancement au chargement de la page
+document.addEventListener("DOMContentLoaded", chargerIdees);
