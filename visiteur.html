@@ -59,7 +59,7 @@
     </div>
 
     <script>
-        // CONFIG FIREBASE (LA MEME QUE D'HABITUDE)
+        // CONFIG FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -94,7 +94,7 @@
             });
         }
 
-        // 2. LIRE UNIQUEMENT MUSEES ET SPECTACLES (Code corrigé pour masquer les Dates)
+        // 2. LIRE UNIQUEMENT MUSEES ET SPECTACLES (Sécurisé : Pas les dates privés)
         async function chargerTout() {
             const divAFaire = document.getElementById('listeAFaire');
             const divFait = document.getElementById('listeFait');
@@ -109,7 +109,6 @@
             const snapMusees = await db.collection('musees').get();
             snapMusees.forEach(doc => {
                 const d = doc.data();
-                // On vérifie si c'est visité (gestion simplifiée pour l'affichage public)
                 items.push({ 
                     type: 'musee', 
                     nom: d.nom, 
@@ -129,8 +128,6 @@
                     details: d.lieu || "" 
                 });
             });
-
-            // IMPORTANT : On ne charge PAS la collection 'date_ideas' ici !
 
             // C. Affichage
             items.forEach(item => {
@@ -156,7 +153,5 @@
 
         chargerTout();
     </script>
-</body>
-</html>
 </body>
 </html>
