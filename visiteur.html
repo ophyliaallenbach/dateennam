@@ -26,7 +26,7 @@
         .tag-sortie { background: #F3E5F5; color: #6A1B9A; }
         .status-fait { color: #4CAF50; font-weight: bold; }
         .status-todo { color: #FF9800; font-style: italic; }
-
+        
         .btn-login { position: fixed; top: 15px; right: 15px; background: #333; color: white; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9em; }
     </style>
 </head>
@@ -45,8 +45,15 @@
                 <option value="musees">🏛️ C'est un Musée / Expo</option>
                 <option value="sorties">🎭 C'est du Théâtre / Spectacle</option>
             </select>
-            <input type="text" id="propTitre" placeholder="Nom du lieu ou titre du spectacle">
-            <textarea id="propNote" rows="2" placeholder="Pourquoi il faut y aller ? (Lien, info...)"></textarea>
+            
+            <input type="text" id="propTitre" placeholder="Titre (Nom du musée ou du spectacle)">
+            
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="propLieu" placeholder="📍 Lieu (Adresse, Ville...)">
+                <input type="text" id="propPrix" placeholder="💸 Prix estimé (ex: 15€)">
+            </div>
+
+            <textarea id="propNote" rows="2" placeholder="Pourquoi il faut y aller ? (Lien, infos...)"></textarea>
             
             <button class="btn-propose" onclick="envoyerProposition()">🚀 Envoyer l'idée</button>
         </div>
@@ -59,7 +66,6 @@
     </div>
 
     <script>
-        // CONFIG FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -72,85 +78,68 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. ENVOYER UNE PROPOSITION
+        // 1. ENVOYER UNE PROPOSITION (Mise à jour avec Lieu et Prix)
         function envoyerProposition() {
             const type = document.getElementById('propType').value;
             const titre = document.getElementById('propTitre').value;
+            const lieu = document.getElementById('propLieu').value;
+            const prix = document.getElementById('propPrix').value;
             const note = document.getElementById('propNote').value;
 
-            if(!titre) { alert("Il faut un titre !"); return; }
+            if(!titre) { alert("Il faut au moins un titre !"); return; }
 
-            // On ajoute dans une collection 'propositions' (séparée des vraies listes)
             db.collection('propositions').add({
                 typeCible: type, 
                 nom: titre,      
                 titre: titre,    
+                lieu: lieu || "Non précisé",
+                prix: prix || "Non précisé",
                 commentaire: note,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert("Merci ! Ton idée a été envoyée pour validation. 📩");
+                alert("Merci ! Ton idée a été envoyée. 📩");
+                // Reset form
                 document.getElementById('propTitre').value = '';
+                document.getElementById('propLieu').value = '';
+                document.getElementById('propPrix').value = '';
                 document.getElementById('propNote').value = '';
             });
         }
 
-        // 2. LIRE UNIQUEMENT MUSEES ET SPECTACLES (Sécurisé : Pas les dates privés)
+        // 2. LIRE UNIQUEMENT MUSEES ET SPECTACLES (Filtré)
         async function chargerTout() {
             const divAFaire = document.getElementById('listeAFaire');
             const divFait = document.getElementById('listeFait');
-            
-            // On vide
-            divAFaire.innerHTML = '';
-            divFait.innerHTML = '';
+            divAFaire.innerHTML = ''; divFait.innerHTML = '';
 
             let items = [];
 
-            // A. Récupérer UNIQUEMENT les Musées
+            // Musées
             const snapMusees = await db.collection('musees').get();
             snapMusees.forEach(doc => {
                 const d = doc.data();
-                items.push({ 
-                    type: 'musee', 
-                    nom: d.nom, 
-                    fait: d.estVisite, 
-                    details: d.expo || "Général" 
-                });
+                items.push({ type: 'musee', nom: d.nom, fait: d.estVisite, details: d.expo || "Général" });
             });
 
-            // B. Récupérer UNIQUEMENT les Sorties Culturelles
+            // Sorties
             const snapSorties = await db.collection('sorties').get();
             snapSorties.forEach(doc => {
                 const d = doc.data();
-                items.push({ 
-                    type: 'sortie', 
-                    nom: d.titre, 
-                    fait: d.estFait, 
-                    details: d.lieu || "" 
-                });
+                items.push({ type: 'sortie', nom: d.titre, fait: d.estFait, details: d.lieu || "" });
             });
 
-            // C. Affichage
+            // Affichage
             items.forEach(item => {
-                const tag = item.type === 'musee' 
-                    ? '<span class="tag tag-musee">🏛️ Musée</span>' 
-                    : '<span class="tag tag-sortie">🎭 Sortie</span>';
-                
+                const tag = item.type === 'musee' ? '<span class="tag tag-musee">🏛️ Musée</span>' : '<span class="tag tag-sortie">🎭 Sortie</span>';
                 const html = `
                     <div class="item-row">
-                        <div>
-                            ${tag} <strong>${item.nom}</strong> <small>(${item.details})</small>
-                        </div>
-                        <div class="${item.fait ? 'status-fait' : 'status-todo'}">
-                            ${item.fait ? '✅ Vu' : '⏳ À voir'}
-                        </div>
-                    </div>
-                `;
-
+                        <div>${tag} <strong>${item.nom}</strong> <small>(${item.details})</small></div>
+                        <div class="${item.fait ? 'status-fait' : 'status-todo'}">${item.fait ? '✅ Vu' : '⏳ À voir'}</div>
+                    </div>`;
                 if(item.fait) divFait.innerHTML += html;
                 else divAFaire.innerHTML += html;
             });
         }
-
         chargerTout();
     </script>
 </body>
