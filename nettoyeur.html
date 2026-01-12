@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Nettoyeur de Base de Données 🧹</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #ffebee; }
+        h1 { color: #c62828; }
+        .item { background: white; padding: 10px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
+        .btn-del { background: red; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px; }
+        h2 { margin-top: 30px; border-bottom: 2px solid #333; }
+    </style>
+</head>
+<body>
+
+    <h1>⚠️ ZONE DE NETTOYAGE BRUTE</h1>
+    <p>Cette page affiche TOUT ce qu'il y a dans les collections publiques. Supprime les erreurs ici.</p>
+
+    <h2>Dans la collection "MUSEES"</h2>
+    <div id="zoneMusees">Chargement...</div>
+
+    <h2>Dans la collection "SORTIES"</h2>
+    <div id="zoneSorties">Chargement...</div>
+
+    <script>
+        // TA CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
+            authDomain: "date-d927b.firebaseapp.com",
+            projectId: "date-d927b",
+            storageBucket: "date-d927b.appspot.com",
+            messagingSenderId: "353304192798",
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
+            measurementId: "G-T4N8PMNC3G"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function chargerNettoyeur() {
+            // 1. CHARGER MUSEES
+            db.collection('musees').get().then(snap => {
+                const div = document.getElementById('zoneMusees');
+                div.innerHTML = '';
+                if(snap.empty) div.innerHTML = "Rien ici.";
+                
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const divItem = document.createElement('div');
+                    divItem.className = 'item';
+                    // On essaie d'afficher le nom, ou le titre, ou l'ID si y'a rien d'autre
+                    const nomAffiche = d.nom || d.titre || "Sans Nom";
+                    
+                    divItem.innerHTML = `
+                        <span><strong>${nomAffiche}</strong> <small>(ID: ${doc.id})</small></span>
+                        <button class="btn-del" onclick="supprimerItem('musees', '${doc.id}')">🗑️ Supprimer</button>
+                    `;
+                    div.appendChild(divItem);
+                });
+            });
+
+            // 2. CHARGER SORTIES
+            db.collection('sorties').get().then(snap => {
+                const div = document.getElementById('zoneSorties');
+                div.innerHTML = '';
+                if(snap.empty) div.innerHTML = "Rien ici.";
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const divItem = document.createElement('div');
+                    divItem.className = 'item';
+                    const nomAffiche = d.titre || d.nom || "Sans Titre";
+
+                    divItem.innerHTML = `
+                        <span><strong>${nomAffiche}</strong> <small>(ID: ${doc.id})</small></span>
+                        <button class="btn-del" onclick="supprimerItem('sorties', '${doc.id}')">🗑️ Supprimer</button>
+                    `;
+                    div.appendChild(divItem);
+                });
+            });
+        }
+
+        function supprimerItem(collection, id) {
+            if(confirm("Supprimer définitivement cet élément ?")) {
+                db.collection(collection).doc(id).delete().then(() => {
+                    // On recharge la liste pour voir que c'est parti
+                    chargerNettoyeur(); 
+                });
+            }
+        }
+
+        chargerNettoyeur();
+    </script>
+</body>
+</html>
