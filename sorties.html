@@ -378,7 +378,6 @@
                     globalSortiesData[id] = data; 
                     
                     // Valeurs par défaut pour éviter les "undefined"
-                    // C'EST L'ASTUCE : si pas de titre, on prend le nom, sinon "Sortie sans titre"
                     const titreAffiche = data.titre || data.nom || "Sortie sans titre";
                     const lieuAffiche = data.lieu || "";
                     const prixAffiche = data.prix || "?";
