@@ -9,7 +9,6 @@
     <style>
         body { background-color: #E3F2FD; color: #0D47A1; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
         h1 { text-align: center; color: #1565C0; margin-bottom: 30px; margin-top: 40px; }
-        .btn-logout { position: fixed; top: 15px; right: 15px; background-color: #ff5252; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000; }
         
         /* STYLE BOITE A IDEES */
         #inbox-container { max-width: 1200px; margin: 20px auto; display: none; }
@@ -141,7 +140,7 @@
             window.location.href = "login.html";
         }
 
-        // --- NOUVEAU : GESTION DES PROPOSITIONS ---
+        // --- GESTION PROPOSITIONS ---
         function chargerPropositions() {
             const divProp = document.getElementById('listePropositions');
             const container = document.getElementById('inbox-container');
@@ -216,7 +215,7 @@
             if(confirm("Refuser cette idée ?")) db.collection('propositions').doc(id).delete();
         }
 
-        // --- GESTION FORMULAIRE MULTI-EXPOS ---
+        // --- GESTION FORMULAIRE ---
         function ajouterExpoAuFormulaire() {
             const nom = document.getElementById('newExpoName').value;
             const date = document.getElementById('newExpoDate').value;
@@ -244,7 +243,6 @@
             afficherListeExposForm();
         }
 
-        // --- ENREGISTREMENT ---
         function gererEnregistrement() {
             try {
                 const idModif = document.getElementById('editId').value;
@@ -274,7 +272,7 @@
             }
         }
 
-        // --- CHARGEMENT ---
+        // --- CHARGEMENT ROBUSTE (C'est là que j'ai renforcé le code) ---
         function chargerMusees() {
             const divVisites = document.getElementById('listeVisites');
             const zoneCarte = document.getElementById('zoneCarteUnique');
@@ -283,7 +281,8 @@
                 listeAVisiter = [];
                 divVisites.innerHTML = '';
                 globalMuseesData = {};
-
+                
+                // Si la base est vide
                 if (snapshot.empty) {
                     zoneCarte.innerHTML = "<p>Aucune idée...</p>";
                     divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
@@ -294,12 +293,13 @@
                     const data = doc.data();
                     const id = doc.id;
                     
-                    // --- GESTION ANCIEN FORMAT (COMPATIBILITE) ---
-                    if (!data.expositions) {
+                    // --- CORRECTION CRITIQUE POUR LES ANCIENNES DONNÉES ---
+                    // On force la création d'une liste d'expos si elle n'existe pas
+                    if (!data.expositions || !Array.isArray(data.expositions)) {
                         data.expositions = [{
-                            nom: data.expo || "Général",
+                            nom: data.expo || "Expo Principale",
                             dateFin: data.dateFinExpo || "",
-                            estVisite: data.estVisite || false,
+                            estVisite: data.estVisite || false, // Si undefined, ça devient false
                             note: data.note || null,
                             commentaire: data.commentaire || null,
                             dateVisite: data.dateVisite || null
@@ -319,11 +319,12 @@
                     let aDesExposAFaire = false;
                     let exposAfficheesDansCarte = "";
                     
+                    // On parcourt les expos pour voir ce qu'il faut afficher
                     data.expositions.forEach((expo, index) => {
                         let finExpoHtml = expo.dateFin ? `<span class="date-fin">⚠️ Fin : ${expo.dateFin}</span>` : "";
 
                         if (expo.estVisite) {
-                            // C'EST FAIT -> HISTORIQUE
+                            // C'EST FAIT (HISTORIQUE)
                             const row = document.createElement('div');
                             row.className = 'visite-row';
                             row.innerHTML = `
@@ -338,7 +339,7 @@
                                 </div>`;
                             divVisites.appendChild(row);
                         } else {
-                            // C'EST A FAIRE -> CARTE
+                            // C'EST A FAIRE (CARTE)
                             aDesExposAFaire = true;
                             exposAfficheesDansCarte += `
                                 <div class="expo-item">
@@ -352,7 +353,7 @@
                         }
                     });
 
-                    // Si on a trouvé au moins une expo à faire, on crée la carte
+                    // On crée la carte seulement s'il y a des choses à faire
                     if (aDesExposAFaire) {
                         let carteHtml = `
                             <div class="card-tinder">
@@ -380,8 +381,11 @@
         function afficherCarteCarousel() {
             const zone = document.getElementById('zoneCarteUnique');
             if (listeAVisiter.length === 0) { zone.innerHTML = "<p>Tout est visité (ou rien de prévu) ! 🎉</p>"; return; }
+            
+            // Sécurité pour l'index
             if (indexActuel >= listeAVisiter.length) indexActuel = 0;
             if (indexActuel < 0) indexActuel = listeAVisiter.length - 1;
+            
             zone.innerHTML = listeAVisiter[indexActuel];
         }
         function carteSuivante() { if (listeAVisiter.length > 0) { indexActuel++; afficherCarteCarousel(); } }
