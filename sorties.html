@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorties Culturelles (Théâtre, Opéra...) 🎭</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        body { background-color: #F3E5F5; color: #4A148C; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; } /* Thème Violet pour changer du bleu */
+        h1 { text-align: center; color: #6A1B9A; margin-bottom: 30px; margin-top: 40px; }
+        
+        .nav-buttons { position: fixed; top: 15px; right: 15px; display:flex; gap:10px; z-index: 1000; }
+        .btn-nav { background-color: #6A1B9A; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration:none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .btn-nav:hover { background-color: #4A148C; }
+        .btn-logout { background-color: #ff5252; }
+        .btn-logout:hover { background-color: #d32f2f; }
+
+        .top-section { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+        .form-container { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
+        
+        .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 400px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 15px; border: 2px dashed #CE93D8; }
+        #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
+
+        .card-tinder { background: white; width: 100%; max-width: 320px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #E1BEE7; text-align: center; animation: fadeIn 0.5s ease; position:relative; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .arrow-btn { background: #8E24AA; color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .arrow-btn:hover { background: #6A1B9A; transform: scale(1.1); }
+        
+        .history-section { max-width: 1200px; margin: 40px auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .visite-row { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #E1BEE7; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        /* SWITCH TYPE OFFRE */
+        .type-selector { display: flex; gap: 10px; margin-bottom: 15px; }
+        .type-selector label { flex: 1; text-align: center; background: #F3E5F5; padding: 10px; border-radius: 8px; cursor: pointer; border: 1px solid #CE93D8; color: #6A1B9A; font-weight: bold; }
+        .type-selector input[type="radio"] { display: none; }
+        .type-selector input:checked + label { background: #8E24AA; color: white; border-color: #4A148C; }
+
+        /* CHAMPS SPECIFIQUES */
+        .field-group { display: none; background: #FAFAFA; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #AB47BC; }
+        .active-group { display: block; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+        .important-date { color: #D81B60; font-weight: bold; font-size: 0.9em; display: block; margin-top: -10px; margin-bottom: 10px;}
+
+        /* DETAILS VISITE */
+        #detailsVisite { display: none; background-color: #F3E5F5; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px dashed #AB47BC; }
+        button.btn-save { width: 100%; padding: 12px; background-color: #8E24AA; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button.btn-save.mode-edit { background-color: #FF9800; } 
+        button.btn-check { background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; font-size: 15px; }
+        
+        .main-checkbox { display: flex; align-items: center; margin-bottom: 20px; cursor: pointer; font-weight: bold; color: #6A1B9A; border-top: 1px solid #eee; padding-top: 15px; }
+        .main-checkbox input { transform: scale(1.3); margin-right: 10px; }
+        
+        .tag-type { position: absolute; top: 10px; right: 10px; font-size: 0.7em; background: #E1BEE7; padding: 2px 6px; border-radius: 4px; color: #4A148C; text-transform: uppercase; font-weight: bold;}
+    </style>
+</head>
+<body>
+
+    <div class="nav-buttons">
+        <a href="musees.html" class="btn-nav">🏛️ Musées</a>
+        <button class="btn-nav btn-logout" onclick="deconnexion()">Déconnexion</button>
+    </div>
+
+    <h1>🎭 Sorties Culturelles (Théâtre, Opéra...)</h1>
+
+    <div class="top-section">
+        <div class="form-container">
+            <h2 id="titreFormulaire">Ajouter une sortie</h2>
+            <input type="hidden" id="editId">
+
+            <div class="type-selector">
+                <input type="radio" name="typeSortie" id="typePerm" value="permanente" checked onchange="changerFormulaire()">
+                <label for="typePerm">💎 Offre Permanente</label>
+                
+                <input type="radio" name="typeSortie" id="typeTemp" value="temporaire" onchange="changerFormulaire()">
+                <label for="typeTemp">📅 Sortie Temporaire</label>
+            </div>
+
+            <input type="text" id="titre" placeholder="Titre (ex: Comédie Française / Le Roi Lion)">
+            <input type="text" id="lieu" placeholder="Lieu (ex: Salle Richelieu)">
+            <input type="text" id="prix" placeholder="Prix / Tarifs (ex: -26 ans = 10€)">
+
+            <div id="groupPerm" class="field-group active-group">
+                <label style="font-size:0.9em; font-weight:bold;">Dates concernées (ex: Tous les lundis) :</label>
+                <input type="text" id="datesPerm" placeholder="Quand en profiter ?">
+            </div>
+
+            <div id="groupTemp" class="field-group">
+                <label style="font-size:0.9em; font-weight:bold;">Dates de l'événement :</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="date" id="dateDebut" title="Début">
+                    <span style="align-self:center;">au</span>
+                    <input type="date" id="dateFin" title="Fin">
+                </div>
+                
+                <label style="font-size:0.9em; font-weight:bold; color:#D81B60; margin-top:5px; display:block;">⏰ Date limite pour réserver (Rappel) :</label>
+                <input type="date" id="dateReserv">
+            </div>
+
+            <label class="main-checkbox">
+                <input type="checkbox" id="estFait" onchange="basculerDetails()">
+                C'est déjà fait (On y est allé)
+            </label>
+
+            <div id="detailsVisite">
+                <label>Date de la sortie :</label>
+                <input type="date" id="dateSortie">
+                <label>Ta note :</label>
+                <select id="noteSortie">
+                    <option value="5">⭐⭐⭐⭐⭐ (Magique)</option>
+                    <option value="4">⭐⭐⭐⭐ (Bravo)</option>
+                    <option value="3">⭐⭐⭐ (Sympa)</option>
+                    <option value="2">⭐⭐ (Long...)</option>
+                    <option value="1">⭐ (Cata)</option>
+                </select>
+                <textarea id="commentaire" rows="3" placeholder="Tes souvenirs du spectacle..."></textarea>
+            </div>
+
+            <button id="btnAction" class="btn-save" onclick="gererEnregistrement()">Enregistrer</button>
+            <button id="btnAnnuler" onclick="resetForm()" style="display:none; width:100%; margin-top:10px; background:#ddd; border:none; padding:10px; border-radius:8px; cursor:pointer;">Annuler</button>
+        </div>
+
+        <div class="carousel-container">
+            <button class="arrow-btn" onclick="cartePrecedente()">&#10094;</button>
+            <div id="zoneCarteUnique">
+                <p style="color:#666; font-style:italic;">Chargement...</p>
+            </div>
+            <button class="arrow-btn" onclick="carteSuivante()">&#10095;</button>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <h2>✅ Spectacles vus (Souvenirs)</h2>
+        <div id="listeVisites"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
+            authDomain: "date-d927b.firebaseapp.com",
+            projectId: "date-d927b",
+            storageBucket: "date-d927b.appspot.com",
+            messagingSenderId: "353304192798",
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
+            measurementId: "G-T4N8PMNC3G"
+        };
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
+
+        let listeASortir = [];
+        let indexActuel = 0;
+        let globalSortiesData = {}; 
+
+        function deconnexion() {
+            localStorage.removeItem("estConnecte");
+            window.location.href = "login.html";
+        }
+
+        // --- GESTION VISUELLE ---
+        function changerFormulaire() {
+            const isPerm = document.getElementById('typePerm').checked;
+            if(isPerm) {
+                document.getElementById('groupPerm').classList.add('active-group');
+                document.getElementById('groupTemp').classList.remove('active-group');
+            } else {
+                document.getElementById('groupPerm').classList.remove('active-group');
+                document.getElementById('groupTemp').classList.add('active-group');
+            }
+        }
+
+        function basculerDetails() {
+            const caseCochee = document.getElementById("estFait").checked;
+            document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none";
+        }
+
+        // --- ENREGISTREMENT ---
+        function gererEnregistrement() {
+            try {
+                const idModif = document.getElementById('editId').value;
+                const type = document.querySelector('input[name="typeSortie"]:checked').value;
+                const titre = document.getElementById('titre').value;
+                const lieu = document.getElementById('lieu').value;
+                const prix = document.getElementById('prix').value;
+                const estFait = document.getElementById('estFait').checked;
+
+                if (!titre) { alert("Il faut un titre !"); return; }
+
+                let data = {
+                    type: type,
+                    titre: titre,
+                    lieu: lieu,
+                    prix: prix,
+                    estFait: estFait,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Champs spécifiques
+                if (type === 'permanente') {
+                    data.datesInfos = document.getElementById('datesPerm').value;
+                } else {
+                    data.dateDebut = document.getElementById('dateDebut').value;
+                    data.dateFin = document.getElementById('dateFin').value;
+                    data.dateReserv = document.getElementById('dateReserv').value;
+                }
+
+                // Si fait
+                if (estFait) {
+                    data.dateSortie = document.getElementById('dateSortie').value;
+                    data.note = document.getElementById('noteSortie').value;
+                    data.commentaire = document.getElementById('commentaire').value;
+                }
+
+                // Collection 'sorties' (différente de 'musees')
+                if (idModif) {
+                    db.collection('sorties').doc(idModif).update(data).then(() => { resetForm(); alert("Mis à jour !"); });
+                } else {
+                    db.collection('sorties').add(data).then(() => { resetForm(); alert("Enregistré !"); });
+                }
+            } catch (error) {
+                alert("Erreur : " + error.message);
+            }
+        }
+
+        // --- CHARGEMENT ---
+        function chargerSorties() {
+            const divVisites = document.getElementById('listeVisites');
+            const zoneCarte = document.getElementById('zoneCarteUnique');
+
+            db.collection('sorties').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                listeASortir = [];
+                divVisites.innerHTML = '';
+                globalSortiesData = {}; 
+
+                if (snapshot.empty) {
+                    zoneCarte.innerHTML = "<p>Aucune sortie prévue...</p>";
+                    divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    data.id = id;
+                    globalSortiesData[id] = data; 
+
+                    if (data.estFait) {
+                        // HISTORIQUE
+                        const row = document.createElement('div');
+                        row.className = 'visite-row';
+                        row.innerHTML = `
+                            <div style="flex:1; min-width:200px;">
+                                <strong>${data.titre}</strong> (${data.lieu})<br>
+                                <small>📅 ${data.dateSortie || '?'} | 💸 ${data.prix || '?'}</small><br>
+                                <em style="color:#555">"${data.commentaire || ''}"</em>
+                            </div>
+                            <div style="text-align:right;">
+                                <div>${"⭐".repeat(data.note || 1)}</div>
+                                <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; padding:3px 6px; cursor:pointer; font-size:0.8em;">✏️</button>
+                                <button onclick="supprimerSortie('${id}')" style="background:none; border:1px solid #d32f2f; color:#d32f2f; border-radius:5px; padding:3px 6px; cursor:pointer; font-size:0.8em; margin-left:5px;">🗑️</button>
+                            </div>`;
+                        divVisites.appendChild(row);
+                    } else {
+                        // CARTE A FAIRE
+                        let detailsHtml = "";
+                        let tagType = "";
+
+                        if (data.type === 'permanente') {
+                            tagType = "💎 PERMANENT";
+                            detailsHtml = `<p style="color:#6A1B9A; font-weight:bold;">${data.datesInfos || ''}</p>`;
+                        } else {
+                            tagType = "📅 TEMPORAIRE";
+                            const dates = (data.dateDebut && data.dateFin) ? `Du ${data.dateDebut} au ${data.dateFin}` : "";
+                            const reserv = data.dateReserv ? `<br><span style="color:#D81B60; font-weight:bold;">⚠️ Réserver avant le ${data.dateReserv}</span>` : "";
+                            detailsHtml = `<p>${dates}${reserv}</p>`;
+                        }
+
+                        let carteHtml = `
+                            <div class="card-tinder">
+                                <span class="tag-type">${tagType}</span>
+                                <h3>${data.titre}</h3>
+                                <p style="color:#666">${data.lieu || 'Lieu inconnu'}</p>
+                                <p>💸 ${data.prix || 'Prix ?'}</p>
+                                ${detailsHtml}
+                                
+                                <button class="btn-check" onclick="passerEnFait('${id}')">✅ Fait !</button>
+                                <div style="margin-top:15px; display:flex; justify-content:center; gap:10px;">
+                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; padding:5px 10px; cursor:pointer;">✏️ Modif</button>
+                                    <button onclick="supprimerSortie('${id}')" style="background:none; border:1px solid #d32f2f; color:#d32f2f; border-radius:5px; padding:5px 10px; cursor:pointer;">🗑️ Suppr</button>
+                                </div>
+                            </div>
+                        `;
+                        listeASortir.push(carteHtml);
+                    }
+                });
+                afficherCarteCarousel();
+            });
+        }
+
+        // --- CAROUSEL ETC ---
+        function afficherCarteCarousel() {
+            const zone = document.getElementById('zoneCarteUnique');
+            if (listeASortir.length === 0) { zone.innerHTML = "<p>Rien de prévu... Ajoute une idée ! 👆</p>"; return; }
+            if (indexActuel >= listeASortir.length) indexActuel = 0;
+            if (indexActuel < 0) indexActuel = listeASortir.length - 1;
+            zone.innerHTML = listeASortir[indexActuel];
+        }
+        function carteSuivante() { if (listeASortir.length > 0) { indexActuel++; afficherCarteCarousel(); } }
+        function cartePrecedente() { if (listeASortir.length > 0) { indexActuel--; afficherCarteCarousel(); } }
+
+        function passerEnFait(id) {
+            const note = prompt("Note sur 5 ?");
+            if (!note) return;
+            const date = prompt("Date ?", new Date().toISOString().split('T')[0]);
+            const comm = prompt("Comment c'était ?");
+            db.collection('sorties').doc(id).update({ estFait: true, note: note, dateSortie: date, commentaire: comm });
+        }
+
+        function preparerModification(id) {
+            const data = globalSortiesData[id];
+            if (!data) return;
+
+            document.getElementById('editId').value = id;
+            document.getElementById('titre').value = data.titre;
+            document.getElementById('lieu').value = data.lieu;
+            document.getElementById('prix').value = data.prix;
+
+            if (data.type === 'permanente') {
+                document.getElementById('typePerm').checked = true;
+                document.getElementById('datesPerm').value = data.datesInfos || '';
+            } else {
+                document.getElementById('typeTemp').checked = true;
+                document.getElementById('dateDebut').value = data.dateDebut || '';
+                document.getElementById('dateFin').value = data.dateFin || '';
+                document.getElementById('dateReserv').value = data.dateReserv || '';
+            }
+            changerFormulaire();
+
+            document.getElementById('estFait').checked = data.estFait;
+            basculerDetails();
+            
+            if(data.estFait) {
+                document.getElementById('dateSortie').value = data.dateSortie;
+                document.getElementById('noteSortie').value = data.note;
+                document.getElementById('commentaire').value = data.commentaire;
+            }
+
+            const btn = document.getElementById('btnAction');
+            btn.textContent = "Mettre à jour";
+            btn.classList.add('mode-edit');
+            document.getElementById('titreFormulaire').textContent = "Modifier : " + data.titre;
+            document.getElementById('btnAnnuler').style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('titre').value = '';
+            document.getElementById('lieu').value = '';
+            document.getElementById('prix').value = '';
+            document.getElementById('datesPerm').value = '';
+            document.getElementById('dateDebut').value = '';
+            document.getElementById('dateFin').value = '';
+            document.getElementById('dateReserv').value = '';
+            document.getElementById('commentaire').value = '';
+            document.getElementById('estFait').checked = false;
+            basculerDetails();
+
+            const btn = document.getElementById('btnAction');
+            btn.textContent = "Enregistrer";
+            btn.classList.remove('mode-edit');
+            document.getElementById('titreFormulaire').textContent = "Ajouter une sortie";
+            document.getElementById('btnAnnuler').style.display = "none";
+        }
+
+        function supprimerSortie(id) {
+            if(confirm("Supprimer ?")) db.collection('sorties').doc(id).delete();
+        }
+
+        document.addEventListener('DOMContentLoaded', chargerSorties);
+    </script>
+</body>
+</html>
