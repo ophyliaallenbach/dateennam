@@ -172,10 +172,17 @@
                     const id = doc.id;
                     data.id = id;
                     globalMuseesData[id] = data; 
+                    
+                    // GESTION DES TAGS ET DU LABEL "GRATUIT SI"
                     let tagsHtml = '';
+                    let labelGratuit = ''; // Par défaut vide
+                    
                     if (data.tags && data.tags.length > 0) {
                         tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
+                        // Le texte s'affiche uniquement s'il y a des tags
+                        labelGratuit = '<div style="font-size:0.8em; color:#666; margin-top:8px; margin-bottom:4px;">Gratuit si :</div>';
                     }
+
                     if (data.estVisite) {
                         let infoFinExpo = "";
                         if (data.dateFinExpo) {
@@ -200,13 +207,16 @@
                         if (data.dateFinExpo) {
                             finExpoHtml = `<p style="color:#d32f2f; font-weight:bold; margin:5px 0;">⚠️ L'expo fini le ${data.dateFinExpo}</p>`;
                         }
+                        
                         let carteHtml = `
                             <div class="card-tinder">
                                 <h3>${data.nom}</h3>
                                 <p style="color:#666">${data.expo}</p>
                                 <p>💸 ${data.prix}€</p>
                                 ${finExpoHtml}
-                                <div style="margin-bottom:10px;">${tagsHtml}</div>
+                                
+                                ${labelGratuit} <div style="margin-bottom:10px;">${tagsHtml}</div>
+                                
                                 <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button>
                                 <div style="margin-top:15px; display:flex; justify-content:center; gap:10px;">
                                     <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; padding:5px 10px; cursor:pointer;">✏️ Modif</button>
