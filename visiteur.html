@@ -82,9 +82,9 @@
 
             // On ajoute dans une collection 'propositions' (séparée des vraies listes)
             db.collection('propositions').add({
-                typeCible: type, // 'musees' ou 'sorties'
-                nom: titre,      // Pour être compatible
-                titre: titre,    // Pour être compatible
+                typeCible: type, 
+                nom: titre,      
+                titre: titre,    
                 commentaire: note,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
@@ -94,7 +94,7 @@
             });
         }
 
-        // 2. LIRE TOUT (MUSEES ET SORTIES)
+        // 2. LIRE UNIQUEMENT MUSEES ET SPECTACLES (Code corrigé pour masquer les Dates)
         async function chargerTout() {
             const divAFaire = document.getElementById('listeAFaire');
             const divFait = document.getElementById('listeFait');
@@ -105,27 +105,34 @@
 
             let items = [];
 
-            // Récupérer Musées
+            // A. Récupérer UNIQUEMENT les Musées
             const snapMusees = await db.collection('musees').get();
             snapMusees.forEach(doc => {
                 const d = doc.data();
-                // On gère le cas multi-expos ou simple
-                let estFaitGlobal = d.estVisite;
-                if(d.expositions) {
-                    // Si toutes les expos sont faites, le musée est fait
-                    // Simplification pour l'affichage visiteur : on regarde juste le flag global
-                }
-                items.push({ type: 'musee', nom: d.nom, fait: estFaitGlobal, details: d.expo || "Général" });
+                // On vérifie si c'est visité (gestion simplifiée pour l'affichage public)
+                items.push({ 
+                    type: 'musee', 
+                    nom: d.nom, 
+                    fait: d.estVisite, 
+                    details: d.expo || "Général" 
+                });
             });
 
-            // Récupérer Sorties
+            // B. Récupérer UNIQUEMENT les Sorties Culturelles
             const snapSorties = await db.collection('sorties').get();
             snapSorties.forEach(doc => {
                 const d = doc.data();
-                items.push({ type: 'sortie', nom: d.titre, fait: d.estFait, details: d.lieu || "" });
+                items.push({ 
+                    type: 'sortie', 
+                    nom: d.titre, 
+                    fait: d.estFait, 
+                    details: d.lieu || "" 
+                });
             });
 
-            // Affichage
+            // IMPORTANT : On ne charge PAS la collection 'date_ideas' ici !
+
+            // C. Affichage
             items.forEach(item => {
                 const tag = item.type === 'musee' 
                     ? '<span class="tag tag-musee">🏛️ Musée</span>' 
@@ -149,5 +156,7 @@
 
         chargerTout();
     </script>
+</body>
+</html>
 </body>
 </html>
