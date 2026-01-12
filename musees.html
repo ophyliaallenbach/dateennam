@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes Musées 2026 🏛️</title>
+    <title>Mes Musées 2026 (v2)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -37,7 +37,7 @@
 </head>
 <body>
     <button class="btn-logout" onclick="deconnexion()">Déconnexion ✌️</button>
-    <h1>🏛️ Mes Musées en 2026</h1>
+    <h1>🏛️ Mes Musées 2026 (v2)</h1>
     <div class="top-section">
         <div class="form-container">
             <h2 id="titreFormulaire">Ajouter un musée</h2>
@@ -173,14 +173,14 @@
                     data.id = id;
                     globalMuseesData[id] = data; 
                     
-                    // GESTION DES TAGS ET DU LABEL "GRATUIT SI"
+                    // PREPARATION DU LABEL GRATUIT
                     let tagsHtml = '';
-                    let labelGratuit = ''; // Par défaut vide
+                    let labelGratuit = '';
                     
                     if (data.tags && data.tags.length > 0) {
                         tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
-                        // Le texte s'affiche uniquement s'il y a des tags
-                        labelGratuit = '<div style="font-size:0.8em; color:#666; margin-top:8px; margin-bottom:4px;">Gratuit si :</div>';
+                        // Ce texte s'affiche SEULEMENT s'il y a des tags
+                        labelGratuit = '<div style="font-size:0.85em; font-weight:bold; color:#555; margin-top:10px; margin-bottom:5px;">Gratuit si :</div>';
                     }
 
                     if (data.estVisite) {
@@ -215,7 +215,8 @@
                                 <p>💸 ${data.prix}€</p>
                                 ${finExpoHtml}
                                 
-                                ${labelGratuit} <div style="margin-bottom:10px;">${tagsHtml}</div>
+                                ${labelGratuit}
+                                <div style="margin-bottom:10px;">${tagsHtml}</div>
                                 
                                 <button class="btn-check" onclick="passerEnVisite('${id}')">✅ Fait !</button>
                                 <div style="margin-top:15px; display:flex; justify-content:center; gap:10px;">
