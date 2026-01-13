@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>Idées de sorties</title>
+    <title>Idées de sorties ✨</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
@@ -40,117 +40,52 @@
         margin-bottom: 5px;
       }
       
-      .phrase { 
-        font-style: italic; 
-        color: var(--deep-iris); 
-        margin-bottom: 30px; 
-        font-weight: 500; 
-      }
+      .phrase { font-style: italic; color: var(--deep-iris); margin-bottom: 30px; font-weight: 500; }
       
       /* --- NAVIGATION --- */
-      .top-nav { 
-        position: fixed; top: 10px; right: 10px; left: 10px; /* Centré sur mobile */
-        display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; z-index: 1000; 
-      }
+      .top-nav { position: fixed; top: 10px; right: 10px; left: 10px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; z-index: 1000; }
       @media (min-width: 600px) { .top-nav { left: auto; justify-content: flex-end; } }
 
-      .btn-nav, .btn-logout { 
-        border: none; padding: 8px 15px; border-radius: 20px; 
-        cursor: pointer; font-weight: bold; 
-        box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1); 
-        transition: 0.3s; text-decoration: none; font-size: 0.85em; 
-        display: flex; align-items: center; justify-content: center; gap: 5px;
-        backdrop-filter: blur(5px);
-      }
-      
+      .btn-nav, .btn-logout { border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1); transition: 0.3s; text-decoration: none; font-size: 0.85em; display: flex; align-items: center; justify-content: center; gap: 5px; backdrop-filter: blur(5px); }
       .btn-nav { background: rgba(255,255,255,0.8); color: var(--misty-violet); }
       .btn-nav:hover { background: var(--white); transform: translateY(-2px); }
-      
       .btn-logout { background: #ffcdd2; color: #c62828; opacity: 0.9; }
       .btn-logout:hover { background: #ef9a9a; }
 
       /* --- ZONE DE SAISIE --- */
-      .input-zone { 
-        background: var(--white); 
-        padding: 25px; 
-        border-radius: 25px; 
-        max-width: 500px; 
-        margin: 0 auto 40px auto; 
-        box-shadow: 0 10px 30px rgba(95, 91, 175, 0.2); 
-        border: 2px solid rgba(255,255,255,0.5);
-      }
+      .input-zone { background: var(--white); padding: 25px; border-radius: 25px; max-width: 500px; margin: 0 auto 40px auto; box-shadow: 0 10px 30px rgba(95, 91, 175, 0.2); border: 2px solid rgba(255,255,255,0.5); }
 
-      /* Champs de texte stylisés */
-      input[type="text"], input[type="number"], input[type="date"] { 
-        padding: 12px 15px; border-radius: 12px; margin-top: 10px; 
-        border: 2px solid var(--cloudy-lilac); width: 100%; box-sizing: border-box;
-        font-family: inherit; color: var(--misty-violet); background: var(--soft-bg);
-        transition: 0.2s;
-      }
+      input[type="text"], input[type="number"], input[type="date"] { padding: 12px 15px; border-radius: 12px; margin-top: 10px; border: 2px solid var(--cloudy-lilac); width: 100%; box-sizing: border-box; font-family: inherit; color: var(--misty-violet); background: var(--soft-bg); transition: 0.2s; }
       input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
 
-      /* Catégories façon "Pillules" */
       #categories { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-      
-      /* On cache la checkbox moche par défaut */
       #categories input[type="checkbox"] { display: none; }
-      
-      #categories label { 
-        font-size: 0.85em; cursor: pointer; 
-        background: var(--soft-bg); padding: 8px 12px; 
-        border-radius: 20px; color: var(--misty-violet); 
-        transition: 0.2s; border: 1px solid var(--cloudy-lilac); 
-        user-select: none;
-      }
-      
-      /* Style quand coché */
-      #categories input[type="checkbox"]:checked + label {
-        background: var(--misty-violet); color: white; border-color: var(--misty-violet);
-        transform: scale(1.05); box-shadow: 0 2px 5px rgba(95, 91, 175, 0.3);
-      }
+      #categories label { font-size: 0.85em; cursor: pointer; background: var(--soft-bg); padding: 8px 12px; border-radius: 20px; color: var(--misty-violet); transition: 0.2s; border: 1px solid var(--cloudy-lilac); user-select: none; }
+      #categories input[type="checkbox"]:checked + label { background: var(--misty-violet); color: white; border-color: var(--misty-violet); transform: scale(1.05); box-shadow: 0 2px 5px rgba(95, 91, 175, 0.3); }
 
-      /* Ligne Date + Prix */
       .row-inputs { display: flex; gap: 10px; margin-top: 5px; }
       .row-inputs > * { flex: 1; }
 
-      button.add { 
-        background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; 
-        padding: 12px 30px; border-radius: 15px; margin-top: 20px; font-size: 16px; 
-        font-weight: bold; width: 100%; transition: transform 0.2s; 
-        box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3); 
-      }
+      button.add { background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; padding: 12px 30px; border-radius: 15px; margin-top: 20px; font-size: 16px; font-weight: bold; width: 100%; transition: transform 0.2s; box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3); }
       button.add:hover { background: var(--misty-violet); transform: translateY(-2px); }
 
       /* --- LISTE DES CARTES --- */
-      #sorties { 
-        display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; 
-        padding-bottom: 50px; max-width: 1200px; margin: 0 auto;
-      }
+      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
       
-      .carte { 
-        background: var(--white); width: 280px; padding: 20px; 
-        border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); 
-        text-align: left; transition: transform 0.2s; position: relative; 
-        border-top: 6px solid var(--rainy-blue); 
-        display: flex; flex-direction: column; justify-content: space-between;
-      }
+      .carte { background: var(--white); width: 280px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 6px solid var(--rainy-blue); display: flex; flex-direction: column; justify-content: space-between; }
       .carte:hover { transform: translateY(-5px); }
       
       .carte h3 { margin: 0 0 5px 0; color: var(--misty-violet); font-size: 1.2em; }
       .carte p { color: #666; font-size: 0.9em; margin: 5px 0; display: flex; align-items: center; gap: 5px; }
       
       .tags-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-      .badge-cat { font-size: 0.75em; background: var(--cloudy-lilac); padding: 3px 8px; border-radius: 10px; color: var(--white); font-weight: bold; background: var(--misty-violet); }
+      .badge-cat { font-size: 0.75em; background: var(--misty-violet); padding: 3px 8px; border-radius: 10px; color: var(--white); font-weight: bold; }
       
       .infos-footer { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--cloudy-lilac); display: flex; justify-content: space-between; align-items: center;}
       .date-display { color: var(--rainy-blue); font-weight: bold; font-size: 0.9em; }
 
-      .btn-delete { 
-        background: none; border: none; cursor: pointer; font-size: 1.1em; 
-        color: #e57373; transition: 0.2s; padding: 5px; border-radius: 50%;
-      }
+      .btn-delete { background: none; border: none; cursor: pointer; font-size: 1.1em; color: #e57373; transition: 0.2s; padding: 5px; border-radius: 50%; }
       .btn-delete:hover { background: #ffebee; color: #c62828; }
-
     </style>
   </head>
   <body>
@@ -158,7 +93,7 @@
     <div class="top-nav">
         <a href="musees.html" class="btn-nav">🏛️ Musées</a>
         <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>
-        <button class="btn-logout" onclick="deconnexion()">🔒 Déconnexion</button>
+        <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒 Déco</button>
     </div>
 
     <h1>🥰 Idées de sorties</h1>
@@ -213,8 +148,8 @@
         function chargerIdees() { 
             const container = document.getElementById('sorties'); 
             
-            // On écoute la collection 'dates' en temps réel
-            db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => { 
+            // J'ai enlevé 'orderBy' qui cache les vieux documents sans date
+            db.collection("dates").onSnapshot((snapshot) => { 
                 container.innerHTML = ""; 
                 
                 if(snapshot.empty) { 
@@ -222,6 +157,107 @@
                     return; 
                 } 
                 
-                snapshot.forEach((doc) => { 
-                    const data = doc.data(); 
-                    const id = doc.id;
+                let items = [];
+                snapshot.forEach(doc => {
+                    items.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Tri Sécurisé : on met les plus récents en premier, ceux sans date à la fin
+                items.sort((a, b) => {
+                    let timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
+                    let timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
+                    return timeB - timeA;
+                });
+
+                items.forEach((data) => { 
+                    try {
+                        const id = data.id;
+                        // On prend 'texte' OU 'nom' pour être sûr d'avoir le titre
+                        const nom = data.texte || data.nom || "Idée sans titre"; 
+                        const lieu = data.lieu ? `📍 ${data.lieu}` : "";
+                        const prix = data.prix ? `💸 ${data.prix}€` : "";
+                        
+                        // Sécurité sur les tags : on vérifie que c'est bien une liste
+                        let tagsHtml = "";
+                        if (data.categories && Array.isArray(data.categories)) {
+                            tagsHtml = data.categories.map(c => `<span class="badge-cat">${c}</span>`).join("");
+                        } else if (typeof data.categories === 'string') {
+                             // Si c'est une vieille donnée en texte
+                             tagsHtml = `<span class="badge-cat">${data.categories}</span>`;
+                        }
+
+                        // Sécurité sur la date
+                        let dateHtml = "";
+                        if (data.date) {
+                            const today = new Date().toISOString().split('T')[0];
+                            const color = data.date < today ? '#e57373' : 'var(--rainy-blue)';
+                            const icon = data.date < today ? '⚠️' : '📅';
+                            dateHtml = `<span style="color:${color}">${icon} ${data.date}</span>`;
+                        }
+
+                        const carte = document.createElement("div"); 
+                        carte.className = "carte"; 
+                        carte.innerHTML = `
+                            <div>
+                                <div class="tags-container">${tagsHtml}</div>
+                                <h3>${nom}</h3>
+                                <p>${lieu}</p>
+                                <p>${prix}</p>
+                            </div>
+                            <div class="infos-footer">
+                                <div class="date-display">${dateHtml}</div>
+                                <button class="btn-delete" onclick="supprimerIdee('${id}')" title="Supprimer">🗑️</button>
+                            </div>
+                        `; 
+                        container.appendChild(carte); 
+                    } catch (err) {
+                        console.log("Erreur sur un élément (ignoré) :", err);
+                    }
+                }); 
+            }); 
+        }
+
+        function ajouterIdee() { 
+            const texte = document.getElementById("nouvelleIdee").value; 
+            const date = document.getElementById("dateIdee").value; 
+            const prix = document.getElementById("prixIdee").value; 
+            const lieu = document.getElementById("lieuIdee").value; 
+            
+            const checkboxes = document.querySelectorAll('#categories input:checked'); 
+            let categories = []; 
+            checkboxes.forEach((checkbox) => { categories.push(checkbox.value); }); 
+            
+            if (texte === "") { alert("Il faut au moins un titre !"); return; } 
+            
+            db.collection("dates").add({ 
+                texte: texte, // Pour compatibilité ancienne
+                nom: texte,   // Pour compatibilité nouvelle
+                categories: categories, 
+                date: date, 
+                prix: prix, 
+                lieu: lieu, 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+            }).then(() => { 
+                // Reset
+                document.getElementById("nouvelleIdee").value = ""; 
+                document.getElementById("dateIdee").value = ""; 
+                document.getElementById("prixIdee").value = ""; 
+                document.getElementById("lieuIdee").value = ""; 
+                checkboxes.forEach(cb => cb.checked = false); 
+            }).catch((error) => { 
+                console.error("Erreur : ", error); 
+                alert("Erreur lors de l'ajout : " + error.message);
+            }); 
+        }
+
+        function supprimerIdee(id) { 
+            if(confirm("Veux-tu vraiment supprimer cette idée ?")) { 
+                db.collection("dates").doc(id).delete(); 
+            } 
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { chargerIdees(); });
+
+    </script>
+  </body>
+</html>
