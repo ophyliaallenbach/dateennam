@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Watchlist 🍿</title>
+    <title>Watchlist</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
     
@@ -10,11 +10,19 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-        /* --- THÈME "PLUIE DE JUIN" (Cohérent avec le reste) --- */
+        /* --- THÈME "PLUIE DE JUIN" --- */
         :root { 
             --misty-violet: #5f5baf; --rainy-blue: #568de4; --deep-iris: #9a64c5; 
             --cloudy-lilac: #c4c5e8; --white: #ffffff; --bg-soft: #f4f6ff;
-            --netflix: #e50914; --disney: #113ccf; --prime: #00a8e1;
+            /* Couleurs Plateformes */
+            --netflix: #e50914; 
+            --disney: #113ccf; 
+            --canal: #000000;
+            --hbo: #3C005A;
+            --paramount: #0064FF;
+            --crunchyroll: #F47521;
+            --appletv: #444444;
+            --autre: #999999;
         }
         
         body { 
@@ -53,10 +61,10 @@
         }
         button.add-btn:hover { background: var(--misty-violet); }
 
-        /* GRID DES CARTES */
+        /* GRID */
         #watchlistGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
 
-        /* LA CARTE */
+        /* CARTE */
         .card { 
             background: white; width: 320px; border-radius: 20px; padding: 20px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.05); text-align: left; position: relative;
@@ -69,22 +77,25 @@
         .card-meta { font-size: 0.85em; color: #888; display: flex; gap: 5px; align-items: center; }
         
         .platform-badge { padding: 3px 8px; border-radius: 5px; color: white; font-weight: bold; font-size: 0.7em; }
+        /* Classes dynamiques pour couleurs */
         .plat-Netflix { background: var(--netflix); }
         .plat-Disney { background: var(--disney); }
-        .plat-Prime { background: var(--prime); }
-        .plat-Autre { background: #999; }
+        .plat-Canal { background: var(--canal); }
+        .plat-HBO { background: var(--hbo); }
+        .plat-Paramount { background: var(--paramount); }
+        .plat-Crunchyroll { background: var(--crunchyroll); }
+        .plat-Apple { background: var(--appletv); }
+        .plat-Autre { background: var(--autre); }
 
-        /* ZONE DE COCHAGE (CHECKBOXES) */
+        /* CHECKBOXES */
         .check-zone { 
             background: var(--bg-soft); padding: 10px; border-radius: 12px; margin: 10px 0; 
             display: flex; justify-content: space-around; align-items: center; border: 1px dashed var(--cloudy-lilac);
         }
         .check-col { display: flex; flex-direction: column; align-items: center; font-size: 0.8em; font-weight: bold; color: var(--deep-iris); }
-        
-        /* Custom Checkbox */
         input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rainy-blue); cursor: pointer; }
 
-        /* ZONE SERIE (COMPTEUR) */
+        /* SERIE COMPTEUR */
         .series-counter { 
             display: flex; justify-content: space-between; align-items: center; 
             background: #eef2ff; padding: 8px; border-radius: 10px; margin-bottom: 10px;
@@ -103,7 +114,6 @@
 
         .delete-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2em; cursor: pointer; opacity: 0.3; }
         .delete-btn:hover { opacity: 1; }
-
     </style>
 </head>
 <body>
@@ -120,7 +130,6 @@
 
     <div class="add-box">
         <h3 style="margin-top:0; color:var(--rainy-blue);">Ajouter un titre</h3>
-        
         <input type="text" id="titre" placeholder="Titre (ex: Arcane, Inception...)">
         
         <div class="row">
@@ -128,13 +137,19 @@
                 <option value="Film">🎬 Film</option>
                 <option value="Série">📺 Série</option>
             </select>
-            <select id="plateforme">
+            <select id="plateforme" onchange="toggleAutreField()">
                 <option value="Netflix">Netflix</option>
-                <option value="Disney">Disney+</option>
-                <option value="Prime">Amazon Prime</option>
+                <option value="Disney+">Disney+</option>
+                <option value="Canal+">Canal+</option>
+                <option value="HBO">HBO</option>
+                <option value="Paramount+">Paramount+</option>
+                <option value="Crunchyroll">Crunchyroll</option>
+                <option value="Apple TV">Apple TV</option>
                 <option value="Autre">Autre / Ciné</option>
             </select>
         </div>
+
+        <input type="text" id="autrePlateforme" class="hidden" placeholder="Nom de la plateforme (ex: Arte, YouTube...)">
 
         <div id="seriesFields" class="hidden row">
             <input type="number" id="nbSaisons" placeholder="Nb Saisons">
@@ -147,7 +162,6 @@
     <div id="watchlistGrid">Chargement...</div>
 
     <script>
-        // --- CONFIGURATION FIREBASE ---
         const firebaseConfig = { 
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
             authDomain: "date-d927b.firebaseapp.com", 
@@ -160,7 +174,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- AFFICHAGE FORMULAIRE ---
+        // Gère l'affichage des champs Saisons
         function toggleSeriesFields() {
             const type = document.getElementById('type').value;
             const fields = document.getElementById('seriesFields');
@@ -168,11 +182,25 @@
             else fields.classList.add('hidden');
         }
 
-        // --- 1. AJOUTER ---
+        // Gère l'affichage du champ "Autre plateforme"
+        function toggleAutreField() {
+            const plat = document.getElementById('plateforme').value;
+            const autreInput = document.getElementById('autrePlateforme');
+            if (plat === 'Autre') autreInput.classList.remove('hidden');
+            else autreInput.classList.add('hidden');
+        }
+
         function ajouterWatchlist() {
             const titre = document.getElementById('titre').value;
             const type = document.getElementById('type').value;
-            const platform = document.getElementById('plateforme').value;
+            let platform = document.getElementById('plateforme').value;
+            
+            // Si c'est "Autre", on prend la valeur du champ texte
+            if (platform === 'Autre') {
+                const autreVal = document.getElementById('autrePlateforme').value;
+                platform = autreVal || "Autre"; // Si vide, on garde "Autre"
+            }
+
             const nbS = document.getElementById('nbSaisons').value || 1;
             const nbE = document.getElementById('nbEpisodes').value || 1;
 
@@ -184,54 +212,49 @@
                 platform: platform,
                 totalSaisons: type === 'Série' ? parseInt(nbS) : 0,
                 totalEpisodes: type === 'Série' ? parseInt(nbE) : 0,
-                // Suivi
-                currentSaison: 1,
-                currentEpisode: 1,
-                vuTristhan: false,
-                vuOphylia: false,
-                // Notes
-                noteTristhan: 0,
-                noteOphylia: 0,
+                currentSaison: 1, currentEpisode: 1,
+                vuTristhan: false, vuOphylia: false,
+                noteTristhan: 0, noteOphylia: 0,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("Ajouté !");
                 document.getElementById('titre').value = "";
-                // On remet Film par défaut
                 document.getElementById('type').value = "Film";
+                document.getElementById('plateforme').value = "Netflix";
+                document.getElementById('autrePlateforme').value = "";
                 toggleSeriesFields();
+                toggleAutreField();
             });
         }
 
-        // --- 2. CHARGER & AFFICHER ---
         function chargerWatchlist() {
             const grid = document.getElementById('watchlistGrid');
-            
             db.collection('watchlist').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 grid.innerHTML = "";
-                if(snapshot.empty) { grid.innerHTML = "Rien à regarder..."; return; }
+                if(snapshot.empty) { grid.innerHTML = "<p>Rien à regarder...</p>"; return; }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
                     
-                    // Badge couleur
+                    // Gestion des couleurs de badges
                     let badgeClass = "plat-Autre";
-                    if(data.platform.includes('Netflix')) badgeClass = "plat-Netflix";
-                    if(data.platform.includes('Disney')) badgeClass = "plat-Disney";
-                    if(data.platform.includes('Prime')) badgeClass = "plat-Prime";
+                    const p = data.platform.toLowerCase(); // Pour comparer facilement
+                    
+                    if(p.includes('netflix')) badgeClass = "plat-Netflix";
+                    else if(p.includes('disney')) badgeClass = "plat-Disney";
+                    else if(p.includes('canal')) badgeClass = "plat-Canal";
+                    else if(p.includes('hbo')) badgeClass = "plat-HBO";
+                    else if(p.includes('paramount')) badgeClass = "plat-Paramount";
+                    else if(p.includes('crunchyroll')) badgeClass = "plat-Crunchyroll";
+                    else if(p.includes('apple')) badgeClass = "plat-Apple";
 
-                    // Partie Série (Compteur)
                     let seriesHtml = "";
                     if(data.type === 'Série') {
                         seriesHtml = `
                         <div class="series-counter">
-                            <div>
-                                <small>Saison</small><br>
-                                <strong>${data.currentSaison}</strong>
-                            </div>
-                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">
-                                Ep. ${data.currentEpisode}
-                            </div>
+                            <div><small>Saison</small><br><strong>${data.currentSaison}</strong></div>
+                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">Ep. ${data.currentEpisode}</div>
                             <div>
                                 <button class="counter-btn" onclick="updateProgress('${id}', -1, ${data.currentEpisode})">-</button>
                                 <button class="counter-btn" onclick="updateProgress('${id}', 1, ${data.currentEpisode})">+</button>
@@ -239,15 +262,12 @@
                         </div>`;
                     }
 
-                    // Checkboxes "Nous" Logic
-                    // Si Tristhan ET Ophylia sont cochés, on coche "Nous" visuellement
                     const nousChecked = (data.vuTristhan && data.vuOphylia) ? "checked" : "";
 
                     const card = document.createElement('div');
                     card.className = "card";
                     card.innerHTML = `
                         <button class="delete-btn" onclick="supprimer('${id}')">×</button>
-                        
                         <div class="card-header">
                             <div>
                                 <span class="platform-badge ${badgeClass}">${data.platform}</span>
@@ -255,9 +275,7 @@
                                 <div class="card-meta">${data.type} ${data.type==='Série' ? `(${data.totalSaisons} S)` : ''}</div>
                             </div>
                         </div>
-
                         ${seriesHtml}
-
                         <div class="check-zone">
                             <div class="check-col">
                                 <input type="checkbox" ${data.vuTristhan ? 'checked' : ''} onchange="updateVu('${id}', 'Tristhan', this.checked)">
@@ -272,16 +290,9 @@
                                 <label>Ophylia</label>
                             </div>
                         </div>
-
                         <div class="rating-zone">
-                            <div class="rating-row">
-                                <span>Note Tristhan</span>
-                                <div>${genererEtoiles(id, 'Tristhan', data.noteTristhan)}</div>
-                            </div>
-                            <div class="rating-row">
-                                <span>Note Ophylia</span>
-                                <div>${genererEtoiles(id, 'Ophylia', data.noteOphylia)}</div>
-                            </div>
+                            <div class="rating-row"><span>Note Tristhan</span><div>${genererEtoiles(id, 'Tristhan', data.noteTristhan)}</div></div>
+                            <div class="rating-row"><span>Note Ophylia</span><div>${genererEtoiles(id, 'Ophylia', data.noteOphylia)}</div></div>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -289,9 +300,6 @@
             });
         }
 
-        // --- 3. LOGIQUES DE MISE À JOUR ---
-
-        // Met à jour une personne individuelle
         function updateVu(id, personne, etat) {
             let update = {};
             if(personne === 'Tristhan') update = { vuTristhan: etat };
@@ -299,27 +307,16 @@
             db.collection('watchlist').doc(id).update(update);
         }
 
-        // Met à jour "NOUS" (donc les deux)
         function updateNous(id, etat) {
-            db.collection('watchlist').doc(id).update({
-                vuTristhan: etat,
-                vuOphylia: etat
-            });
+            db.collection('watchlist').doc(id).update({ vuTristhan: etat, vuOphylia: etat });
         }
 
-        // Met à jour la progression série (Episode + / -)
         function updateProgress(id, delta, current) {
             let next = current + delta;
             if(next < 1) next = 1;
-            // Quand on change d'épisode, on décoche tout le monde (logique de suivi)
-            db.collection('watchlist').doc(id).update({
-                currentEpisode: next,
-                vuTristhan: false,
-                vuOphylia: false
-            });
+            db.collection('watchlist').doc(id).update({ currentEpisode: next, vuTristhan: false, vuOphylia: false });
         }
 
-        // Génère les étoiles HTML
         function genererEtoiles(id, personne, noteActuelle) {
             let html = "";
             for(let i=1; i<=5; i++) {
@@ -336,13 +333,9 @@
             db.collection('watchlist').doc(id).update(update);
         }
 
-        function supprimer(id) {
-            if(confirm("Supprimer ce titre ?")) db.collection('watchlist').doc(id).delete();
-        }
+        function supprimer(id) { if(confirm("Supprimer ?")) db.collection('watchlist').doc(id).delete(); }
 
-        // Lancement
         document.addEventListener('DOMContentLoaded', chargerWatchlist);
-
     </script>
 </body>
 </html>
