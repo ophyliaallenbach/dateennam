@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Watchlist 🍿</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        /* --- THÈME "PLUIE DE JUIN" (Cohérent avec le reste) --- */
+        :root { 
+            --misty-violet: #5f5baf; --rainy-blue: #568de4; --deep-iris: #9a64c5; 
+            --cloudy-lilac: #c4c5e8; --white: #ffffff; --bg-soft: #f4f6ff;
+            --netflix: #e50914; --disney: #113ccf; --prime: #00a8e1;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--cloudy-lilac); 
+            color: var(--misty-violet); text-align: center; margin: 0; padding: 20px; 
+            background-image: linear-gradient(to bottom, #c4c5e8 0%, #e8eaf6 100%); min-height: 100vh;
+        }
+
+        h1 { margin-top: 60px; font-size: 2.2em; text-shadow: 2px 2px 0px rgba(255,255,255,0.4); margin-bottom: 5px; }
+        .subtitle { font-style: italic; color: var(--deep-iris); margin-bottom: 30px; }
+
+        /* NAV */
+        .top-nav { position: fixed; top: 10px; right: 10px; display: flex; gap: 10px; z-index: 100; }
+        .btn-nav { background: rgba(255,255,255,0.8); padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; color: var(--misty-violet); transition: 0.3s; }
+        .btn-nav:hover { background: white; transform: translateY(-2px); }
+
+        /* FORMULAIRE */
+        .add-box { 
+            background: white; max-width: 500px; margin: 0 auto 40px auto; 
+            padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(95, 91, 175, 0.2); 
+            border: 2px solid rgba(255,255,255,0.5); text-align: left;
+        }
+        
+        input, select { 
+            width: 100%; padding: 10px; margin: 8px 0; border: 2px solid var(--cloudy-lilac); 
+            border-radius: 10px; box-sizing: border-box; color: var(--misty-violet); font-family: inherit;
+        }
+        
+        .row { display: flex; gap: 10px; }
+        .hidden { display: none; }
+
+        button.add-btn { 
+            width: 100%; background: var(--rainy-blue); color: white; border: none; 
+            padding: 12px; border-radius: 12px; font-weight: bold; font-size: 1.1em; 
+            cursor: pointer; margin-top: 15px; transition: 0.2s;
+        }
+        button.add-btn:hover { background: var(--misty-violet); }
+
+        /* GRID DES CARTES */
+        #watchlistGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+
+        /* LA CARTE */
+        .card { 
+            background: white; width: 320px; border-radius: 20px; padding: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); text-align: left; position: relative;
+            border-top: 5px solid var(--misty-violet); transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
+        .card-title { font-size: 1.3em; font-weight: 800; color: var(--misty-violet); margin: 0; }
+        .card-meta { font-size: 0.85em; color: #888; display: flex; gap: 5px; align-items: center; }
+        
+        .platform-badge { padding: 3px 8px; border-radius: 5px; color: white; font-weight: bold; font-size: 0.7em; }
+        .plat-Netflix { background: var(--netflix); }
+        .plat-Disney { background: var(--disney); }
+        .plat-Prime { background: var(--prime); }
+        .plat-Autre { background: #999; }
+
+        /* ZONE DE COCHAGE (CHECKBOXES) */
+        .check-zone { 
+            background: var(--bg-soft); padding: 10px; border-radius: 12px; margin: 10px 0; 
+            display: flex; justify-content: space-around; align-items: center; border: 1px dashed var(--cloudy-lilac);
+        }
+        .check-col { display: flex; flex-direction: column; align-items: center; font-size: 0.8em; font-weight: bold; color: var(--deep-iris); }
+        
+        /* Custom Checkbox */
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rainy-blue); cursor: pointer; }
+
+        /* ZONE SERIE (COMPTEUR) */
+        .series-counter { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #eef2ff; padding: 8px; border-radius: 10px; margin-bottom: 10px;
+        }
+        .counter-btn { 
+            background: var(--white); border: 1px solid var(--rainy-blue); color: var(--rainy-blue); 
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold;
+        }
+
+        /* NOTATION */
+        .rating-zone { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .rating-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; color: #666; margin-bottom: 5px; }
+        .stars { cursor: pointer; letter-spacing: 2px; }
+        .star-filled { color: #ffc107; }
+        .star-empty { color: #ddd; }
+
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2em; cursor: pointer; opacity: 0.3; }
+        .delete-btn:hover { opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="btn-nav">🏠 Accueil</a>
+        <a href="musees.html" class="btn-nav">🏛️ Musées</a>
+        <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>
+        <button onclick="window.location.href='login.html'" class="btn-nav" style="border:none; cursor:pointer;">🔒</button>
+    </div>
+
+    <h1>🍿 Notre Watchlist</h1>
+    <div class="subtitle">Ce qu'on regarde ensemble (ou pas...)</div>
+
+    <div class="add-box">
+        <h3 style="margin-top:0; color:var(--rainy-blue);">Ajouter un titre</h3>
+        
+        <input type="text" id="titre" placeholder="Titre (ex: Arcane, Inception...)">
+        
+        <div class="row">
+            <select id="type" onchange="toggleSeriesFields()">
+                <option value="Film">🎬 Film</option>
+                <option value="Série">📺 Série</option>
+            </select>
+            <select id="plateforme">
+                <option value="Netflix">Netflix</option>
+                <option value="Disney">Disney+</option>
+                <option value="Prime">Amazon Prime</option>
+                <option value="Autre">Autre / Ciné</option>
+            </select>
+        </div>
+
+        <div id="seriesFields" class="hidden row">
+            <input type="number" id="nbSaisons" placeholder="Nb Saisons">
+            <input type="number" id="nbEpisodes" placeholder="Nb Ep/Saison">
+        </div>
+
+        <button class="add-btn" onclick="ajouterWatchlist()">Ajouter à la liste</button>
+    </div>
+
+    <div id="watchlistGrid">Chargement...</div>
+
+    <script>
+        // --- CONFIGURATION FIREBASE ---
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
+            authDomain: "date-d927b.firebaseapp.com", 
+            projectId: "date-d927b", 
+            storageBucket: "date-d927b.appspot.com", 
+            messagingSenderId: "353304192798", 
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", 
+            measurementId: "G-T4N8PMNC3G" 
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- AFFICHAGE FORMULAIRE ---
+        function toggleSeriesFields() {
+            const type = document.getElementById('type').value;
+            const fields = document.getElementById('seriesFields');
+            if (type === 'Série') fields.classList.remove('hidden');
+            else fields.classList.add('hidden');
+        }
+
+        // --- 1. AJOUTER ---
+        function ajouterWatchlist() {
+            const titre = document.getElementById('titre').value;
+            const type = document.getElementById('type').value;
+            const platform = document.getElementById('plateforme').value;
+            const nbS = document.getElementById('nbSaisons').value || 1;
+            const nbE = document.getElementById('nbEpisodes').value || 1;
+
+            if(!titre) return alert("Il faut un titre !");
+
+            db.collection('watchlist').add({
+                titre: titre,
+                type: type,
+                platform: platform,
+                totalSaisons: type === 'Série' ? parseInt(nbS) : 0,
+                totalEpisodes: type === 'Série' ? parseInt(nbE) : 0,
+                // Suivi
+                currentSaison: 1,
+                currentEpisode: 1,
+                vuTristhan: false,
+                vuOphylia: false,
+                // Notes
+                noteTristhan: 0,
+                noteOphylia: 0,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("Ajouté !");
+                document.getElementById('titre').value = "";
+                // On remet Film par défaut
+                document.getElementById('type').value = "Film";
+                toggleSeriesFields();
+            });
+        }
+
+        // --- 2. CHARGER & AFFICHER ---
+        function chargerWatchlist() {
+            const grid = document.getElementById('watchlistGrid');
+            
+            db.collection('watchlist').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                grid.innerHTML = "";
+                if(snapshot.empty) { grid.innerHTML = "Rien à regarder..."; return; }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    
+                    // Badge couleur
+                    let badgeClass = "plat-Autre";
+                    if(data.platform.includes('Netflix')) badgeClass = "plat-Netflix";
+                    if(data.platform.includes('Disney')) badgeClass = "plat-Disney";
+                    if(data.platform.includes('Prime')) badgeClass = "plat-Prime";
+
+                    // Partie Série (Compteur)
+                    let seriesHtml = "";
+                    if(data.type === 'Série') {
+                        seriesHtml = `
+                        <div class="series-counter">
+                            <div>
+                                <small>Saison</small><br>
+                                <strong>${data.currentSaison}</strong>
+                            </div>
+                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">
+                                Ep. ${data.currentEpisode}
+                            </div>
+                            <div>
+                                <button class="counter-btn" onclick="updateProgress('${id}', -1, ${data.currentEpisode})">-</button>
+                                <button class="counter-btn" onclick="updateProgress('${id}', 1, ${data.currentEpisode})">+</button>
+                            </div>
+                        </div>`;
+                    }
+
+                    // Checkboxes "Nous" Logic
+                    // Si Tristhan ET Ophylia sont cochés, on coche "Nous" visuellement
+                    const nousChecked = (data.vuTristhan && data.vuOphylia) ? "checked" : "";
+
+                    const card = document.createElement('div');
+                    card.className = "card";
+                    card.innerHTML = `
+                        <button class="delete-btn" onclick="supprimer('${id}')">×</button>
+                        
+                        <div class="card-header">
+                            <div>
+                                <span class="platform-badge ${badgeClass}">${data.platform}</span>
+                                <h3 class="card-title">${data.titre}</h3>
+                                <div class="card-meta">${data.type} ${data.type==='Série' ? `(${data.totalSaisons} S)` : ''}</div>
+                            </div>
+                        </div>
+
+                        ${seriesHtml}
+
+                        <div class="check-zone">
+                            <div class="check-col">
+                                <input type="checkbox" ${data.vuTristhan ? 'checked' : ''} onchange="updateVu('${id}', 'Tristhan', this.checked)">
+                                <label>Tristhan</label>
+                            </div>
+                            <div class="check-col">
+                                <input type="checkbox" ${nousChecked} onchange="updateNous('${id}', this.checked)">
+                                <label style="color:var(--rainy-blue)">NOUS</label>
+                            </div>
+                            <div class="check-col">
+                                <input type="checkbox" ${data.vuOphylia ? 'checked' : ''} onchange="updateVu('${id}', 'Ophylia', this.checked)">
+                                <label>Ophylia</label>
+                            </div>
+                        </div>
+
+                        <div class="rating-zone">
+                            <div class="rating-row">
+                                <span>Note Tristhan</span>
+                                <div>${genererEtoiles(id, 'Tristhan', data.noteTristhan)}</div>
+                            </div>
+                            <div class="rating-row">
+                                <span>Note Ophylia</span>
+                                <div>${genererEtoiles(id, 'Ophylia', data.noteOphylia)}</div>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        // --- 3. LOGIQUES DE MISE À JOUR ---
+
+        // Met à jour une personne individuelle
+        function updateVu(id, personne, etat) {
+            let update = {};
+            if(personne === 'Tristhan') update = { vuTristhan: etat };
+            if(personne === 'Ophylia') update = { vuOphylia: etat };
+            db.collection('watchlist').doc(id).update(update);
+        }
+
+        // Met à jour "NOUS" (donc les deux)
+        function updateNous(id, etat) {
+            db.collection('watchlist').doc(id).update({
+                vuTristhan: etat,
+                vuOphylia: etat
+            });
+        }
+
+        // Met à jour la progression série (Episode + / -)
+        function updateProgress(id, delta, current) {
+            let next = current + delta;
+            if(next < 1) next = 1;
+            // Quand on change d'épisode, on décoche tout le monde (logique de suivi)
+            db.collection('watchlist').doc(id).update({
+                currentEpisode: next,
+                vuTristhan: false,
+                vuOphylia: false
+            });
+        }
+
+        // Génère les étoiles HTML
+        function genererEtoiles(id, personne, noteActuelle) {
+            let html = "";
+            for(let i=1; i<=5; i++) {
+                let colorClass = i <= noteActuelle ? "star-filled" : "star-empty";
+                html += `<span class="stars ${colorClass}" onclick="noter('${id}', '${personne}', ${i})">★</span>`;
+            }
+            return html;
+        }
+
+        function noter(id, personne, note) {
+            let update = {};
+            if(personne === 'Tristhan') update = { noteTristhan: note };
+            if(personne === 'Ophylia') update = { noteOphylia: note };
+            db.collection('watchlist').doc(id).update(update);
+        }
+
+        function supprimer(id) {
+            if(confirm("Supprimer ce titre ?")) db.collection('watchlist').doc(id).delete();
+        }
+
+        // Lancement
+        document.addEventListener('DOMContentLoaded', chargerWatchlist);
+
+    </script>
+</body>
+</html>
