@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8">
-    <title>Idées de sorties 🥰</title>
+    <title>Idées de sorties ☔</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
@@ -12,11 +12,11 @@
     <style>
       /* PALETTE "PLUIE DE JUIN" (Hydrangea Mood) */
       :root {
-          --misty-violet: #5f5baf;  /* Titres, Textes forts */
-          --rainy-blue: #568de4;    /* Boutons d'action, Liens */
-          --rain-purple: #ba9fe1;   /* Bordures douces, Fonds secondaires */
-          --deep-iris: #9a64c5;     /* Accents, Hover */
-          --cloudy-lilac: #c4c5e8;  /* Fond de page */
+          --misty-violet: #5f5baf;  
+          --rainy-blue: #568de4;    
+          --rain-purple: #ba9fe1;   
+          --deep-iris: #9a64c5;     
+          --cloudy-lilac: #c4c5e8;  
           --white: #ffffff;
       }
 
@@ -225,7 +225,7 @@
     <div id="sorties">Chargement...</div>
 
     <script>
-        // CONFIGURATION FIREBASE (La même que les autres pages)
+        // CONFIGURATION FIREBASE EXACTE
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -318,7 +318,9 @@
         }
 
         // Lancer le chargement au démarrage
-        chargerIdees();
+        document.addEventListener('DOMContentLoaded', () => {
+            chargerIdees();
+        });
 
     </script>
   </body>
