@@ -1,73 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
-    <meta charset="utf-8">
-    <title>Idées de sorties</title>
+    <meta charset="UTF-8">
+    <title>Idées de sorties ☔</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <style>
-      body { font-family: 'Arial', sans-serif; background:#ffe3e7; color:#222; text-align: center; }
-      h1 { color:#d9336f; margin-top:20px; }
-      .phrase { font-style:italic; color:#a51c49; margin-bottom:20px; }
+      /* PALETTE "PLUIE DE JUIN" (Hydrangea Mood) */
+      :root {
+          --misty-violet: #5f5baf;  /* Titres, Textes forts */
+          --rainy-blue: #568de4;    /* Boutons d'action, Liens */
+          --rain-purple: #ba9fe1;   /* Bordures douces, Fonds secondaires */
+          --deep-iris: #9a64c5;     /* Accents, Hover */
+          --cloudy-lilac: #c4c5e8;  /* Fond de page */
+          --white: #ffffff;
+      }
+
+      body { 
+        font-family: 'Segoe UI', sans-serif; 
+        background-color: var(--cloudy-lilac); 
+        color: var(--misty-violet); 
+        text-align: center; 
+        margin: 0;
+        padding: 20px;
+        /* Un léger dégradé pour donner de la profondeur comme un ciel de pluie */
+        background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%);
+        min-height: 100vh;
+      }
+
+      h1 { 
+        color: var(--misty-violet); 
+        margin-top: 30px; 
+        font-size: 2.5em;
+        text-shadow: 2px 2px 0px rgba(255,255,255,0.4);
+      }
       
-      nav { margin-bottom: 30px; }
+      .phrase { 
+        font-style: italic; 
+        color: var(--deep-iris); 
+        margin-bottom: 30px; 
+        font-weight: 500;
+      }
+      
+      /* NAVIGATION */
+      nav { margin-bottom: 40px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
+      
       .btn-nav {
-        text-decoration: none; padding: 10px 20px; margin: 0 5px;
-        border-radius: 20px; font-weight: bold; transition: 0.2s; display: inline-block;
+        text-decoration: none; 
+        padding: 10px 25px; 
+        border-radius: 30px; 
+        font-weight: bold; 
+        transition: 0.3s; 
+        display: inline-block;
+        background: rgba(255,255,255,0.6);
+        color: var(--misty-violet);
+        box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1);
       }
-      .actif { background: #d9336f; color: white; }
       
-      #sorties { margin-top: 20px; display:flex; flex-wrap:wrap; justify-content:center; }
+      .actif { 
+        background: var(--misty-violet); 
+        color: var(--white); 
+        box-shadow: 0 4px 15px rgba(95, 91, 175, 0.3);
+      }
+
+      .btn-logout {
+        background: #90a4ae; /* Gris bleuté neutre pour sortir */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+        font-size: 0.9em;
+      }
+      .btn-logout:hover { background: #78909c; }
+      
+      /* FORMULAIRE D'AJOUT */
+      .input-zone {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 20px;
+        max-width: 600px;
+        margin: 0 auto 40px auto;
+        box-shadow: 0 10px 25px rgba(95, 91, 175, 0.15);
+        border: 2px solid var(--rain-purple);
+      }
+
+      input[type="text"], input[type="number"], input[type="date"] { 
+        padding: 12px; 
+        border-radius: 12px; 
+        margin-top: 10px; 
+        border: 1px solid var(--rain-purple); 
+        width: 90%;
+        font-family: inherit;
+        color: var(--misty-violet);
+        background: #fcfaff;
+      }
+      input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
+
+      /* CATEGORIES (CHECKBOXES) */
+      #categories { 
+        margin-top: 15px; 
+        display: flex; 
+        flex-wrap: wrap; 
+        justify-content: center; 
+        gap: 10px; 
+      }
+      #categories label { 
+        font-size: 0.9em; 
+        cursor: pointer; 
+        background: var(--cloudy-lilac); 
+        padding: 5px 10px; 
+        border-radius: 15px; 
+        color: var(--misty-violet);
+        transition: 0.2s;
+        border: 1px solid transparent;
+      }
+      #categories label:hover { background: var(--rain-purple); color: white; }
+      #categories input { margin-right: 5px; accent-color: var(--misty-violet); }
+
+      /* BOUTON AJOUTER */
+      button.add { 
+        background: var(--rainy-blue); 
+        color: var(--white); 
+        cursor: pointer; 
+        border: none; 
+        padding: 12px 30px; 
+        border-radius: 12px; 
+        margin-top: 20px; 
+        font-size: 16px; 
+        font-weight: bold; 
+        width: 100%;
+        max-width: 300px;
+        transition: transform 0.2s, background 0.2s;
+        box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3);
+      }
+      button.add:hover { 
+        background: var(--misty-violet); 
+        transform: translateY(-2px); 
+      }
+      
+      /* CARTES */
+      #sorties { 
+        margin-top: 20px; 
+        display: flex; 
+        flex-wrap: wrap; 
+        justify-content: center; 
+        gap: 20px; 
+      }
       .carte {
-        background:#fff; width:240px; margin:10px; padding:15px;
-        border-radius:15px; box-shadow:0px 2px 5px rgba(0,0,0,0.1);
-        text-align:left; transition: transform .2s; position: relative;
+        background: var(--white); 
+        width: 260px; 
+        padding: 20px;
+        border-radius: 20px; 
+        box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); 
+        text-align: left; 
+        transition: transform 0.2s; 
+        position: relative;
+        border-top: 5px solid var(--rainy-blue); /* Petite touche de couleur en haut */
       }
-      .carte:hover { transform: scale(1.03); }
-      .carte h3 { margin:0; color:#d9336f; }
+      .carte:hover { transform: translateY(-5px); }
       
-      input, button { padding:10px; border-radius:10px; margin-top:10px; border:1px solid #d9336f; }
-      button.add { background:#d9336f; color:#fff; cursor:pointer; border:none; }
-      button.add:hover { background:#a51c49; }
+      .carte h3 { 
+        margin: 0 0 10px 0; 
+        color: var(--misty-violet); 
+        font-size: 1.2em;
+      }
       
-      #categories label { margin-right:10px; font-size:14px; cursor: pointer; }
-      
+      .carte p { color: #666; line-height: 1.5; font-size: 0.95em; }
+
       .btn-delete {
-          background: #ffcccc; color: red; border: none; padding: 5px 10px; 
-          border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 12px;
+          background: #ffcdd2; /* Rouge très doux pastel */
+          color: #c62828; 
+          border: none; 
+          padding: 6px 12px;  
+          border-radius: 8px; 
+          cursor: pointer; 
+          margin-top: 15px; 
+          font-size: 12px;
+          font-weight: bold;
+          float: right;
+          transition: 0.2s;
       }
+      .btn-delete:hover { background: #ef9a9a; }
+
     </style>
   </head>
   <body>
-    <h1>Idées de sorties 💑</h1>
-    <div class="phrase">Pour un petit date ensemble <3</div>
+    <h1>Idées de sorties ☔</h1>
+    <div class="phrase">Pour nos moments à nous...</div>
 
     <nav>
         <span class="btn-nav actif">💡 Idées de sorties</span>
-      <button onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';" style="background:#555; font-size:12px; margin-left:20px; color:white;">🔒 Sortir</button>
+        <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒 Sortir</button>
     </nav>
 
-    <div>
-      <input type="text" id="nouvelleIdee" placeholder="Propose une idée de sortie..." />
-      <input type="date" id="dateIdee" />
-
-      <div id="categories" style="margin-top:10px;">
-        <label><input type="checkbox" value="restaurant"> Restaurant</label>
-        <label><input type="checkbox" value="cinema"> Cinéma</label>
-        <label><input type="checkbox" value="balade"> Balade</label>
-        <label><input type="checkbox" value="maison"> Maison</label>
-        <label><input type="checkbox" value="detente"> Détente</label>
-        <label><input type="checkbox" value="sortie"> Sortie</label>
-        <label><input type="checkbox" value="gratuit"> Gratuit</label>
-        <label><input type="checkbox" value="surprise"> Surprise</label>
+    <div class="input-zone">
+      <input type="text" id="nouvelleIdee" placeholder="✨ Propose une idée..." />
+      
+      <div id="categories">
+        <label><input type="checkbox" value="Resto"> 🍜 Resto</label>
+        <label><input type="checkbox" value="Ciné"> 🍿 Ciné</label>
+        <label><input type="checkbox" value="Balade"> 🌳 Balade</label>
+        <label><input type="checkbox" value="Maison"> 🏠 Maison</label>
+        <label><input type="checkbox" value="Activité"> 🎨 Activité</label>
+        <label><input type="checkbox" value="Surprise"> 🎁 Surprise</label>
       </div>
 
-      <input type="number" id="prixIdee" placeholder="Prix estimé (€)" />
-      <input type="text" id="lieuIdee" placeholder="Lieu (ex: Paris...)" />
+      <div style="display:flex; gap:10px;">
+          <input type="date" id="dateIdee" title="Date prévue" />
+          <input type="number" id="prixIdee" placeholder="Prix (€)" />
+      </div>
+      <input type="text" id="lieuIdee" placeholder="📍 Lieu (ex: Paris...)" />
       
-      <button class="add" onclick="ajouterIdee()">Ajouter</button>
+      <button class="add" onclick="ajouterIdee()">Ajouter à la liste</button>
     </div>
 
     <div id="sorties"></div>
