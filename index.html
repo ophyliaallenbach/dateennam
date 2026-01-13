@@ -87,8 +87,8 @@
       .btn-delete { background: none; border: none; cursor: pointer; font-size: 1.1em; color: #e57373; transition: 0.2s; padding: 5px; border-radius: 50%; }
       .btn-delete:hover { background: #ffebee; color: #c62828; }
     </style>
-  </head>
-  <body>
+</head>
+<body>
 
     <div class="top-nav">
         <a href="musees.html" class="btn-nav">🏛️ Musées</a>
@@ -149,7 +149,7 @@
         function chargerIdees() { 
             const container = document.getElementById('sorties'); 
             
-            // J'ai enlevé 'orderBy' qui cache les vieux documents sans date
+            // On récupère tout sans filtrer pour afficher les vieilles données
             db.collection("dates").onSnapshot((snapshot) => { 
                 container.innerHTML = ""; 
                 
@@ -163,7 +163,7 @@
                     items.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Tri Sécurisé : on met les plus récents en premier, ceux sans date à la fin
+                // Tri Manuel (Safe Mode)
                 items.sort((a, b) => {
                     let timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
                     let timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
@@ -173,21 +173,19 @@
                 items.forEach((data) => { 
                     try {
                         const id = data.id;
-                        // On prend 'texte' OU 'nom' pour être sûr d'avoir le titre
                         const nom = data.texte || data.nom || "Idée sans titre"; 
                         const lieu = data.lieu ? `📍 ${data.lieu}` : "";
                         const prix = data.prix ? `💸 ${data.prix}€` : "";
                         
-                        // Sécurité sur les tags : on vérifie que c'est bien une liste
+                        // Sécurité Tags
                         let tagsHtml = "";
                         if (data.categories && Array.isArray(data.categories)) {
                             tagsHtml = data.categories.map(c => `<span class="badge-cat">${c}</span>`).join("");
                         } else if (typeof data.categories === 'string') {
-                             // Si c'est une vieille donnée en texte
                              tagsHtml = `<span class="badge-cat">${data.categories}</span>`;
                         }
 
-                        // Sécurité sur la date
+                        // Sécurité Date
                         let dateHtml = "";
                         if (data.date) {
                             const today = new Date().toISOString().split('T')[0];
@@ -212,7 +210,7 @@
                         `; 
                         container.appendChild(carte); 
                     } catch (err) {
-                        console.log("Erreur sur un élément (ignoré) :", err);
+                        console.log("Erreur d'affichage sur un élément (ignoré) :", err);
                     }
                 }); 
             }); 
@@ -231,15 +229,14 @@
             if (texte === "") { alert("Il faut au moins un titre !"); return; } 
             
             db.collection("dates").add({ 
-                texte: texte, // Pour compatibilité ancienne
-                nom: texte,   // Pour compatibilité nouvelle
+                texte: texte, // Compatibilité
+                nom: texte,   // Futur
                 categories: categories, 
                 date: date, 
                 prix: prix, 
                 lieu: lieu, 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp() 
             }).then(() => { 
-                // Reset
                 document.getElementById("nouvelleIdee").value = ""; 
                 document.getElementById("dateIdee").value = ""; 
                 document.getElementById("prixIdee").value = ""; 
@@ -260,5 +257,5 @@
         document.addEventListener('DOMContentLoaded', () => { chargerIdees(); });
 
     </script>
-  </body>
+</body>
 </html>
