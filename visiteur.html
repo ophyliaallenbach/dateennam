@@ -1,334 +1,105 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Vitrine Culturelle</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    <title>Vitrine Culturelle ✨</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
     <style>
-        /* PALETTE DE COULEURS "ARC-EN-CIEL DOUX" */
-        :root {
-            --lilac: #9f99d1;   /* Titres, accents */
-            --blue: #86bada;    /* Boutons principaux, tags musée */
-            --pink: #dbaad7;    /* Bordures, tags sortie */
-            --peach: #f6beb0;   /* Boutons d'action secondaire, alertes */
-            --cream: #ffe3b3;   /* Fond principal */
-            --text-dark: #4a4a4a; /* Texte lisible */
-            --white: #ffffff;
-        }
+      /* PALETTE "PLUIE DE JUIN" (Même thème que ta page admin) */
+      :root { --misty-violet: #5f5baf; --rainy-blue: #568de4; --rain-purple: #ba9fe1; --deep-iris: #9a64c5; --cloudy-lilac: #c4c5e8; --white: #ffffff; --alert-red: #e57373; }
+      body { font-family: 'Segoe UI', sans-serif; background-color: var(--cloudy-lilac); color: var(--misty-violet); text-align: center; margin: 0; padding: 20px; background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); min-height: 100vh; }
+      
+      h1 { color: var(--misty-violet); margin-top: 40px; font-size: 2.2em; text-shadow: 2px 2px 0px rgba(255,255,255,0.4); margin-bottom: 5px; }
+      .phrase { font-style: italic; color: var(--deep-iris); margin-bottom: 40px; font-weight: 500; }
+      
+      /* BOUTON RETOUR */
+      .top-nav { position: fixed; top: 10px; left: 10px; z-index: 1000; }
+      .btn-back { background: rgba(255,255,255,0.6); color: var(--misty-violet); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; backdrop-filter: blur(5px); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+      .btn-back:hover { background: var(--white); transform: translateY(-2px); }
 
-        body { 
-            background-color: var(--cream); 
-            color: var(--text-dark); 
-            font-family: 'Segoe UI', sans-serif; 
-            padding: 20px; 
-            margin: 0; 
-            background-image: linear-gradient(to bottom right, var(--cream), #fff5e6); /* Léger dégradé pour plus de douceur */
-        }
+      /* CARTES */
+      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
+      .carte { background: var(--white); width: 280px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 6px solid var(--rainy-blue); animation: fadeIn 0.5s ease; }
+      .carte:hover { transform: translateY(-5px); }
+      
+      .carte h3 { margin: 0 0 10px 0; color: var(--misty-violet); font-size: 1.4em; }
+      .carte p { color: #666; line-height: 1.5; font-size: 1em; margin: 8px 0; }
+      
+      .badge-cat { font-size: 0.85em; background: var(--cloudy-lilac); padding: 4px 10px; border-radius: 12px; color: var(--misty-violet); font-weight: bold; display: inline-block; margin-bottom: 5px; }
+      
+      /* Style date de fin */
+      .date-fin-alert { color: var(--alert-red); font-weight: bold; font-size: 0.95em; display: block; margin-top: 10px; background: #ffebee; padding: 5px 10px; border-radius: 8px; text-align: center; border: 1px dashed var(--alert-red); }
+      .date-prevue { color: var(--rainy-blue); font-weight: bold; display: block; margin-top: 5px; }
 
-        h1 { text-align: center; color: var(--lilac); margin-bottom: 40px; font-weight: 800; text-shadow: 2px 2px 4px rgba(255,255,255,0.5); }
-        .container { max-width: 800px; margin: 0 auto; }
-        
-        /* FORMULAIRE PROPOSITION */
-        .proposition-box { 
-            background: var(--white); 
-            border: 3px dashed var(--pink); 
-            padding: 25px; 
-            border-radius: 20px; 
-            margin-bottom: 40px; 
-            text-align: center; 
-            box-shadow: 0 10px 25px rgba(159, 153, 209, 0.2); /* Ombre Lilac douce */
-        }
-        .proposition-box h2 { margin-top: 0; color: var(--pink); }
-        .proposition-box p { color: #666; }
-
-        input, select, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 8px 0 15px 0; 
-            border: 2px solid var(--pink); 
-            border-radius: 12px; 
-            box-sizing: border-box; 
-            font-family: inherit;
-            background: #fff9fc; /* Blanc légèrement rosé */
-            color: var(--text-dark);
-        }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
-
-        button.btn-propose { 
-            background: var(--blue); 
-            color: var(--white); 
-            border: none; 
-            padding: 12px 20px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 16px; 
-            width: 100%; 
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 4px 10px rgba(134, 186, 218, 0.3);
-        }
-        button.btn-propose:hover { background: var(--lilac); transform: translateY(-2px); }
-
-        /* LISTES */
-        .section-title { 
-            border-bottom: 3px solid var(--cream); 
-            padding-bottom: 10px; 
-            margin-top: 50px; 
-            color: var(--lilac); 
-            font-size: 1.5em;
-        }
-        
-        .item-row { 
-            background: var(--white); 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            border-left: 5px solid var(--lilac);
-            transition: transform 0.2s;
-        }
-        .item-row:hover { transform: translateY(-3px); }
-
-        .row-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
-        .row-header strong { font-size: 1.1em; color: var(--lilac); }
-        .row-infos { font-size: 0.9em; color: #777; margin-top: 5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-        /* TAGS & BADGES */
-        .tag { font-size: 0.75em; padding: 4px 8px; border-radius: 20px; font-weight: bold; text-transform: uppercase; margin-right: 5px; color: var(--white); letter-spacing: 0.5px;}
-        .tag-musee { background: var(--blue); box-shadow: 0 2px 5px rgba(134, 186, 218, 0.4); }
-        .tag-sortie { background: var(--pink); box-shadow: 0 2px 5px rgba(219, 170, 215, 0.4); }
-        
-        .badge-gratuit { background: var(--cream); color: #d4a25c; font-size: 0.75em; padding: 3px 7px; border-radius: 10px; font-weight: bold; border: 1px solid #ebd3a8;}
-        .badge-prix { background: var(--peach); color: var(--white); font-weight: bold; padding: 3px 7px; border-radius: 10px; font-size: 0.85em; box-shadow: 0 2px 5px rgba(246, 190, 176, 0.4);}
-
-        .status-fait { color: var(--blue); font-weight: bold; white-space: nowrap; background: #eef7fc; padding: 5px 10px; border-radius: 10px; }
-        .status-todo { color: var(--peach); font-style: italic; white-space: nowrap; background: #fff2ee; padding: 5px 10px; border-radius: 10px; font-weight: bold;}
-
-        /* BOUTON DATE */
-        .btn-date { 
-            background-color: var(--peach); 
-            color: var(--white); 
-            border: none; 
-            padding: 8px 15px; 
-            border-radius: 25px; 
-            cursor: pointer; 
-            font-size: 0.9em; 
-            margin-top: 10px; 
-            transition: 0.2s; 
-            font-weight: bold; 
-            display: inline-block;
-            box-shadow: 0 3px 8px rgba(246, 190, 176, 0.5);
-        }
-        .btn-date:hover { background-color: var(--pink); transform: scale(1.05); }
-
-        .btn-login { 
-            position: fixed; top: 20px; right: 20px; 
-            background: var(--lilac); color: white; text-decoration: none; 
-            padding: 10px 15px; border-radius: 25px; font-size: 0.9em; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(159, 153, 209, 0.4);
-            transition: 0.2s;
-        }
-        .btn-login:hover { background: var(--blue); transform: translateY(-2px); }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      
+      .empty-msg { font-style: italic; color: var(--misty-violet); margin-top: 50px; font-size: 1.2em; }
     </style>
-</head>
-<body>
-
-    <a href="login.html" class="btn-login">🔐 Connexion Admin</a>
-
-    <div class="container">
-        <h1>✨ Vitrine Culturelle ✨</h1>
-
-        <div class="proposition-box">
-            <h2>💡 Une idée lumineuse ?</h2>
-            <p>Propose-nous une sortie ! Si on valide, elle apparaîtra dans la liste.</p>
-            
-            <select id="propType">
-                <option value="musees">🏛️ C'est un Musée / Expo</option>
-                <option value="sorties">🎭 C'est du Théâtre / Spectacle</option>
-            </select>
-            
-            <input type="text" id="propTitre" placeholder="Titre (Nom du musée ou du spectacle)">
-            
-            <div style="display:flex; gap:10px; flex-wrap: wrap;">
-                <div style="flex:2; min-width: 200px;"><input type="text" id="propLieu" placeholder="📍 Lieu (Adresse...)"></div>
-                <div style="flex:1; min-width: 120px;"><input type="text" id="propPrix" placeholder="💸 Prix estimé"></div>
-            </div>
-
-            <textarea id="propNote" rows="2" placeholder="Pourquoi il faut y aller ? (Lien, infos...)"></textarea>
-            
-            <button class="btn-propose" onclick="envoyerProposition()">🚀 Envoyer l'idée</button>
-        </div>
-
-        <h2 class="section-title">📅 Au programme (À faire)</h2>
-        <div id="listeAFaire">Chargement des merveilles...</div>
-
-        <h2 class="section-title">✅ Dans nos souvenirs (Déjà fait)</h2>
-        <div id="listeFait">Chargement...</div>
+  </head>
+  <body>
+    
+    <div class="top-nav">
+        <a href="login.html" class="btn-back">⬅ Retour</a>
     </div>
 
+    <h1>✨ Vitrine Culturelle</h1>
+    <div class="phrase">Nos envies du moment...</div>
+
+    <div id="sorties">Chargement...</div>
+
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
-            authDomain: "date-d927b.firebaseapp.com",
-            projectId: "date-d927b",
-            storageBucket: "date-d927b.appspot.com",
-            messagingSenderId: "353304192798",
-            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
-            measurementId: "G-T4N8PMNC3G"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
 
-        // 1. ENVOYER UNE PROPOSITION CLASSIQUE
-        function envoyerProposition() {
-            const type = document.getElementById('propType').value;
-            const titre = document.getElementById('propTitre').value;
-            const lieu = document.getElementById('propLieu').value;
-            const prix = document.getElementById('propPrix').value;
-            const note = document.getElementById('propNote').value;
-
-            if(!titre) { alert("Il faut au moins un titre !"); return; }
-
-            // On demande aussi qui propose pour les nouvelles idées
-            const qui = prompt("Qui propose cette idée ? (Ton prénom)");
-            if(!qui) return;
-
-            db.collection('propositions').add({
-                typeCible: type, 
-                nom: titre,      
-                titre: titre,    
-                lieu: lieu || "Non précisé",
-                prix: prix || "Non précisé",
-                commentaire: `Proposé par ${qui}. Note: ${note}`,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("Merci ! Ton idée a été envoyée. ✨");
-                document.getElementById('propTitre').value = '';
-                document.getElementById('propLieu').value = '';
-                document.getElementById('propPrix').value = '';
-                document.getElementById('propNote').value = '';
-            });
-        }
-
-        // 2. PROPOSER UNE DATE (Avec demande du Prénom)
-        function proposerDate(nomItem, typeCollection) {
-            const qui = prompt("C'est qui ? (Ton prénom)");
-            if(!qui) return; // Si annuler, on arrête
-
-            const dispo = prompt("Quand aimerais-tu y aller ? (ex: Ce weekend, Samedi 12...)");
-            if(!dispo) return;
-
-            // On envoie le tout formaté pour que l'admin comprenne direct
-            db.collection('propositions').add({
-                typeCible: typeCollection, 
-                nom: "📅 DISPO : " + nomItem, 
-                titre: "📅 DISPO : " + nomItem,
-                lieu: "Déjà listé",
-                prix: "-",
-                commentaire: `${qui} est chaud pour : ${dispo}`,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("C'est noté ! L'admin a reçu ta dispo. 📅");
-            });
-        }
-
-        // 3. CHARGER AVEC PRIX ET GRATUITÉS
-        async function chargerTout() {
-            const divAFaire = document.getElementById('listeAFaire');
-            const divFait = document.getElementById('listeFait');
-            divAFaire.innerHTML = ''; divFait.innerHTML = '';
-
-            let items = [];
-
-            // Musées (Avec Prix et Tags)
-            const snapMusees = await db.collection('musees').orderBy('timestamp', 'desc').get();
-            snapMusees.forEach(doc => {
-                const d = doc.data();
-                items.push({ 
-                    id: doc.id, 
-                    collection: 'musees',
-                    type: 'musee', 
-                    nom: d.nom, 
-                    fait: d.estVisite, // On garde la compatibilité avec l'ancien système si besoin
-                    details: d.expo || (d.expositions && d.expositions[0] ? d.expositions[0].nom : "Général"),
-                    prix: d.prix,
-                    tags: d.tags || []
-                });
-            });
-
-            // Sorties (Avec Prix)
-            const snapSorties = await db.collection('sorties').orderBy('timestamp', 'desc').get();
-            snapSorties.forEach(doc => {
-                const d = doc.data();
-                const leNom = d.titre || d.nom || "Sortie";
-                items.push({ 
-                    id: doc.id,
-                    collection: 'sorties',
-                    type: 'sortie', 
-                    nom: leNom, 
-                    fait: d.estFait, 
-                    details: d.lieu || "",
-                    prix: d.prix,
-                    tags: [] 
-                });
-            });
-
-            if(items.length === 0) {
-                 divAFaire.innerHTML = "<p style='text-align:center; color:#999;'>Rien de prévu pour l'instant...</p>";
-            }
-
-            // Affichage
-            items.forEach(item => {
-                const tag = item.type === 'musee' ? '<span class="tag tag-musee">🏛️ Musée</span>' : '<span class="tag tag-sortie">🎭 Sortie</span>';
+        function chargerVitrine() { 
+            const container = document.getElementById('sorties'); 
+            
+            // On récupère les idées (collection "dates")
+            db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => { 
+                container.innerHTML = ""; 
                 
-                // Gestion Affichage Prix
-                let prixHtml = "";
-                if(item.prix && item.prix !== "0" && item.prix !== "?") {
-                    prixHtml = `<span class="badge-prix">${item.prix}€</span>`;
-                } else if (item.prix === "0" || item.prix.toLowerCase() === "gratuit") {
-                    prixHtml = `<span class="badge-prix" style="background:var(--blue);">Gratuit</span>`;
-                }
-
-                // Gestion Affichage Gratuités (Tags)
-                let tagsHtml = "";
-                if(item.tags && item.tags.length > 0) {
-                    tagsHtml = item.tags.map(t => `<span class="badge-gratuit">${t}</span>`).join(" ");
-                }
-
-                // Bouton Dispo
-                let btnDateHtml = "";
-                if (!item.fait) {
-                    const nomClean = item.nom.replace(/'/g, "\\'"); 
-                    btnDateHtml = `<div style="text-align:right; width:100%;"><button class="btn-date" onclick="proposerDate('${nomClean}', '${item.collection}')">📅 Proposer une date</button></div>`;
-                }
-
-                const html = `
-                    <div class="item-row">
-                        <div class="row-header">
-                            <div>${tag} <strong>${item.nom}</strong> <br><small style='color:#888'>${item.details}</small></div>
-                            <div class="${item.fait ? 'status-fait' : 'status-todo'}">
-                                ${item.fait ? '✨ Vu' : '⏳ À voir'}
-                            </div>
-                        </div>
-                        
-                        <div class="row-infos">
-                            ${prixHtml} ${tagsHtml}
-                        </div>
-
-                        ${btnDateHtml}
-                    </div>`;
+                if(snapshot.empty) { 
+                    container.innerHTML = "<p class='empty-msg'>Rien de prévu pour l'instant... 💤</p>"; 
+                    return; 
+                } 
                 
-                if(item.fait) divFait.innerHTML += html;
-                else divAFaire.innerHTML += html;
-            });
+                snapshot.forEach((doc) => { 
+                    const data = doc.data(); 
+                    const nom = data.texte || data.nom || "Idée mystère"; 
+                    const cats = data.categories ? data.categories.join(" ") : ""; 
+                    const prix = data.prix ? `💸 ${data.prix}€` : ""; 
+                    const lieu = data.lieu ? `📍 ${data.lieu}` : ""; 
+                    
+                    // Gestion Date Prévue
+                    const dateHtml = data.date ? `<span class="date-prevue">📅 Prévu : ${data.date}</span>` : ""; 
+                    
+                    // Gestion Date Fin (ALERTE)
+                    let dateFinHtml = "";
+                    if (data.dateFin) {
+                        dateFinHtml = `<span class="date-fin-alert">⏳ Finit le : ${data.dateFin}</span>`;
+                    }
+
+                    const carte = document.createElement("div"); 
+                    carte.className = "carte"; 
+                    carte.innerHTML = `
+                        ${cats ? `<span class="badge-cat">${cats}</span>` : ""}
+                        <h3>${nom}</h3>
+                        <p>${lieu} ${prix ? `| ${prix}` : ""}</p>
+                        ${dateHtml}
+                        ${dateFinHtml}
+                    `; 
+                    container.appendChild(carte); 
+                }); 
+            }); 
         }
-        chargerTout();
+        
+        document.addEventListener('DOMContentLoaded', () => { chargerVitrine(); });
     </script>
-</body>
+  </body>
 </html>
