@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Watchlist</title>
+    <title>Watchlist 🍿</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
     
@@ -15,14 +15,8 @@
             --misty-violet: #5f5baf; --rainy-blue: #568de4; --deep-iris: #9a64c5; 
             --cloudy-lilac: #c4c5e8; --white: #ffffff; --bg-soft: #f4f6ff;
             /* Couleurs Plateformes */
-            --netflix: #e50914; 
-            --disney: #113ccf; 
-            --canal: #000000;
-            --hbo: #3C005A;
-            --paramount: #0064FF;
-            --crunchyroll: #F47521;
-            --appletv: #444444;
-            --autre: #999999;
+            --netflix: #e50914; --disney: #113ccf; --canal: #000000; --hbo: #3C005A;
+            --paramount: #0064FF; --crunchyroll: #F47521; --appletv: #444444; --autre: #999999;
         }
         
         body { 
@@ -61,7 +55,6 @@
         }
         button.add-btn:hover { background: var(--misty-violet); }
 
-        /* GRID */
         #watchlistGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
 
         /* CARTE */
@@ -77,7 +70,6 @@
         .card-meta { font-size: 0.85em; color: #888; display: flex; gap: 5px; align-items: center; }
         
         .platform-badge { padding: 3px 8px; border-radius: 5px; color: white; font-weight: bold; font-size: 0.7em; }
-        /* Classes dynamiques pour couleurs */
         .plat-Netflix { background: var(--netflix); }
         .plat-Disney { background: var(--disney); }
         .plat-Canal { background: var(--canal); }
@@ -149,7 +141,7 @@
             </select>
         </div>
 
-        <input type="text" id="autrePlateforme" class="hidden" placeholder="Nom de la plateforme (ex: Arte, YouTube...)">
+        <input type="text" id="autrePlateforme" class="hidden" placeholder="Nom de la plateforme...">
 
         <div id="seriesFields" class="hidden row">
             <input type="number" id="nbSaisons" placeholder="Nb Saisons">
@@ -174,7 +166,6 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Gère l'affichage des champs Saisons
         function toggleSeriesFields() {
             const type = document.getElementById('type').value;
             const fields = document.getElementById('seriesFields');
@@ -182,7 +173,6 @@
             else fields.classList.add('hidden');
         }
 
-        // Gère l'affichage du champ "Autre plateforme"
         function toggleAutreField() {
             const plat = document.getElementById('plateforme').value;
             const autreInput = document.getElementById('autrePlateforme');
@@ -194,13 +184,10 @@
             const titre = document.getElementById('titre').value;
             const type = document.getElementById('type').value;
             let platform = document.getElementById('plateforme').value;
-            
-            // Si c'est "Autre", on prend la valeur du champ texte
             if (platform === 'Autre') {
                 const autreVal = document.getElementById('autrePlateforme').value;
-                platform = autreVal || "Autre"; // Si vide, on garde "Autre"
+                platform = autreVal || "Autre";
             }
-
             const nbS = document.getElementById('nbSaisons').value || 1;
             const nbE = document.getElementById('nbEpisodes').value || 1;
 
@@ -212,8 +199,10 @@
                 platform: platform,
                 totalSaisons: type === 'Série' ? parseInt(nbS) : 0,
                 totalEpisodes: type === 'Série' ? parseInt(nbE) : 0,
-                currentSaison: 1, currentEpisode: 1,
-                vuTristhan: false, vuOphylia: false,
+                currentSaison: 1, 
+                currentEpisode: 1,
+                // On initialise l'objet "episodesData" pour stocker l'historique
+                episodesData: {}, 
                 noteTristhan: 0, noteOphylia: 0,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
@@ -236,11 +225,14 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
+                    const epNum = data.currentEpisode || 1;
                     
-                    // Gestion des couleurs de badges
+                    // Récupération de l'état "Vu" pour l'épisode actuel
+                    // Si pas d'historique (vieille donnée ou jamais coché), on considère non vu.
+                    const epHistory = (data.episodesData && data.episodesData[epNum]) || { vuTristhan: false, vuOphylia: false };
+                    
                     let badgeClass = "plat-Autre";
-                    const p = data.platform.toLowerCase(); // Pour comparer facilement
-                    
+                    const p = data.platform.toLowerCase();
                     if(p.includes('netflix')) badgeClass = "plat-Netflix";
                     else if(p.includes('disney')) badgeClass = "plat-Disney";
                     else if(p.includes('canal')) badgeClass = "plat-Canal";
@@ -254,15 +246,15 @@
                         seriesHtml = `
                         <div class="series-counter">
                             <div><small>Saison</small><br><strong>${data.currentSaison}</strong></div>
-                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">Ep. ${data.currentEpisode}</div>
+                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">Ep. ${epNum}</div>
                             <div>
-                                <button class="counter-btn" onclick="updateProgress('${id}', -1, ${data.currentEpisode})">-</button>
-                                <button class="counter-btn" onclick="updateProgress('${id}', 1, ${data.currentEpisode})">+</button>
+                                <button class="counter-btn" onclick="updateProgress('${id}', -1, ${epNum})">-</button>
+                                <button class="counter-btn" onclick="updateProgress('${id}', 1, ${epNum})">+</button>
                             </div>
                         </div>`;
                     }
 
-                    const nousChecked = (data.vuTristhan && data.vuOphylia) ? "checked" : "";
+                    const nousChecked = (epHistory.vuTristhan && epHistory.vuOphylia) ? "checked" : "";
 
                     const card = document.createElement('div');
                     card.className = "card";
@@ -278,15 +270,15 @@
                         ${seriesHtml}
                         <div class="check-zone">
                             <div class="check-col">
-                                <input type="checkbox" ${data.vuTristhan ? 'checked' : ''} onchange="updateVu('${id}', 'Tristhan', this.checked)">
+                                <input type="checkbox" ${epHistory.vuTristhan ? 'checked' : ''} onchange="updateVu('${id}', ${epNum}, 'Tristhan', this.checked)">
                                 <label>Tristhan</label>
                             </div>
                             <div class="check-col">
-                                <input type="checkbox" ${nousChecked} onchange="updateNous('${id}', this.checked)">
+                                <input type="checkbox" ${nousChecked} onchange="updateNous('${id}', ${epNum}, this.checked)">
                                 <label style="color:var(--rainy-blue)">NOUS</label>
                             </div>
                             <div class="check-col">
-                                <input type="checkbox" ${data.vuOphylia ? 'checked' : ''} onchange="updateVu('${id}', 'Ophylia', this.checked)">
+                                <input type="checkbox" ${epHistory.vuOphylia ? 'checked' : ''} onchange="updateVu('${id}', ${epNum}, 'Ophylia', this.checked)">
                                 <label>Ophylia</label>
                             </div>
                         </div>
@@ -300,21 +292,31 @@
             });
         }
 
-        function updateVu(id, personne, etat) {
-            let update = {};
-            if(personne === 'Tristhan') update = { vuTristhan: etat };
-            if(personne === 'Ophylia') update = { vuOphylia: etat };
-            db.collection('watchlist').doc(id).update(update);
+        // MISE A JOUR PER-EPISODE (Utilise set avec merge pour gérer l'historique)
+        function updateVu(id, epNum, personne, etat) {
+            let updateData = {};
+            // Structure : episodesData : { "1": { vuTristhan: true } }
+            updateData[`episodesData.${epNum}.vu${personne}`] = etat;
+            
+            // On utilise set + merge: true pour créer l'objet s'il n'existe pas
+            let deepObj = { episodesData: {} };
+            deepObj.episodesData[epNum] = {};
+            deepObj.episodesData[epNum][`vu${personne}`] = etat;
+            
+            db.collection('watchlist').doc(id).set(deepObj, { merge: true });
         }
 
-        function updateNous(id, etat) {
-            db.collection('watchlist').doc(id).update({ vuTristhan: etat, vuOphylia: etat });
+        function updateNous(id, epNum, etat) {
+            let deepObj = { episodesData: {} };
+            deepObj.episodesData[epNum] = { vuTristhan: etat, vuOphylia: etat };
+            db.collection('watchlist').doc(id).set(deepObj, { merge: true });
         }
 
         function updateProgress(id, delta, current) {
             let next = current + delta;
             if(next < 1) next = 1;
-            db.collection('watchlist').doc(id).update({ currentEpisode: next, vuTristhan: false, vuOphylia: false });
+            // On change juste le numéro, l'historique sera rechargé au prochain affichage
+            db.collection('watchlist').doc(id).update({ currentEpisode: next });
         }
 
         function genererEtoiles(id, personne, noteActuelle) {
