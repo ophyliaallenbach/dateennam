@@ -1,161 +1,131 @@
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8">
-    <title>Vitrine Culturelle ✨</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+import React from 'react';
+import { Sparkles, MapPin, Ticket, Calendar, Send, Lightbulb, Clock } from 'lucide-react';
 
-    <style>
-      /* THEME MIXTE (Bleu/Violet) */
-      :root { --main-color: #5c6bc0; --bg-color: #e8eaf6; --white: #ffffff; --alert-red: #e57373; --text: #283593; }
-      body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text); text-align: center; margin: 0; padding: 20px; min-height: 100vh; }
+const events = [
+  {
+    id: 1,
+    title: "Bourse de Commerce",
+    subtitle: "Pinault Collection - Minimal",
+    type: "Musée",
+    price: "10.00€",
+    deadline: "2026-01-19",
+    tagColor: "bg-orange-100 text-orange-800"
+  },
+  {
+    id: 2,
+    title: "Petit Palais",
+    subtitle: "Jean-Baptiste Greuze",
+    type: "Musée",
+    price: "10€",
+    deadline: "2026-01-25",
+    tagColor: "bg-yellow-100 text-yellow-800"
+  },
+  {
+    id: 3,
+    title: "Institut Giacometti",
+    subtitle: "Giacometti / MARWAN.OBSESSIONS",
+    type: "Musée",
+    price: "3€",
+    deadline: "2026-01-25",
+    tagColor: "bg-blue-100 text-blue-800"
+  },
+  {
+    id: 4,
+    title: "Mairie du 17e",
+    subtitle: "Hommage à Arman",
+    type: "Expo",
+    price: "Gratuit",
+    deadline: "2026-01-31",
+    tagColor: "bg-green-100 text-green-800"
+  }
+];
+
+const CulturalShowcase = () => {
+  return (
+    // 1. LE FOND : On remplace le bleu gris froid par un crème chaleureux (bg-orange-50)
+    <div className="min-h-screen bg-orange-50 p-8 font-sans">
       
-      h1 { color: var(--main-color); margin-top: 50px; font-size: 2.2em; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-      .phrase { font-style: italic; color: #7986cb; margin-bottom: 40px; font-weight: 500; }
-      
-      /* BOUTON RETOUR */
-      .top-nav { position: fixed; top: 10px; left: 10px; z-index: 1000; }
-      .btn-back { background: rgba(255,255,255,0.8); color: var(--main-color); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; backdrop-filter: blur(5px); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-      .btn-back:hover { background: var(--white); transform: translateY(-2px); }
+      {/* HEADER */}
+      <div className="max-w-5xl mx-auto mb-10 text-center">
+        <h1 className="text-4xl font-bold text-indigo-900 flex justify-center items-center gap-3">
+          <Sparkles className="text-orange-400" />
+          Vitrine Culturelle
+          <Sparkles className="text-orange-400" />
+        </h1>
+        <p className="text-indigo-400 mt-2 italic">Les expos & spectacles du moment...</p>
+      </div>
 
-      /* GRILLE CARTES */
-      #vitrine { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
-      
-      .carte { background: var(--white); width: 280px; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(92, 107, 192, 0.15); text-align: left; transition: transform 0.2s; position: relative; animation: fadeIn 0.5s ease; border-left: 5px solid var(--main-color); }
-      .carte:hover { transform: translateY(-5px); }
-      
-      .type-badge { position: absolute; top: 15px; right: 15px; font-size: 1.2em; }
-      
-      .carte h3 { margin: 0 0 5px 0; color: #1a237e; font-size: 1.2em; padding-right: 30px; }
-      .carte h4 { margin: 0 0 10px 0; color: #5c6bc0; font-size: 1em; font-weight: normal; }
-      .carte p { color: #555; font-size: 0.9em; margin: 5px 0; }
-      
-      .date-fin-alert { 
-          display: block; 
-          margin-top: 15px; 
-          padding: 8px; 
-          background: #ffebee; 
-          color: #c62828; 
-          border-radius: 8px; 
-          font-weight: bold; 
-          font-size: 0.9em; 
-          text-align: center; 
-          border: 1px dashed #ef9a9a; 
-      }
-      
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      .empty-msg { font-style: italic; color: #888; margin-top: 50px; font-size: 1.2em; }
-    </style>
-  </head>
-  <body>
-    
-    <div class="top-nav">
-        <a href="login.html" class="btn-back">⬅ Retour</a>
-    </div>
-
-    <h1>✨ Vitrine Culturelle</h1>
-    <div class="phrase">Les expos & spectacles du moment...</div>
-
-    <div id="vitrine">Chargement...</div>
-
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
-
-        function chargerVitrine() { 
-            const container = document.getElementById('vitrine'); 
-            
-            Promise.all([
-                db.collection('musees').get(),
-                db.collection('sorties').get()
-            ]).then(results => {
-                const museesSnapshot = results[0];
-                const sortiesSnapshot = results[1];
-                let elements = [];
-
-                // 1. RECUPERER LES MUSEES
-                museesSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    
-                    // Formatage données
-                    let listeExpos = [];
-                    if (data.expositions && Array.isArray(data.expositions)) {
-                        listeExpos = data.expositions;
-                    } else {
-                        listeExpos = [{ nom: data.expo || "Expo", dateFin: data.dateFinExpo || "" }];
-                    }
-
-                    listeExpos.forEach(expo => {
-                        // On n'affiche que si c'est pertinent (pas forcément visité, mais qui existe)
-                        elements.push({
-                            type: '🏛️',
-                            titre: data.nom,
-                            sousTitre: expo.nom,
-                            lieu: "Musée",
-                            prix: data.prix,
-                            dateFin: expo.dateFin || null, // DATE DE FIN DE L'EXPO
-                            sortDate: expo.dateFin || "9999-99-99" // Pour trier
-                        });
-                    });
-                });
-
-                // 2. RECUPERER LES SPECTACLES
-                sortiesSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    // On affiche les spectacles
-                    let dateFin = data.dateFin || null;
-                    // Si c'est permanent, pas de date de fin stricte
-                    
-                    elements.push({
-                        type: '🎭',
-                        titre: data.titre || data.nom,
-                        sousTitre: data.type === 'permanente' ? 'Offre Permanente' : 'Événement',
-                        lieu: data.lieu || "",
-                        prix: data.prix,
-                        dateFin: dateFin, // DATE DE FIN DU SPECTACLE
-                        sortDate: dateFin || "9999-99-99"
-                    });
-                });
-
-                // 3. TRIER PAR DATE DE FIN (Les plus urgents en premier)
-                elements.sort((a, b) => a.sortDate.localeCompare(b.sortDate));
-
-                // 4. AFFICHAGE
-                container.innerHTML = "";
-                if(elements.length === 0) {
-                    container.innerHTML = "<p class='empty-msg'>Aucune info culturelle trouvée...</p>";
-                    return;
-                }
-
-                elements.forEach(item => {
-                    // Construction de l'alerte date
-                    let dateHtml = "";
-                    if (item.dateFin) {
-                        dateHtml = `<span class="date-fin-alert">⚠️ Jusqu'au : ${item.dateFin}</span>`;
-                    } else {
-                        dateHtml = `<span style="display:block; margin-top:15px; color:#888; font-size:0.85em; text-align:center;">(Pas de date de fin)</span>`;
-                    }
-
-                    const carte = document.createElement("div"); 
-                    carte.className = "carte"; 
-                    carte.innerHTML = `
-                        <div class="type-badge">${item.type}</div>
-                        <h3>${item.titre}</h3>
-                        <h4>${item.sousTitre}</h4>
-                        <p>📍 ${item.lieu} ${item.prix ? `| 💸 ${item.prix}€` : ""}</p>
-                        ${dateHtml}
-                    `; 
-                    container.appendChild(carte); 
-                });
-            });
-        }
+      {/* 2. LE FORMULAIRE D'IDÉES (Réintroduction de l'interactif) */}
+      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-12 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-300 to-pink-300"></div>
+        <div className="flex items-center gap-2 mb-4 text-orange-500 font-semibold">
+          <Lightbulb size={20} />
+          <h2>Une idée lumineuse ?</h2>
+        </div>
         
-        document.addEventListener('DOMContentLoaded', () => { chargerVitrine(); });
-    </script>
-  </body>
-</html>
+        <div className="flex gap-3">
+          <input 
+            type="text" 
+            placeholder="Propose-nous une sortie (Lieu, titre...)" 
+            className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 transition"
+          />
+          <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium transition flex items-center gap-2">
+            <Send size={16} /> Envoyer
+          </button>
+        </div>
+        <p className="text-xs text-gray-400 mt-2 ml-1">Si on valide, elle apparaîtra dans la liste ci-dessous.</p>
+      </div>
+
+      {/* 3. LA GRILLE (Plus aérée mais avec des cartes denses en info) */}
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        {events.map((event) => (
+          <div key={event.id} className="bg-white rounded-xl p-5 shadow-sm border border-orange-50 hover:shadow-md transition duration-300 flex flex-col justify-between group">
+            
+            {/* Haut de carte */}
+            <div>
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="text-xl font-bold text-indigo-900 group-hover:text-orange-500 transition-colors">
+                  {event.title}
+                </h3>
+                {/* Icône musée discrète */}
+                <div className="bg-gray-100 p-2 rounded-full text-gray-400">
+                  <span className="text-xl">🏛️</span>
+                </div>
+              </div>
+              
+              <p className="text-indigo-400 font-medium mb-4">{event.subtitle}</p>
+
+              {/* Les Tags (Au lieu du texte brut) */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${event.tagColor}`}>
+                  <MapPin size={12} /> {event.type}
+                </span>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600 flex items-center gap-1">
+                  <Ticket size={12} /> {event.price}
+                </span>
+                
+                {/* Date transformée en Tag d'urgence doux au lieu du gros bloc rouge */}
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-500 flex items-center gap-1 border border-red-100">
+                  <Clock size={12} /> Jusqu'au {event.deadline}
+                </span>
+              </div>
+            </div>
+
+            {/* 4. LE BOUTON D'ACTION (Le retour du bouton "Proposer") */}
+            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+               <span className="text-xs text-gray-400 italic">À faire absolument !</span>
+               
+               <button className="bg-orange-300 hover:bg-orange-400 text-white text-sm font-bold py-2 px-4 rounded-full shadow-sm transition transform active:scale-95 flex items-center gap-2">
+                 <Calendar size={14} />
+                 Proposer une date
+               </button>
+            </div>
+
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default CulturalShowcase;
