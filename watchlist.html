@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Watchlist</title>
+    <title>Watchlist 🍿</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
     
@@ -48,13 +48,9 @@
         .row { display: flex; gap: 10px; }
         .hidden { display: none; }
 
-        /* NOUVEAU : Zone pour les inputs dynamiques des saisons */
-        #dynamicSeasons {
-            display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;
-        }
-        .mini-input-saison {
-            width: 80px !important; font-size: 0.8em; text-align: center;
-        }
+        /* Inputs dynamiques saisons */
+        #dynamicSeasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+        .mini-input-saison { width: 80px !important; font-size: 0.8em; text-align: center; }
 
         button.add-btn { 
             width: 100%; background: var(--rainy-blue); color: white; border: none; 
@@ -62,6 +58,13 @@
             cursor: pointer; margin-top: 15px; transition: 0.2s;
         }
         button.add-btn:hover { background: var(--misty-violet); }
+        button.add-btn.mode-edit { background: var(--deep-iris); } /* Couleur différente en mode édition */
+
+        /* Bouton Annuler (visible seulement en édition) */
+        #cancelBtn {
+            background: #ccc; color: #555; border:none; padding: 10px; width: 100%; 
+            border-radius: 10px; cursor: pointer; margin-top: 5px; display: none; font-weight: bold;
+        }
 
         /* GRID */
         #watchlistGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
@@ -75,7 +78,7 @@
         .card:hover { transform: translateY(-5px); }
 
         .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
-        .card-title { font-size: 1.3em; font-weight: 800; color: var(--misty-violet); margin: 0; }
+        .card-title { font-size: 1.3em; font-weight: 800; color: var(--misty-violet); margin: 0; padding-right: 25px; }
         .card-meta { font-size: 0.85em; color: #888; display: flex; gap: 5px; align-items: center; }
         
         .platform-badge { padding: 3px 8px; border-radius: 5px; color: white; font-weight: bold; font-size: 0.7em; }
@@ -113,8 +116,13 @@
         .star-filled { color: #ffc107; }
         .star-empty { color: #ddd; }
 
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2em; cursor: pointer; opacity: 0.3; }
-        .delete-btn:hover { opacity: 1; }
+        /* ACTIONS (Edit / Delete) */
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+        .action-btn { background: none; border: none; font-size: 1.1em; cursor: pointer; opacity: 0.4; transition: 0.2s; }
+        .action-btn:hover { opacity: 1; transform: scale(1.1); }
+        .btn-edit { color: var(--rainy-blue); }
+        .btn-del { color: #e57373; }
+
     </style>
 </head>
 <body>
@@ -130,8 +138,8 @@
     <div class="subtitle">Ce qu'on regarde ensemble (ou pas...)</div>
 
     <div class="add-box">
-        <h3 style="margin-top:0; color:var(--rainy-blue);">Ajouter un titre</h3>
-        <input type="text" id="titre" placeholder="Titre (ex: Spy x Family...)">
+        <h3 style="margin-top:0; color:var(--rainy-blue);" id="formTitle">Ajouter un titre</h3>
+        <input type="hidden" id="editId"> <input type="text" id="titre" placeholder="Titre (ex: Spy x Family...)">
         
         <div class="row">
             <select id="type" onchange="toggleSeriesFields()">
@@ -155,11 +163,11 @@
         <div id="seriesFields" class="hidden">
             <label style="font-size:0.9em; color:var(--misty-violet); font-weight:bold;">Nombre de Saisons :</label>
             <input type="number" id="nbSaisons" placeholder="Ex: 3" oninput="genererChampsSaisons()">
-            
             <div id="dynamicSeasons"></div>
         </div>
 
-        <button class="add-btn" onclick="ajouterWatchlist()">Ajouter à la liste</button>
+        <button id="btnSubmit" class="add-btn" onclick="ajouterWatchlist()">Ajouter à la liste</button>
+        <button id="cancelBtn" onclick="resetForm()">Annuler la modification</button>
     </div>
 
     <div id="watchlistGrid">Chargement...</div>
@@ -177,7 +185,9 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Gère l'affichage des champs Saisons
+        let globalWatchlistData = {}; // Pour stocker les données et faciliter l'édition
+
+        // --- GESTION DU FORMULAIRE ---
         function toggleSeriesFields() {
             const type = document.getElementById('type').value;
             const fields = document.getElementById('seriesFields');
@@ -185,7 +195,6 @@
             else fields.classList.add('hidden');
         }
 
-        // Affiche/Masque "Autre plateforme"
         function toggleAutreField() {
             const plat = document.getElementById('plateforme').value;
             const autreInput = document.getElementById('autrePlateforme');
@@ -193,30 +202,96 @@
             else autreInput.classList.add('hidden');
         }
 
-        // GÉNÈRE LES INPUTS D'ÉPISODES PAR SAISON
-        function genererChampsSaisons() {
+        function genererChampsSaisons(valuesArray = []) {
             const nb = parseInt(document.getElementById('nbSaisons').value) || 0;
             const container = document.getElementById('dynamicSeasons');
-            container.innerHTML = ""; // Reset
+            container.innerHTML = ""; 
 
             for(let i=1; i<=nb; i++) {
                 const input = document.createElement('input');
                 input.type = "number";
                 input.placeholder = `Ep S${i}`;
                 input.className = "mini-input-saison";
-                input.id = `eps_s${i}`; // ID unique pour récupérer la valeur
+                input.id = `eps_s${i}`;
+                if(valuesArray[i-1]) input.value = valuesArray[i-1]; // Pré-remplir si édition
                 container.appendChild(input);
             }
         }
 
+        // --- PREPARER L'EDITION ---
+        function preparerEdition(id) {
+            const data = globalWatchlistData[id];
+            if(!data) return;
+
+            // Remplir les champs de base
+            document.getElementById('editId').value = id;
+            document.getElementById('titre').value = data.titre;
+            document.getElementById('type').value = data.type;
+            
+            // Gestion plateforme
+            const selectPlat = document.getElementById('plateforme');
+            let isStandard = false;
+            for(let i=0; i<selectPlat.options.length; i++) {
+                if(selectPlat.options[i].value === data.platform) isStandard = true;
+            }
+            
+            if(isStandard) {
+                selectPlat.value = data.platform;
+                document.getElementById('autrePlateforme').value = "";
+            } else {
+                selectPlat.value = "Autre";
+                document.getElementById('autrePlateforme').value = data.platform;
+            }
+
+            // Gestion Série
+            if(data.type === 'Série') {
+                document.getElementById('nbSaisons').value = data.totalSaisons;
+                genererChampsSaisons(data.episodesParSaison || []);
+            } else {
+                document.getElementById('nbSaisons').value = "";
+                document.getElementById('dynamicSeasons').innerHTML = "";
+            }
+
+            // UI Updates
+            toggleSeriesFields();
+            toggleAutreField();
+            
+            document.getElementById('formTitle').textContent = "Modifier : " + data.titre;
+            document.getElementById('btnSubmit').textContent = "Modifier la carte";
+            document.getElementById('btnSubmit').classList.add('mode-edit');
+            document.getElementById('cancelBtn').style.display = "block";
+
+            // Scroll vers le haut pour voir le formulaire
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = "";
+            document.getElementById('titre').value = "";
+            document.getElementById('type').value = "Film";
+            document.getElementById('plateforme').value = "Netflix";
+            document.getElementById('autrePlateforme').value = "";
+            document.getElementById('nbSaisons').value = "";
+            document.getElementById('dynamicSeasons').innerHTML = "";
+            
+            toggleSeriesFields();
+            toggleAutreField();
+
+            document.getElementById('formTitle').textContent = "Ajouter un titre";
+            document.getElementById('btnSubmit').textContent = "Ajouter à la liste";
+            document.getElementById('btnSubmit').classList.remove('mode-edit');
+            document.getElementById('cancelBtn').style.display = "none";
+        }
+
+        // --- AJOUTER OU MODIFIER ---
         function ajouterWatchlist() {
+            const idEdit = document.getElementById('editId').value;
             const titre = document.getElementById('titre').value;
             const type = document.getElementById('type').value;
             let platform = document.getElementById('plateforme').value;
             
             if (platform === 'Autre') {
-                const autreVal = document.getElementById('autrePlateforme').value;
-                platform = autreVal || "Autre";
+                platform = document.getElementById('autrePlateforme').value || "Autre";
             }
 
             if(!titre) return alert("Il faut un titre !");
@@ -226,47 +301,59 @@
 
             if (type === 'Série') {
                 totalSaisons = parseInt(document.getElementById('nbSaisons').value) || 1;
-                // On récupère les valeurs des petits inputs générés
                 for(let i=1; i<=totalSaisons; i++) {
                     const val = document.getElementById(`eps_s${i}`).value;
-                    episodesParSaison.push(parseInt(val) || 10); // 10 par défaut si vide
+                    episodesParSaison.push(parseInt(val) || 10);
                 }
             }
 
-            db.collection('watchlist').add({
+            const dataToSave = {
                 titre: titre,
                 type: type,
                 platform: platform,
                 totalSaisons: totalSaisons,
-                episodesParSaison: episodesParSaison, // On stocke le tableau [25, 12, 13]
-                currentSaison: 1, 
-                currentEpisode: 1,
-                episodesData: {}, 
-                noteTristhan: 0, noteOphylia: 0,
+                episodesParSaison: episodesParSaison,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert("Ajouté !");
-                document.getElementById('titre').value = "";
-                document.getElementById('type').value = "Film";
-                document.getElementById('nbSaisons').value = "";
-                document.getElementById('dynamicSeasons').innerHTML = "";
-                toggleSeriesFields();
-            }).catch(e => alert("Erreur ajout : " + e.message));
+            };
+
+            // Initialisation des champs seulement si création
+            if (!idEdit) {
+                dataToSave.currentSaison = 1;
+                dataToSave.currentEpisode = 1;
+                dataToSave.episodesData = {};
+                dataToSave.noteTristhan = 0;
+                dataToSave.noteOphylia = 0;
+            }
+
+            if (idEdit) {
+                // UPDATE
+                db.collection('watchlist').doc(idEdit).update(dataToSave)
+                .then(() => { alert("Modifié !"); resetForm(); })
+                .catch(e => alert("Erreur : " + e.message));
+            } else {
+                // CREATE
+                db.collection('watchlist').add(dataToSave)
+                .then(() => { alert("Ajouté !"); resetForm(); })
+                .catch(e => alert("Erreur : " + e.message));
+            }
         }
 
+        // --- AFFICHAGE ---
         function chargerWatchlist() {
             const grid = document.getElementById('watchlistGrid');
             db.collection('watchlist').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 grid.innerHTML = "";
+                globalWatchlistData = {}; // Reset local data store
+
                 if(snapshot.empty) { grid.innerHTML = "<p>Rien à regarder...</p>"; return; }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
+                    globalWatchlistData[id] = data; // Stockage pour édition
+
                     const sNum = data.currentSaison || 1;
                     const epNum = data.currentEpisode || 1;
-                    
-                    // Clé unique pour l'historique : "S1-E1", "S2-E5", etc.
                     const uniqueKey = `S${sNum}-E${epNum}`;
                     const epHistory = (data.episodesData && data.episodesData[uniqueKey]) || { vuTristhan: false, vuOphylia: false };
                     
@@ -281,19 +368,15 @@
                     else if(p.includes('apple')) badgeClass = "plat-Apple";
 
                     let seriesHtml = "";
-                    let maxEp = 0; // Pour savoir combien d'ep dans la saison actuelle
+                    let maxEp = 0;
 
                     if(data.type === 'Série') {
-                        // Compatibilité avec les anciennes données qui n'ont pas episodesParSaison
                         if(data.episodesParSaison && Array.isArray(data.episodesParSaison)) {
-                            // On prend l'index sNum - 1 car les tableaux commencent à 0
                             maxEp = data.episodesParSaison[sNum - 1] || 99; 
                         } else {
-                            maxEp = data.totalEpisodes || 99;
+                            maxEp = data.totalEpisodes || 99; // Fallback vieux format
                         }
 
-                        // On passe les infos (Saison actuelle, Ep actuel, Max Ep de cette saison, Id, Total Saisons)
-                        // Note: On encode les données complexes en JSON dans l'attribut du bouton pour simplifier
                         const seriesData = JSON.stringify({
                             s: sNum, e: epNum, max: maxEp, totalS: data.totalSaisons, epArray: data.episodesParSaison
                         }).replace(/"/g, "&quot;");
@@ -316,7 +399,11 @@
                     const card = document.createElement('div');
                     card.className = "card";
                     card.innerHTML = `
-                        <button class="delete-btn" onclick="supprimer('${id}')">×</button>
+                        <div class="card-actions">
+                            <button class="action-btn btn-edit" onclick="preparerEdition('${id}')" title="Modifier">✏️</button>
+                            <button class="action-btn btn-del" onclick="supprimer('${id}')" title="Supprimer">×</button>
+                        </div>
+
                         <div class="card-header">
                             <div>
                                 <span class="platform-badge ${badgeClass}">${data.platform}</span>
@@ -353,54 +440,26 @@
             });
         }
 
-        // --- NAVIGATION INTELLIGENTE ---
+        // --- NAVIGATION ET LOGIQUE ---
         function navSeries(id, delta, data) {
-            // data contient { s, e, max, totalS, epArray }
             let newS = data.s;
             let newE = data.e + delta;
 
-            // AVANCER (+)
             if (delta > 0) {
-                // Si on dépasse le max d'épisodes de la saison
                 if (newE > data.max) {
-                    // S'il reste des saisons
-                    if (newS < data.totalS) {
-                        newS++; // Saison suivante
-                        newE = 1; // Episode 1
-                    } else {
-                        // Fin de la série, on bloque
-                        return; 
-                    }
+                    if (newS < data.totalS) { newS++; newE = 1; } else return; 
                 }
-            } 
-            // RECULER (-)
-            else {
-                // Si on passe sous l'épisode 1
+            } else {
                 if (newE < 1) {
-                    // S'il y a une saison avant
                     if (newS > 1) {
-                        newS--; // Saison précédente
-                        // On doit trouver combien d'épisodes avait la saison d'avant
-                        // epArray est [nbS1, nbS2...], donc saison précédente est index (newS - 1)
-                        if(data.epArray) {
-                            newE = data.epArray[newS - 1]; // Dernier épisode de la saison précédente
-                        } else {
-                            newE = 1; // Sécurité si données corrompues
-                        }
-                    } else {
-                        // Début série, on bloque
-                        return;
-                    }
+                        newS--;
+                        if(data.epArray) newE = data.epArray[newS - 1]; else newE = 1;
+                    } else return;
                 }
             }
-
-            db.collection('watchlist').doc(id).update({ 
-                currentSaison: newS,
-                currentEpisode: newE
-            }).catch(e => alert("Erreur nav : " + e.message));
+            db.collection('watchlist').doc(id).update({ currentSaison: newS, currentEpisode: newE });
         }
 
-        // --- SAUVEGARDE HISTORIQUE (Avec clé "S1-E1") ---
         function updateVu(id, uniqueKey, personne, etat) {
             let deepObj = { episodesData: {} };
             deepObj.episodesData[uniqueKey] = {};
