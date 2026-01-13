@@ -52,7 +52,7 @@
         .visite-row { border-bottom: 1px solid var(--quartz); padding: 15px; background: #f8faff; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--lapis); display: flex; justify-content: space-between; gap: 10px; }
         
         /* STYLE DU COMMENTAIRE INVITE */
-        .guest-review { background-color: #e0f2f1; border-left: 4px solid #00897b; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 0.9em; color: #004d40; }
+        .guest-review { background-color: #e0f2f1; border-left: 4px solid #00897b; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 0.9em; color: #004d40; position: relative; }
         .guest-review strong { color: #00695c; }
         
         /* INBOX */
@@ -149,7 +149,6 @@
         let globalMuseesData = {}; let listeAVisiter = []; let listeDonneesFiltrees = []; let indexActuel = 0; let tempExpos = []; let globalPropositions = {};
         function deconnexion() { localStorage.removeItem("estConnecte"); window.location.href = "login.html"; }
 
-        // --- FILTRES ---
         function filtrerListe(critere, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
             let tableauMusees = Object.values(globalMuseesData);
@@ -199,11 +198,16 @@
                             let tagsHtml = (data.tags && data.tags.length > 0) ? data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('') : ""; 
                             let htmlInvite = "";
                             if (expo.avisInvite) {
-                                htmlInvite = `<div class="guest-review"><strong>🖊️ ${expo.avisInvite.auteur} :</strong><br><em>"${expo.avisInvite.message}"</em></div>`;
+                                // GESTION DU BOUTON SUPPRIMER POUR L'AVIS INVITÉ
+                                htmlInvite = `
+                                <div class="guest-review">
+                                    <strong>🖊️ ${expo.avisInvite.auteur} :</strong><br>
+                                    <em>"${expo.avisInvite.message}"</em>
+                                    <button onclick="supprimerAvisInvite('${id}', ${index})" style="position:absolute; top:5px; right:5px; border:none; background:none; cursor:pointer; font-size:12px; opacity:0.6;">❌</button>
+                                </div>`;
                             }
 
                             const row = document.createElement('div'); row.className = 'visite-row'; 
-                            // C'EST ICI QUE J'AI AJOUTÉ LES BOUTONS MODIFIER ET SUPPRIMER
                             row.innerHTML = `
                                 <div style="flex:1;">
                                     <strong style="color:var(--lapis); font-size:1.1em;">${data.nom}</strong> 
@@ -215,8 +219,8 @@
                                 <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
                                     <div style="font-size:1.2em; color:#f6ad55;">${"⭐".repeat(expo.note || 1)}</div>
                                     <div style="display:flex; gap:5px;">
-                                        <button onclick="modifierVisite('${id}', ${index})" style="background:var(--lapis); color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;" title="Modifier">✏️</button>
-                                        <button onclick="annulerVisite('${id}', ${index})" style="background:white; border:2px solid var(--danger-soft); color:var(--danger-soft); padding:6px 10px; border-radius:8px; cursor:pointer;" title="Supprimer l'avis">🗑️</button>
+                                        <button onclick="modifierVisite('${id}', ${index})" style="background:var(--lapis); color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:bold;" title="Modifier">✏️ Modif</button>
+                                        <button onclick="annulerVisite('${id}', ${index})" style="background:#feb2b2; border:2px solid var(--danger-soft); color:#c53030; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:bold;" title="Supprimer l'avis">🗑️ Poubelle</button>
                                     </div>
                                 </div>`; 
                             divVisites.appendChild(row); 
@@ -228,22 +232,18 @@
             }); 
         }
 
-        // --- NOUVELLES FONCTIONS POUR MODIFIER/SUPPRIMER UN AVIS ---
         async function modifierVisite(id, indexExpo) {
             try {
                 const doc = await db.collection('musees').doc(id).get();
                 const data = doc.data();
                 const expo = data.expositions[indexExpo];
-
                 const nouveauComm = prompt("Nouveau commentaire :", expo.commentaire);
                 if (nouveauComm === null) return; 
                 const nouvelleNote = prompt("Nouvelle note (1-5) :", expo.note);
                 const nouvelleDate = prompt("Nouvelle date :", expo.dateVisite);
-
                 data.expositions[indexExpo].commentaire = nouveauComm;
                 data.expositions[indexExpo].note = parseInt(nouvelleNote);
                 data.expositions[indexExpo].dateVisite = nouvelleDate;
-
                 await db.collection('musees').doc(id).update({ expositions: data.expositions });
             } catch (e) { alert("Erreur: " + e.message); }
         }
@@ -253,19 +253,28 @@
             try {
                 const doc = await db.collection('musees').doc(id).get();
                 const data = doc.data();
-                
-                // Remise à zéro
                 data.expositions[indexExpo].estVisite = false;
                 data.expositions[indexExpo].commentaire = null;
                 data.expositions[indexExpo].note = null;
                 data.expositions[indexExpo].dateVisite = null;
                 data.expositions[indexExpo].avisInvite = null;
-
                 await db.collection('musees').doc(id).update({ expositions: data.expositions });
             } catch (e) { alert("Erreur: " + e.message); }
         }
 
-        // --- GESTION INBOX (PROPOSITIONS & AVIS INVITES) ---
+        // --- NOUVELLE FONCTION POUR SUPPRIMER JUSTE L'AVIS INVITE ---
+        async function supprimerAvisInvite(id, indexExpo) {
+            if (!confirm("Supprimer uniquement l'avis de l'invité ?")) return;
+            try {
+                const doc = await db.collection('musees').doc(id).get();
+                const data = doc.data();
+                if(data.expositions[indexExpo]) {
+                    data.expositions[indexExpo].avisInvite = null;
+                    await db.collection('musees').doc(id).update({ expositions: data.expositions });
+                }
+            } catch (e) { alert("Erreur: " + e.message); }
+        }
+
         function chargerPropositions() { 
             const divProp = document.getElementById('listePropositions'); 
             const container = document.getElementById('inbox-container'); 
@@ -309,7 +318,6 @@
         function accepterProposition(propId) { const prop = globalPropositions[propId]; if(!prop || !confirm("Ajouter ?")) return; let dataToAdd = { nom: prop.nom || prop.titre, prix: prop.prix || "0", tags: [], expositions: [{ nom: "Général", estVisite: false }], timestamp: firebase.firestore.FieldValue.serverTimestamp() }; db.collection('musees').add(dataToAdd).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); }); }
         function supprimerProposition(id) { if(confirm("Refuser ?")) db.collection('propositions').doc(id).delete(); }
         
-        // --- FONCTIONS STANDARD ---
         function afficherCarteCarousel() { const zone = document.getElementById('zoneCarteUnique'); if (listeAVisiter.length === 0) { zone.innerHTML = "<p style='color:var(--lapis); font-weight:bold;'>Rien à afficher</p>"; return; } if (indexActuel >= listeAVisiter.length) indexActuel = 0; if (indexActuel < 0) indexActuel = listeAVisiter.length - 1; zone.innerHTML = listeAVisiter[indexActuel]; }
         function carteSuivante() { if (listeAVisiter.length > 0) { indexActuel++; afficherCarteCarousel(); } }
         function cartePrecedente() { if (listeAVisiter.length > 0) { indexActuel--; afficherCarteCarousel(); } }
