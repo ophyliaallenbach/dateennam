@@ -243,7 +243,7 @@
         function chargerIdees() {
             const container = document.getElementById('sorties');
             
-            db.collection("idees").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+            db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
                 container.innerHTML = "";
                 
                 if(snapshot.empty) {
