@@ -10,35 +10,45 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-      /* PALETTE "PLUIE DE JUIN" (Même thème que ta page admin) */
-      :root { --misty-violet: #5f5baf; --rainy-blue: #568de4; --rain-purple: #ba9fe1; --deep-iris: #9a64c5; --cloudy-lilac: #c4c5e8; --white: #ffffff; --alert-red: #e57373; }
-      body { font-family: 'Segoe UI', sans-serif; background-color: var(--cloudy-lilac); color: var(--misty-violet); text-align: center; margin: 0; padding: 20px; background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); min-height: 100vh; }
+      /* THEME MIXTE (Bleu/Violet) */
+      :root { --main-color: #5c6bc0; --bg-color: #e8eaf6; --white: #ffffff; --alert-red: #e57373; --text: #283593; }
+      body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text); text-align: center; margin: 0; padding: 20px; min-height: 100vh; }
       
-      h1 { color: var(--misty-violet); margin-top: 40px; font-size: 2.2em; text-shadow: 2px 2px 0px rgba(255,255,255,0.4); margin-bottom: 5px; }
-      .phrase { font-style: italic; color: var(--deep-iris); margin-bottom: 40px; font-weight: 500; }
+      h1 { color: var(--main-color); margin-top: 50px; font-size: 2.2em; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+      .phrase { font-style: italic; color: #7986cb; margin-bottom: 40px; font-weight: 500; }
       
       /* BOUTON RETOUR */
       .top-nav { position: fixed; top: 10px; left: 10px; z-index: 1000; }
-      .btn-back { background: rgba(255,255,255,0.6); color: var(--misty-violet); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; backdrop-filter: blur(5px); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+      .btn-back { background: rgba(255,255,255,0.8); color: var(--main-color); border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; backdrop-filter: blur(5px); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
       .btn-back:hover { background: var(--white); transform: translateY(-2px); }
 
-      /* CARTES */
-      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
-      .carte { background: var(--white); width: 280px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 6px solid var(--rainy-blue); animation: fadeIn 0.5s ease; }
+      /* GRILLE CARTES */
+      #vitrine { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
+      
+      .carte { background: var(--white); width: 280px; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(92, 107, 192, 0.15); text-align: left; transition: transform 0.2s; position: relative; animation: fadeIn 0.5s ease; border-left: 5px solid var(--main-color); }
       .carte:hover { transform: translateY(-5px); }
       
-      .carte h3 { margin: 0 0 10px 0; color: var(--misty-violet); font-size: 1.4em; }
-      .carte p { color: #666; line-height: 1.5; font-size: 1em; margin: 8px 0; }
+      .type-badge { position: absolute; top: 15px; right: 15px; font-size: 1.2em; }
       
-      .badge-cat { font-size: 0.85em; background: var(--cloudy-lilac); padding: 4px 10px; border-radius: 12px; color: var(--misty-violet); font-weight: bold; display: inline-block; margin-bottom: 5px; }
+      .carte h3 { margin: 0 0 5px 0; color: #1a237e; font-size: 1.2em; padding-right: 30px; }
+      .carte h4 { margin: 0 0 10px 0; color: #5c6bc0; font-size: 1em; font-weight: normal; }
+      .carte p { color: #555; font-size: 0.9em; margin: 5px 0; }
       
-      /* Style date de fin */
-      .date-fin-alert { color: var(--alert-red); font-weight: bold; font-size: 0.95em; display: block; margin-top: 10px; background: #ffebee; padding: 5px 10px; border-radius: 8px; text-align: center; border: 1px dashed var(--alert-red); }
-      .date-prevue { color: var(--rainy-blue); font-weight: bold; display: block; margin-top: 5px; }
-
+      .date-fin-alert { 
+          display: block; 
+          margin-top: 15px; 
+          padding: 8px; 
+          background: #ffebee; 
+          color: #c62828; 
+          border-radius: 8px; 
+          font-weight: bold; 
+          font-size: 0.9em; 
+          text-align: center; 
+          border: 1px dashed #ef9a9a; 
+      }
+      
       @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      
-      .empty-msg { font-style: italic; color: var(--misty-violet); margin-top: 50px; font-size: 1.2em; }
+      .empty-msg { font-style: italic; color: #888; margin-top: 50px; font-size: 1.2em; }
     </style>
   </head>
   <body>
@@ -48,9 +58,9 @@
     </div>
 
     <h1>✨ Vitrine Culturelle</h1>
-    <div class="phrase">Nos envies du moment...</div>
+    <div class="phrase">Les expos & spectacles du moment...</div>
 
-    <div id="sorties">Chargement...</div>
+    <div id="vitrine">Chargement...</div>
 
     <script>
         const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
@@ -58,45 +68,91 @@
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
 
         function chargerVitrine() { 
-            const container = document.getElementById('sorties'); 
+            const container = document.getElementById('vitrine'); 
             
-            // On récupère les idées (collection "dates")
-            db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => { 
-                container.innerHTML = ""; 
-                
-                if(snapshot.empty) { 
-                    container.innerHTML = "<p class='empty-msg'>Rien de prévu pour l'instant... 💤</p>"; 
-                    return; 
-                } 
-                
-                snapshot.forEach((doc) => { 
-                    const data = doc.data(); 
-                    const nom = data.texte || data.nom || "Idée mystère"; 
-                    const cats = data.categories ? data.categories.join(" ") : ""; 
-                    const prix = data.prix ? `💸 ${data.prix}€` : ""; 
-                    const lieu = data.lieu ? `📍 ${data.lieu}` : ""; 
+            Promise.all([
+                db.collection('musees').get(),
+                db.collection('sorties').get()
+            ]).then(results => {
+                const museesSnapshot = results[0];
+                const sortiesSnapshot = results[1];
+                let elements = [];
+
+                // 1. RECUPERER LES MUSEES
+                museesSnapshot.forEach(doc => {
+                    const data = doc.data();
                     
-                    // Gestion Date Prévue
-                    const dateHtml = data.date ? `<span class="date-prevue">📅 Prévu : ${data.date}</span>` : ""; 
+                    // Formatage données
+                    let listeExpos = [];
+                    if (data.expositions && Array.isArray(data.expositions)) {
+                        listeExpos = data.expositions;
+                    } else {
+                        listeExpos = [{ nom: data.expo || "Expo", dateFin: data.dateFinExpo || "" }];
+                    }
+
+                    listeExpos.forEach(expo => {
+                        // On n'affiche que si c'est pertinent (pas forcément visité, mais qui existe)
+                        elements.push({
+                            type: '🏛️',
+                            titre: data.nom,
+                            sousTitre: expo.nom,
+                            lieu: "Musée",
+                            prix: data.prix,
+                            dateFin: expo.dateFin || null, // DATE DE FIN DE L'EXPO
+                            sortDate: expo.dateFin || "9999-99-99" // Pour trier
+                        });
+                    });
+                });
+
+                // 2. RECUPERER LES SPECTACLES
+                sortiesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    // On affiche les spectacles
+                    let dateFin = data.dateFin || null;
+                    // Si c'est permanent, pas de date de fin stricte
                     
-                    // Gestion Date Fin (ALERTE)
-                    let dateFinHtml = "";
-                    if (data.dateFin) {
-                        dateFinHtml = `<span class="date-fin-alert">⏳ Finit le : ${data.dateFin}</span>`;
+                    elements.push({
+                        type: '🎭',
+                        titre: data.titre || data.nom,
+                        sousTitre: data.type === 'permanente' ? 'Offre Permanente' : 'Événement',
+                        lieu: data.lieu || "",
+                        prix: data.prix,
+                        dateFin: dateFin, // DATE DE FIN DU SPECTACLE
+                        sortDate: dateFin || "9999-99-99"
+                    });
+                });
+
+                // 3. TRIER PAR DATE DE FIN (Les plus urgents en premier)
+                elements.sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+                // 4. AFFICHAGE
+                container.innerHTML = "";
+                if(elements.length === 0) {
+                    container.innerHTML = "<p class='empty-msg'>Aucune info culturelle trouvée...</p>";
+                    return;
+                }
+
+                elements.forEach(item => {
+                    // Construction de l'alerte date
+                    let dateHtml = "";
+                    if (item.dateFin) {
+                        dateHtml = `<span class="date-fin-alert">⚠️ Jusqu'au : ${item.dateFin}</span>`;
+                    } else {
+                        dateHtml = `<span style="display:block; margin-top:15px; color:#888; font-size:0.85em; text-align:center;">(Pas de date de fin)</span>`;
                     }
 
                     const carte = document.createElement("div"); 
                     carte.className = "carte"; 
                     carte.innerHTML = `
-                        ${cats ? `<span class="badge-cat">${cats}</span>` : ""}
-                        <h3>${nom}</h3>
-                        <p>${lieu} ${prix ? `| ${prix}` : ""}</p>
+                        <div class="type-badge">${item.type}</div>
+                        <h3>${item.titre}</h3>
+                        <h4>${item.sousTitre}</h4>
+                        <p>📍 ${item.lieu} ${item.prix ? `| 💸 ${item.prix}€` : ""}</p>
                         ${dateHtml}
-                        ${dateFinHtml}
                     `; 
                     container.appendChild(carte); 
-                }); 
-            }); 
+                });
+            });
         }
         
         document.addEventListener('DOMContentLoaded', () => { chargerVitrine(); });
