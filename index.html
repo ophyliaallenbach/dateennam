@@ -108,7 +108,10 @@
     <div id="sorties">
         <p style="color: var(--misty-violet); font-style: italic;">Chargement des idées...</p>
     </div>
-
+    // --- SÉCURITÉ : VÉRIFICATION DE LA CONNEXION ---
+        if (!localStorage.getItem("estConnecte")) {
+    window.location.href = "login.html";
+    }
     <script>
         // CONFIGURATION FIREBASE
         const firebaseConfig = { 
