@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes Musées</title>
+    <title>Mes Musées 🏛️</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
     
@@ -81,8 +81,8 @@
    <div class="top-nav">
         <button onclick="trierParUrgence()" class="btn-sort">⏳</button>
         <a href="index.html" class="btn-nav">🥰 Idées</a>
-        <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>:
-       <a href="watchlist.html" class="btn-nav">🍿 Watchlist</a>
+        <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>
+        <a href="watchlist.html" class="btn-nav">🍿 Watchlist</a>
         <button onclick="deconnexion()" class="btn-logout">🔒</button>
     </div>
 
@@ -143,6 +143,11 @@
     </div>
 
     <script>
+        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
+        if (!localStorage.getItem("estConnecte")) {
+            window.location.href = "login.html";
+        }
+
         const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
         if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
@@ -199,7 +204,6 @@
                             let tagsHtml = (data.tags && data.tags.length > 0) ? data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('') : ""; 
                             let htmlInvite = "";
                             if (expo.avisInvite) {
-                                // GESTION DU BOUTON SUPPRIMER POUR L'AVIS INVITÉ
                                 htmlInvite = `
                                 <div class="guest-review">
                                     <strong>🖊️ ${expo.avisInvite.auteur} :</strong><br>
@@ -263,7 +267,6 @@
             } catch (e) { alert("Erreur: " + e.message); }
         }
 
-        // --- NOUVELLE FONCTION POUR SUPPRIMER JUSTE L'AVIS INVITE ---
         async function supprimerAvisInvite(id, indexExpo) {
             if (!confirm("Supprimer uniquement l'avis de l'invité ?")) return;
             try {
