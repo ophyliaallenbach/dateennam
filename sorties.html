@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Sorties Culturelles</title>
+    <title>Sorties Culturelles 🎭</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
     
@@ -26,7 +26,6 @@
         .form-container { flex: 1; min-width: 300px; background: var(--white); padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(49, 42, 68, 0.1); position: sticky; top: 80px; border: 1px solid var(--plum-blossom); z-index: 10; }
         .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 400px; background: rgba(255,255,255,0.5); border-radius: 25px; padding: 15px; border: 3px dotted var(--iris-mist); }
         
-        /* --- MEDIA QUERY MOBILE --- */
         @media (max-width: 768px) {
             .top-section { flex-direction: column; } /* Formulaire au dessus, carte en dessous */
             .form-container { width: 100%; min-width: 0; position: static; padding: 20px; margin-bottom: 20px; box-sizing: border-box; }
@@ -42,9 +41,15 @@
         .card-tinder { background: var(--white); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(49, 42, 68, 0.15); border-top: 5px solid var(--dusky-lilac); text-align: center; animation: fadeIn 0.5s ease; position: relative; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .arrow-btn { background: var(--iris-mist); color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        
+        /* HISTORIQUE */
         .history-section { background: var(--white); padding: 20px; border-radius: 25px; margin-top: 40px; }
         .history-section h2 { color: var(--midnight-orchid); border-bottom: 2px solid var(--silver-wisteria); padding-bottom: 10px; text-align: left; }
         .visite-row { border-bottom: 1px solid var(--silver-wisteria); padding: 15px; background: #fdfdfd; border-radius: 10px; margin-bottom: 10px; border-left: 3px solid var(--iris-mist); }
+        
+        /* STYLE AVIS INVITE */
+        .guest-review { background-color: #f3e5f5; border-left: 4px solid #8e24aa; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 0.9em; color: #4a148c; }
+        
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 2px solid var(--iris-mist); border-radius: 10px; box-sizing: border-box; font-family: inherit; background: #faf9fb; color: var(--midnight-orchid); font-weight: 500; }
         input:focus { outline: none; border-color: var(--dusky-lilac); background: #fff; }
         .switch-container { display: flex; background: var(--silver-wisteria); border-radius: 10px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--iris-mist); }
@@ -64,6 +69,7 @@
         .tag-perm { background: var(--plum-blossom); color: var(--midnight-orchid); }
         .tag-temp { background: var(--dusky-lilac); color: white; }
         .alert-reserv { color: var(--drama-red); font-weight: bold; font-size: 0.9em; margin-top: 5px; display: block; }
+        
         #inbox-container { display:none; margin:20px 0; }
         .inbox-alert { background:var(--white); border:2px dashed var(--iris-mist); padding:15px; border-radius:15px;}
         .prop-item { background:#fdfdfd; padding:10px; margin:5px 0; border-radius:10px; border-left:4px solid var(--dusky-lilac); display:flex; justify-content:space-between;}
@@ -82,7 +88,7 @@
 
     <div id="inbox-container">
         <div class="inbox-alert">
-            <h3 style="margin-top:0; color:var(--midnight-orchid);">📬 Propositions</h3>
+            <h3 style="margin-top:0; color:var(--midnight-orchid);">📬 Notifications</h3>
             <div id="listePropositions"></div>
         </div>
     </div>
@@ -160,14 +166,59 @@
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
         let listeASortir = []; let indexActuel = 0; let globalSortiesData = {}; let globalPropositions = {};
         function deconnexion() { localStorage.removeItem("estConnecte"); window.location.href = "login.html"; }
+        
         function chargerPropositions() { const divProp = document.getElementById('listePropositions'); const container = document.getElementById('inbox-container'); db.collection('propositions').onSnapshot(snapshot => { if (snapshot.empty) { container.style.display = 'none'; return; } container.style.display = 'block'; divProp.innerHTML = ''; snapshot.forEach(doc => { const d = doc.data(); const id = doc.id; globalPropositions[id] = d; const typeLabel = (d.typeCible === 'musees') ? '🏛️ Musée' : '🎭 Sortie'; const el = document.createElement('div'); el.className = 'prop-item'; el.innerHTML = `<div><strong style="color:var(--dusky-lilac); font-size:0.9em;">${typeLabel} : ${d.nom || d.titre}</strong><br><small style="color:var(--iris-mist);">${d.lieu || ''}</small></div><div><button class="btn-accept" onclick="accepterProposition('${id}')">✅</button><button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button></div>`; divProp.appendChild(el); }); }); }
+        
         function accepterProposition(propId) { const prop = globalPropositions[propId]; if(!prop || !confirm("Ajouter ?")) return; let dataToAdd = { titre: prop.titre || prop.nom, type: 'temporaire', lieu: prop.lieu || 'A définir', prix: prop.prix || "0", estFait: false, estReserve: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }; db.collection(prop.typeCible).add(dataToAdd).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); }); }
         function supprimerProposition(id) { if(confirm("Refuser ?")) db.collection('propositions').doc(id).delete(); }
+        
+        // --- NOUVELLE FONCTION VALIDATION ROBUSTE ---
+        function accepterAvis(propId) {
+            // (Même logique que sur la page Musées pour être sûr)
+            const prop = globalPropositions[propId];
+            if(!prop || !confirm("Valider l'avis de " + prop.auteur + " ?")) return;
+            if (prop.sourceType === 'sortie') {
+                db.collection('sorties').doc(prop.docId).update({
+                    avisInvite: { auteur: prop.auteur, message: prop.commentaire }
+                }).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); });
+            }
+        }
+
         function changerType(type) { document.getElementById('typeSortie').value = type; if(type === 'permanente') { document.getElementById('optPerm').classList.add('active'); document.getElementById('optTemp').classList.remove('active'); document.getElementById('champsPerm').classList.add('visible'); document.getElementById('champsTemp').classList.remove('visible'); } else { document.getElementById('optPerm').classList.remove('active'); document.getElementById('optTemp').classList.add('active'); document.getElementById('champsPerm').classList.remove('visible'); document.getElementById('champsTemp').classList.add('visible'); } }
         function basculerDetails() { const caseCochee = document.getElementById("estFait").checked; document.getElementById("detailsVisite").style.display = caseCochee ? "block" : "none"; }
         function basculerReservation() { const caseCochee = document.getElementById("estReserve").checked; document.getElementById("dateReservEffectiveDiv").style.display = caseCochee ? "block" : "none"; }
         function gererEnregistrement() { try { const idModif = document.getElementById('editId').value; const type = document.getElementById('typeSortie').value; const titre = document.getElementById('titre').value; const lieu = document.getElementById('lieu').value; const prix = document.getElementById('prix').value; const estReserve = document.getElementById('estReserve').checked; const dateEffectiveReserv = document.getElementById('dateEffectiveReserv').value; const estFait = document.getElementById('estFait').checked; if (!titre) { alert("Il faut un titre !"); return; } let data = { type: type, titre: titre, lieu: lieu, prix: prix, estReserve: estReserve, dateEffectiveReserv: dateEffectiveReserv, estFait: estFait, timestamp: firebase.firestore.FieldValue.serverTimestamp() }; if (type === 'permanente') { data.datesInfos = document.getElementById('datesPerm').value; } else { data.dateDebut = document.getElementById('dateDebut').value; data.dateFin = document.getElementById('dateFin').value; data.dateReserv = document.getElementById('dateReserv').value; } if (estFait) { data.dateSortie = document.getElementById('dateSortie').value; data.note = document.getElementById('noteSortie').value; data.commentaire = document.getElementById('commentaire').value; } if (idModif) { db.collection('sorties').doc(idModif).update(data).then(() => { resetForm(); alert("MAJ OK"); }); } else { db.collection('sorties').add(data).then(() => { resetForm(); alert("Enregistré"); }); } } catch (error) { alert("Erreur : " + error.message); } }
-        function chargerSorties() { const divVisites = document.getElementById('listeVisites'); const zoneCarte = document.getElementById('zoneCarteUnique'); db.collection('sorties').orderBy('timestamp', 'desc').onSnapshot(snapshot => { listeASortir = []; divVisites.innerHTML = ''; globalSortiesData = {}; if (snapshot.empty) { zoneCarte.innerHTML = "<p>Rien de prévu...</p>"; divVisites.innerHTML = "<p style='color:var(--iris-mist);'>Rien...</p>"; return; } snapshot.forEach(doc => { const data = doc.data(); const id = doc.id; data.id = id; globalSortiesData[id] = data; const titreAffiche = data.titre || data.nom || "Sortie sans titre"; const lieuAffiche = data.lieu || ""; const prixAffiche = data.prix || "?"; if (data.estFait) { const row = document.createElement('div'); row.className = 'visite-row'; row.innerHTML = `<div style="flex:1; min-width:200px;"><strong>${titreAffiche}</strong> <span style="font-size:0.9em; color:var(--dusky-lilac)">(${lieuAffiche})</span><br><small>📅 ${data.dateSortie || '?'} | 💸 ${prixAffiche}</small><br><em style="color:#555; font-size:0.9em;">"${data.commentaire || ''}"</em></div><div style="text-align:right;"><div>${"⭐".repeat(data.note || 1)}</div><button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--iris-mist); color:var(--iris-mist); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; font-weight:bold; margin-top:5px;">✏️</button></div>`; divVisites.appendChild(row); } else { let tagType = ""; let infoSup = ""; let reservationBadge = ""; if (data.type === 'permanente') { tagType = `<span class="tag-type tag-perm">💎 Perm</span>`; infoSup = `<p style="color:var(--midnight-orchid); font-weight:bold; margin:5px 0;">${data.datesInfos || 'Tout le temps'}</p>`; } else { tagType = `<span class="tag-type tag-temp">📅 Daté</span>`; const range = (data.dateDebut || data.dateFin) ? `Du ${data.dateDebut || '?'} au ${data.dateFin || '?'}` : ""; const reserv = data.dateReserv ? `<br><span class="alert-reserv">⚠️ Réserver avant : ${data.dateReserv}</span>` : ""; infoSup = `<p style="margin:5px 0;">${range}${reserv}</p>`; } if (data.estReserve) { const dateR = data.dateEffectiveReserv ? data.dateEffectiveReserv : "Date inconnue"; reservationBadge = `<div class="badge-reservation">🎟️ Réservé pour le ${dateR} !</div>`; } let carteHtml = `<div class="card-tinder">${tagType}<h3 style="color:var(--midnight-orchid); margin-bottom:5px; margin-top:0; font-size:1.4em;">${titreAffiche}</h3><p style="color:#666; margin:5px 0;">${lieuAffiche}</p><p style="font-weight:bold; color:var(--dusky-lilac); margin:5px 0;">💸 ${prixAffiche}</p>${infoSup}${reservationBadge}<button class="btn-check" onclick="passerEnFait('${id}')">✅ C'est vu !</button><div style="margin-top:15px; display:flex; justify-content:center; gap:10px;"><button onclick="preparerModification('${id}')" style="background:var(--white); border:2px solid var(--iris-mist); color:var(--iris-mist); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">✏️</button><button onclick="supprimerSortie('${id}')" style="background:var(--white); border:2px solid var(--drama-red); color:var(--drama-red); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">🗑️</button></div></div>`; listeASortir.push(carteHtml); } }); afficherCarteCarousel(); }); }
+        
+        function chargerSorties() { 
+            const divVisites = document.getElementById('listeVisites'); 
+            const zoneCarte = document.getElementById('zoneCarteUnique'); 
+            db.collection('sorties').orderBy('timestamp', 'desc').onSnapshot(snapshot => { 
+                listeASortir = []; divVisites.innerHTML = ''; globalSortiesData = {}; 
+                if (snapshot.empty) { zoneCarte.innerHTML = "<p>Rien de prévu...</p>"; divVisites.innerHTML = "<p style='color:var(--iris-mist);'>Rien...</p>"; return; } 
+                snapshot.forEach(doc => { 
+                    const data = doc.data(); const id = doc.id; data.id = id; globalSortiesData[id] = data; 
+                    const titreAffiche = data.titre || data.nom || "Sortie sans titre"; const lieuAffiche = data.lieu || ""; const prixAffiche = data.prix || "?"; 
+                    if (data.estFait) { 
+                        // --- AVIS INVITE ---
+                        let htmlInvite = "";
+                        if (data.avisInvite) {
+                            htmlInvite = `<div class="guest-review"><strong>🖊️ ${data.avisInvite.auteur} :</strong><br><em>"${data.avisInvite.message}"</em></div>`;
+                        }
+
+                        const row = document.createElement('div'); row.className = 'visite-row'; 
+                        row.innerHTML = `<div style="flex:1; min-width:200px;"><strong>${titreAffiche}</strong> <span style="font-size:0.9em; color:var(--dusky-lilac)">(${lieuAffiche})</span><br><small>📅 ${data.dateSortie || '?'} | 💸 ${prixAffiche}</small><br><em style="color:#555; font-size:0.9em;">"${data.commentaire || ''}"</em>${htmlInvite}</div><div style="text-align:right;"><div>${"⭐".repeat(data.note || 1)}</div><button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--iris-mist); color:var(--iris-mist); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; font-weight:bold; margin-top:5px;">✏️</button><button onclick="supprimerSortie('${id}')" style="background:none; border:2px solid var(--drama-red); color:var(--drama-red); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-left:5px; font-weight:bold;">🗑️</button></div>`; 
+                        divVisites.appendChild(row); 
+                    } else { 
+                        let tagType = ""; let infoSup = ""; let reservationBadge = ""; 
+                        if (data.type === 'permanente') { tagType = `<span class="tag-type tag-perm">💎 Perm</span>`; infoSup = `<p style="color:var(--midnight-orchid); font-weight:bold; margin:5px 0;">${data.datesInfos || 'Tout le temps'}</p>`; } else { tagType = `<span class="tag-type tag-temp">📅 Daté</span>`; const range = (data.dateDebut || data.dateFin) ? `Du ${data.dateDebut || '?'} au ${data.dateFin || '?'}` : ""; const reserv = data.dateReserv ? `<br><span class="alert-reserv">⚠️ Réserver avant : ${data.dateReserv}</span>` : ""; infoSup = `<p style="margin:5px 0;">${range}${reserv}</p>`; } 
+                        if (data.estReserve) { const dateR = data.dateEffectiveReserv ? data.dateEffectiveReserv : "Date inconnue"; reservationBadge = `<div class="badge-reservation">🎟️ Réservé pour le ${dateR} !</div>`; } 
+                        let carteHtml = `<div class="card-tinder">${tagType}<h3 style="color:var(--midnight-orchid); margin-bottom:5px; margin-top:0; font-size:1.4em;">${titreAffiche}</h3><p style="color:#666; margin:5px 0;">${lieuAffiche}</p><p style="font-weight:bold; color:var(--dusky-lilac); margin:5px 0;">💸 ${prixAffiche}</p>${infoSup}${reservationBadge}<button class="btn-check" onclick="passerEnFait('${id}')">✅ C'est vu !</button><div style="margin-top:15px; display:flex; justify-content:center; gap:10px;"><button onclick="preparerModification('${id}')" style="background:var(--white); border:2px solid var(--iris-mist); color:var(--iris-mist); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">✏️</button><button onclick="supprimerSortie('${id}')" style="background:var(--white); border:2px solid var(--drama-red); color:var(--drama-red); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">🗑️</button></div></div>`; 
+                        listeASortir.push(carteHtml); 
+                    } 
+                }); afficherCarteCarousel(); 
+            }); 
+        }
+
         function afficherCarteCarousel() { const zone = document.getElementById('zoneCarteUnique'); if (listeASortir.length === 0) { zone.innerHTML = "<p>Rien de prévu... Ajoute une idée ! 👆</p>"; return; } if (indexActuel >= listeASortir.length) indexActuel = 0; if (indexActuel < 0) indexActuel = listeASortir.length - 1; zone.innerHTML = listeASortir[indexActuel]; }
         function carteSuivante() { if (listeASortir.length > 0) { indexActuel++; afficherCarteCarousel(); } }
         function cartePrecedente() { if (listeASortir.length > 0) { indexActuel--; afficherCarteCarousel(); } }
