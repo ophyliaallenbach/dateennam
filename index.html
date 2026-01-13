@@ -11,98 +11,53 @@
 
     <style>
       /* PALETTE "PLUIE DE JUIN" */
-      :root {
-          --misty-violet: #5f5baf;  
-          --rainy-blue: #568de4;    
-          --rain-purple: #ba9fe1;   
-          --deep-iris: #9a64c5;     
-          --cloudy-lilac: #c4c5e8;  
-          --white: #ffffff;
-      }
-
-      body { 
-        font-family: 'Segoe UI', sans-serif; 
-        background-color: var(--cloudy-lilac); 
-        color: var(--misty-violet); 
-        text-align: center; 
-        margin: 0;
-        padding: 20px;
-        background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%);
-        min-height: 100vh;
-      }
-
-      h1 { 
-        color: var(--misty-violet); 
-        margin-top: 30px; 
-        font-size: 2.5em;
-        text-shadow: 2px 2px 0px rgba(255,255,255,0.4);
-      }
+      :root { --misty-violet: #5f5baf; --rainy-blue: #568de4; --rain-purple: #ba9fe1; --deep-iris: #9a64c5; --cloudy-lilac: #c4c5e8; --white: #ffffff; }
+      body { font-family: 'Segoe UI', sans-serif; background-color: var(--cloudy-lilac); color: var(--misty-violet); text-align: center; margin: 0; padding: 20px; background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); min-height: 100vh; }
       
-      .phrase { 
-        font-style: italic; 
-        color: var(--deep-iris); 
-        margin-bottom: 30px; 
-        font-weight: 500;
-      }
+      h1 { color: var(--misty-violet); margin-top: 100px; font-size: 2.5em; text-shadow: 2px 2px 0px rgba(255,255,255,0.4); }
+      .phrase { font-style: italic; color: var(--deep-iris); margin-bottom: 30px; font-weight: 500; }
       
-      nav { margin-bottom: 40px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
-      
-      .btn-nav {
-        text-decoration: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; transition: 0.3s; display: inline-block;
-        background: rgba(255,255,255,0.6); color: var(--misty-violet); box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1);
-      }
-      
-      .actif { background: var(--misty-violet); color: var(--white); box-shadow: 0 4px 15px rgba(95, 91, 175, 0.3); }
-
-      .btn-logout {
-        background: #90a4ae; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 0.9em;
-      }
+      /* --- MENU UNIVERSEL --- */
+      .top-nav { position: fixed; top: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 8px; z-index: 1000; background: rgba(255,255,255,0.6); padding: 8px; border-radius: 15px; backdrop-filter: blur(5px); justify-content: flex-end; }
+      .btn-nav, .btn-logout { border: none; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1); transition: 0.3s; text-decoration: none; font-size: 0.85em; display: flex; align-items: center; justify-content: center; }
+      /* Couleurs du menu adaptées au thème Violet */
+      .btn-nav { background: var(--misty-violet); color: var(--white); }
+      .btn-nav:hover { background: var(--deep-iris); transform: translateY(-2px); }
+      .btn-logout { background: #90a4ae; color: white; }
       .btn-logout:hover { background: #78909c; }
-      
-      .input-zone {
-        background: var(--white); padding: 25px; border-radius: 20px; max-width: 600px; margin: 0 auto 40px auto; box-shadow: 0 10px 25px rgba(95, 91, 175, 0.15); border: 2px solid var(--rain-purple);
-      }
 
-      input[type="text"], input[type="number"], input[type="date"] { 
-        padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--rain-purple); width: 90%; font-family: inherit; color: var(--misty-violet); background: #fcfaff;
-      }
+      /* Le reste du style reste identique */
+      .input-zone { background: var(--white); padding: 25px; border-radius: 20px; max-width: 600px; margin: 0 auto 40px auto; box-shadow: 0 10px 25px rgba(95, 91, 175, 0.15); border: 2px solid var(--rain-purple); }
+      input[type="text"], input[type="number"], input[type="date"] { padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--rain-purple); width: 90%; font-family: inherit; color: var(--misty-violet); background: #fcfaff; }
       input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
-
       #categories { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
       #categories label { font-size: 0.9em; cursor: pointer; background: var(--cloudy-lilac); padding: 5px 10px; border-radius: 15px; color: var(--misty-violet); transition: 0.2s; border: 1px solid transparent; }
       #categories label:hover { background: var(--rain-purple); color: white; }
       #categories input { margin-right: 5px; accent-color: var(--misty-violet); }
-
-      button.add { 
-        background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; padding: 12px 30px; border-radius: 12px; margin-top: 20px; font-size: 16px; font-weight: bold; width: 100%; max-width: 300px; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3);
-      }
+      button.add { background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; padding: 12px 30px; border-radius: 12px; margin-top: 20px; font-size: 16px; font-weight: bold; width: 100%; max-width: 300px; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3); }
       button.add:hover { background: var(--misty-violet); transform: translateY(-2px); }
-      
       #sorties { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; }
-      .carte {
-        background: var(--white); width: 260px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 5px solid var(--rainy-blue);
-      }
+      .carte { background: var(--white); width: 260px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 5px solid var(--rainy-blue); }
       .carte:hover { transform: translateY(-5px); }
       .carte h3 { margin: 0 0 10px 0; color: var(--misty-violet); font-size: 1.3em; }
       .carte p { color: #666; line-height: 1.5; font-size: 0.95em; margin: 5px 0; }
       .badge-cat { font-size: 0.8em; background: var(--cloudy-lilac); padding: 3px 8px; border-radius: 10px; color: var(--misty-violet); font-weight: bold; }
-
       .btn-delete { background: #ffcdd2; color: #c62828; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 12px; font-weight: bold; float: right; transition: 0.2s; }
       .btn-delete:hover { background: #ef9a9a; }
     </style>
   </head>
   <body>
+    <div class="top-nav">
+        <a href="musees.html" class="btn-nav">🏛️ Musées</a>
+        <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>
+        <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒</button>
+    </div>
+
     <h1>Idées de sorties ☔</h1>
     <div class="phrase">Pour nos moments à nous...</div>
 
-    <nav>
-        <span class="btn-nav actif">💡 Idées de sorties</span>
-        <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒 Sortir</button>
-    </nav>
-
     <div class="input-zone">
       <input type="text" id="nouvelleIdee" placeholder="✨ Propose une idée..." />
-      
       <div id="categories">
         <label><input type="checkbox" value="Resto"> 🍜 Resto</label>
         <label><input type="checkbox" value="Ciné"> 🍿 Ciné</label>
@@ -111,113 +66,24 @@
         <label><input type="checkbox" value="Activité"> 🎨 Activité</label>
         <label><input type="checkbox" value="Surprise"> 🎁 Surprise</label>
       </div>
-
       <div style="display:flex; gap:10px;">
           <input type="date" id="dateIdee" title="Date prévue" />
           <input type="number" id="prixIdee" placeholder="Prix (€)" />
       </div>
       <input type="text" id="lieuIdee" placeholder="📍 Lieu (ex: Paris...)" />
-      
       <button class="add" onclick="ajouterIdee()">Ajouter à la liste</button>
     </div>
 
     <div id="sorties">Chargement...</div>
 
     <script>
-        // CONFIGURATION FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
-            authDomain: "date-d927b.firebaseapp.com",
-            projectId: "date-d927b",
-            storageBucket: "date-d927b.appspot.com",
-            messagingSenderId: "353304192798",
-            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
-            measurementId: "G-T4N8PMNC3G"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
         if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
-
-        // --- CHARGER LES IDEES (Depuis 'dates') ---
-        function chargerIdees() {
-            const container = document.getElementById('sorties');
-            
-            db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-                container.innerHTML = "";
-                
-                if(snapshot.empty) {
-                    container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic;'>Pas encore d'idées... Lance-toi ! ✨</p>";
-                    return;
-                }
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const id = doc.id;
-                    
-                    const nom = data.texte || data.nom || "Idée mystère";
-                    const cats = data.categories ? data.categories.join(" ") : "";
-                    const prix = data.prix ? `${data.prix}€` : "";
-                    const date = data.date ? `📅 ${data.date}` : "";
-                    const lieu = data.lieu ? `📍 ${data.lieu}` : "";
-
-                    const carte = document.createElement("div");
-                    carte.className = "carte";
-                    carte.innerHTML = `
-                        <h3>${nom}</h3>
-                        <p>${cats ? `<span class="badge-cat">${cats}</span>` : ""}</p>
-                        <p>${lieu} ${prix ? `| 💸 ${prix}` : ""}</p>
-                        <p style="color:var(--rainy-blue); font-weight:bold;">${date}</p>
-                        <button class="btn-delete" onclick="supprimerIdee('${id}')">Supprimer</button>
-                    `;
-                    container.appendChild(carte);
-                });
-            });
-        }
-
-        // --- AJOUTER UNE IDEE (Dans 'dates' aussi !) ---
-        function ajouterIdee() {
-            const texte = document.getElementById("nouvelleIdee").value;
-            const date = document.getElementById("dateIdee").value;
-            const prix = document.getElementById("prixIdee").value;
-            const lieu = document.getElementById("lieuIdee").value;
-            
-            const checkboxes = document.querySelectorAll('#categories input:checked');
-            let categories = [];
-            checkboxes.forEach((checkbox) => { categories.push(checkbox.value); });
-
-            if (texte === "") { alert("Écris quelque chose !"); return; }
-
-            // CORRECTION ICI : "dates" au lieu de "idees"
-            db.collection("dates").add({
-                texte: texte,
-                categories: categories,
-                date: date,
-                prix: prix,
-                lieu: lieu,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                document.getElementById("nouvelleIdee").value = "";
-                document.getElementById("dateIdee").value = "";
-                document.getElementById("prixIdee").value = "";
-                document.getElementById("lieuIdee").value = "";
-                checkboxes.forEach(cb => cb.checked = false);
-            }).catch((error) => {
-                console.error("Erreur : ", error);
-            });
-        }
-
-        // --- SUPPRIMER UNE IDEE (Dans 'dates' aussi !) ---
-        function supprimerIdee(id) {
-            if(confirm("Supprimer cette idée ?")) {
-                // CORRECTION ICI : "dates" au lieu de "idees"
-                db.collection("dates").doc(id).delete();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            chargerIdees();
-        });
-
+        function chargerIdees() { const container = document.getElementById('sorties'); db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => { container.innerHTML = ""; if(snapshot.empty) { container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic;'>Pas encore d'idées... Lance-toi ! ✨</p>"; return; } snapshot.forEach((doc) => { const data = doc.data(); const id = doc.id; const nom = data.texte || data.nom || "Idée mystère"; const cats = data.categories ? data.categories.join(" ") : ""; const prix = data.prix ? `${data.prix}€` : ""; const date = data.date ? `📅 ${data.date}` : ""; const lieu = data.lieu ? `📍 ${data.lieu}` : ""; const carte = document.createElement("div"); carte.className = "carte"; carte.innerHTML = `<h3>${nom}</h3><p>${cats ? `<span class="badge-cat">${cats}</span>` : ""}</p><p>${lieu} ${prix ? `| 💸 ${prix}` : ""}</p><p style="color:var(--rainy-blue); font-weight:bold;">${date}</p><button class="btn-delete" onclick="supprimerIdee('${id}')">Supprimer</button>`; container.appendChild(carte); }); }); }
+        function ajouterIdee() { const texte = document.getElementById("nouvelleIdee").value; const date = document.getElementById("dateIdee").value; const prix = document.getElementById("prixIdee").value; const lieu = document.getElementById("lieuIdee").value; const checkboxes = document.querySelectorAll('#categories input:checked'); let categories = []; checkboxes.forEach((checkbox) => { categories.push(checkbox.value); }); if (texte === "") { alert("Écris quelque chose !"); return; } db.collection("dates").add({ texte: texte, categories: categories, date: date, prix: prix, lieu: lieu, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { document.getElementById("nouvelleIdee").value = ""; document.getElementById("dateIdee").value = ""; document.getElementById("prixIdee").value = ""; document.getElementById("lieuIdee").value = ""; checkboxes.forEach(cb => cb.checked = false); }).catch((error) => { console.error("Erreur : ", error); }); }
+        function supprimerIdee(id) { if(confirm("Supprimer cette idée ?")) { db.collection("dates").doc(id).delete(); } }
+        document.addEventListener('DOMContentLoaded', () => { chargerIdees(); });
     </script>
   </body>
 </html>
