@@ -2,204 +2,6 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connexion Secrète </title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* PALETTE "DREAMY GRADIENT" */
-        :root {
-            --pastel-purple: #7181c8; /* Texte fort, bouton */
-            --dream-sky: #ababdc;     /* Secondaire */
-            --soft-blue: #b7d3f4;     /* Dégradé */
-            --candy-pink: #f1cfed;    /* Dégradé chaud */
-            --fairy-pink: #f1e5f6;    /* Fond très clair */
-            --white: #ffffff;
-        }
-
-        body { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            font-family: 'Segoe UI', sans-serif; 
-            flex-direction: column; 
-            margin: 0; 
-            
-            /* FOND ANIME */
-            background: linear-gradient(-45deg, var(--pastel-purple), var(--soft-blue), var(--candy-pink), var(--dream-sky));
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: var(--pastel-purple);
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* EFFET "GLASSMORPHISM" (Verre dépoli) */
-        .login-box { 
-            background: rgba(255, 255, 255, 0.25); 
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px);
-            padding: 50px 40px; 
-            border-radius: 25px; 
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); 
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            text-align: center; 
-            width: 90%; 
-            max-width: 380px; 
-            transition: transform 0.3s;
-        }
-
-        .login-box:hover {
-            transform: translateY(-5px);
-        }
-
-        h2 {
-            color: var(--white);
-            margin-bottom: 30px;
-            font-size: 1.8em;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            letter-spacing: 1px;
-        }
-        
-        input { 
-            padding: 15px; 
-            font-size: 16px; 
-            border: none; 
-            border-radius: 50px; /* Forme pilule */
-            margin-bottom: 20px; 
-            width: 100%; 
-            box-sizing: border-box; 
-            text-align: center;
-            background: rgba(255, 255, 255, 0.8);
-            color: var(--pastel-purple);
-            font-weight: bold;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-            transition: 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            background: var(--white);
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        button { 
-            padding: 15px 20px; 
-            font-size: 16px; 
-            background: var(--pastel-purple); 
-            color: white; 
-            border: none; 
-            border-radius: 50px; 
-            cursor: pointer; 
-            width: 100%; 
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(113, 129, 200, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        button:hover { 
-            background: #5a6abf; 
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(113, 129, 200, 0.6);
-        }
-        
-        .visitor-link { 
-            margin-top: 30px; 
-            font-size: 0.9em; 
-        }
-        
-        .visitor-link a { 
-            color: var(--white); 
-            text-decoration: none; 
-            border-bottom: 1px dotted var(--white); 
-            transition: 0.2s;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .visitor-link a:hover { 
-            color: var(--candy-pink); 
-            border-bottom-color: var(--candy-pink);
-        }
-        
-        #error { 
-            color: #ff5252; 
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 10px;
-            display: none; 
-            margin-top: 15px; 
-            font-weight: bold; 
-            font-size: 0.9em;
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-    </style>
-</head>
-<body>
-    <div class="login-box">
-        <h2>🔐 Accès Privé</h2>
-        
-        <input type="password" id="password" placeholder="Mot de passe secret...">
-        <br>
-        <button onclick="checkPassword()">Entrer dans le rêve ✨</button>
-        <p id="error">Mauvais mot de passe ! 🚫</p>
-    </div>
-
-    <div class="visitor-link">
-        <a href="visiteur.html">👀 Accès Visiteur (Lecture seule & Idées)</a>
-    </div>
-
-    <script>
-        function checkPassword() {
-            const pass = document.getElementById("password").value;
-            
-            // SYSTEME A 2 MOTS DE PASSE
-            if (pass === "060317") {
-                // Code 1 -> vers la page 'date'
-                localStorage.setItem("estConnecte", "true");
-                window.location.href = "index.html";
-                
-            } else if (pass === "171103") {
-                // Code 2 -> vers l'espace complet Musées/Sorties
-                localStorage.setItem("estConnecte", "true");
-                window.location.href = "musees.html";
-                
-            } else {
-                // Erreur
-                const errorMsg = document.getElementById("error");
-                errorMsg.style.display = "block";
-                
-                // Petit reset de l'animation pour qu'elle rejoue si on reclique
-                errorMsg.style.animation = 'none';
-                errorMsg.offsetHeight; /* trigger reflow */
-                errorMsg.style.animation = null; 
-            }
-        }
-
-        // Valider avec la touche Entrée
-        document.getElementById("password").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                checkPassword();
-            }
-        });
-    </script>
-
-    <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
     <title>Connexion 🔐</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -209,15 +11,25 @@
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1.1em; text-align: center; }
         button { width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 10px; font-size: 1em; cursor: pointer; transition: 0.2s; font-weight: bold; }
         button:hover { background: #555; transform: translateY(-2px); }
+        
+        /* Style du nouveau lien */
+        .guest-link { margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; display: block; }
+        .guest-link a { color: #00838f; text-decoration: none; font-size: 0.9em; font-weight: 500; transition: 0.2s; }
+        .guest-link a:hover { color: #006064; text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="login-box">
         <h1>🔐 Accès Privé</h1>
         <p style="font-size:0.9em; color:#666; margin-bottom:20px;">Entre le code secret</p>
+        
         <input type="password" id="passcode" placeholder="Code..." onkeypress="checkEnter(event)">
         <button onclick="verifier()">Entrer</button>
         <p id="error" style="color:red; display:none; margin-top:10px; font-size:0.9em;">Code incorrect !</p>
+
+        <div class="guest-link">
+            <a href="guest.html">📖 Juste ici pour le Livre d'Or ?</a>
+        </div>
     </div>
 
     <script>
@@ -227,15 +39,14 @@
             const code = document.getElementById("passcode").value;
             const err = document.getElementById("error");
             
-            // TON CODE PERSO (Remplace '0000' par ton vrai code à toi)
-            if (code === "0000") { // <--- METS TON VRAI CODE ICI
+            // TON CODE PERSO (Remplace '0000' par le tien)
+            if (code === "0000") { 
                 localStorage.setItem("estConnecte", "true");
-                window.location.href = "musees.html"; // Redirection vers ton espace admin
+                window.location.href = "musees.html"; // Accès Admin
             } 
-            // LE CODE INVITE
+            // On garde quand même le code 1973 au cas où
             else if (code === "1973") {
-                // Pas de localStorage "estConnecte" car l'invité n'est pas admin
-                window.location.href = "guest.html"; // Redirection vers la page invité
+                window.location.href = "guest.html"; 
             } 
             else {
                 err.style.display = "block";
@@ -243,7 +54,5 @@
             }
         }
     </script>
-</body>
-</html>
 </body>
 </html>
