@@ -2,21 +2,23 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes Musées </title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    <title>Mes Musées 🏛️</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        /* PALETTE "BLUE AGATE" (Minérale et Profonde) */
+        /* PALETTE "BLUE AGATE" */
         :root {
-            --abyss: #092C56;    /* Texte principal, Titres forts */
-            --lapis: #225688;    /* Boutons primaires, Nav active */
-            --slate: #668CA9;    /* Boutons secondaires, Bordures, Tags */
-            --glacier: #A9CBE0;  /* Fonds d'accentuation */
-            --quartz: #F0F5F4;   /* Fond de page principal */
-            --white: #ffffff;    /* Fond des cartes */
-            --danger-soft: #e57373; /* Rouge doux pour supprimer */
+            --abyss: #092C56;    
+            --lapis: #225688;    
+            --slate: #668CA9;    
+            --glacier: #A9CBE0;  
+            --quartz: #F0F5F4;   
+            --white: #ffffff;    
+            --danger-soft: #e57373; 
+            --urgent: #f0ad4e; /* Couleur orange pour l'urgence */
         }
 
         body { 
@@ -33,7 +35,7 @@
             text-align: center; 
             color: var(--abyss); 
             margin-bottom: 30px; 
-            margin-top: 40px; 
+            margin-top: 100px; 
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -46,265 +48,102 @@
             text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
         }
 
-        /* NAVIGATION (CORRIGÉE) */
+        /* NAVIGATION */
         .top-nav { 
             position: fixed; 
-            top: 15px; 
-            right: 15px; 
-            display: flex; 
-            gap: 10px; /* Espace garanti entre les boutons */
-            z-index: 1000; 
+            top: 10px; 
+            right: 10px; 
+            display: flex;       
+            flex-wrap: wrap;     
+            gap: 10px;           
+            z-index: 9999;       
+            background: rgba(255,255,255,0.6); 
+            padding: 8px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            justify-content: flex-end;
+            max-width: 100%;
         }
 
-        .btn-nav-switch, .btn-logout { 
+        .btn-nav-switch, .btn-logout, .btn-sort { 
             border: none; 
-            padding: 8px 15px; 
+            padding: 10px 15px; 
             border-radius: 20px; 
             cursor: pointer; 
             font-weight: bold; 
-            box-shadow: 0 4px 10px rgba(9, 44, 86, 0.2); 
+            box-shadow: 0 4px 6px rgba(9, 44, 86, 0.1); 
             transition: 0.2s;
             text-decoration: none;
             font-size: 0.9em;
+            white-space: nowrap; 
         }
 
-        .btn-logout { 
-            background-color: var(--slate); 
-            color: white; 
-        }
+        .btn-logout { background-color: var(--slate); color: white; }
         .btn-logout:hover { background-color: var(--danger-soft); }
 
-        .btn-nav-switch {
-            background-color: var(--lapis); 
-            color: white; 
-        }
+        .btn-nav-switch { background-color: var(--lapis); color: white; }
         .btn-nav-switch:hover { background-color: var(--abyss); transform: translateY(-2px); }
+
+        /* NOUVEAU BOUTON TRI */
+        .btn-sort { background-color: var(--urgent); color: white; }
+        .btn-sort:hover { background-color: #d58512; transform: translateY(-2px); }
 
         /* BOITE A IDEES */
         #inbox-container { max-width: 1200px; margin: 20px auto; display: none; }
-        .inbox-alert { 
-            background: var(--white); 
-            border: 2px dashed var(--slate); 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 5px 15px rgba(9, 44, 86, 0.05);
-        }
-        .prop-item { 
-            background: var(--quartz); 
-            padding: 15px; 
-            margin: 10px 0; 
-            border-radius: 10px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-left: 4px solid var(--lapis);
-        }
-        .btn-accept { background: var(--lapis); color: white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; transition:0.2s;}
-        .btn-accept:hover { background: var(--abyss); }
-        .btn-reject { background: var(--slate); color: white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; transition:0.2s;}
-        .btn-reject:hover { background: var(--danger-soft); }
-
+        .inbox-alert { background: var(--white); border: 2px dashed var(--slate); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(9, 44, 86, 0.05); }
+        .prop-item { background: var(--quartz); padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lapis); }
+        
         /* LAYOUT */
         .top-section { display: flex; flex-wrap: wrap; gap: 25px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
-        .form-container { 
-            flex: 1; 
-            min-width: 300px; 
-            background: var(--white); 
-            padding: 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(9, 44, 86, 0.1);
-            position: sticky; 
-            top: 20px; 
-            border: 1px solid var(--glacier);
-        }
+        .form-container { flex: 1; min-width: 300px; background: var(--white); padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(9, 44, 86, 0.1); position: sticky; top: 20px; border: 1px solid var(--glacier); }
         
-        /* CAROUSEL */
-        .carousel-container { 
-            flex: 1; 
-            min-width: 300px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            gap: 15px; 
-            min-height: 400px; 
-            background: rgba(255,255,255,0.5); 
-            border-radius: 25px; 
-            padding: 20px; 
-            border: 3px dotted var(--slate); 
-        }
+        .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 400px; background: rgba(255,255,255,0.5); border-radius: 25px; padding: 20px; border: 3px dotted var(--slate); }
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         
-        .card-tinder { 
-            background: var(--white); 
-            width: 100%; 
-            max-width: 320px; 
-            padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 30px rgba(9, 44, 86, 0.15); 
-            border-top: 5px solid var(--lapis);
-            text-align: center; 
-            animation: fadeIn 0.5s ease; 
-            position: relative; 
-        }
+        .card-tinder { background: var(--white); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(9, 44, 86, 0.15); border-top: 5px solid var(--lapis); text-align: center; animation: fadeIn 0.5s ease; position: relative; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .arrow-btn { 
-            background: var(--slate); 
-            color: white; 
-            border: none; 
-            min-width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            font-size: 22px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: 0.2s;
-            box-shadow: 0 4px 10px rgba(102, 140, 169, 0.3);
-        }
+        .arrow-btn { background: var(--slate); color: white; border: none; min-width: 45px; height: 45px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 10px rgba(102, 140, 169, 0.3); }
         .arrow-btn:hover { background: var(--lapis); transform: scale(1.1); }
 
-        /* LISTE HISTORIQUE */
-        .history-section { 
-            max-width: 1200px; 
-            margin: 50px auto; 
-            background: var(--white); 
-            padding: 30px; 
-            border-radius: 25px; 
-            box-shadow: 0 10px 25px rgba(9, 44, 86, 0.05); 
-        }
-        .history-section h2 { 
-            border-bottom: 2px solid var(--quartz); 
-            color: var(--lapis);
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            text-align: left;
-        }
-
-        .visite-row { 
-            border-bottom: 1px solid var(--quartz); 
-            padding: 15px; 
-            margin-bottom: 10px;
-            background: #f8faff;
-            border-radius: 10px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
-            gap: 10px; 
-            border-left: 3px solid var(--slate);
-            transition: transform 0.2s;
-        }
+        .history-section { max-width: 1200px; margin: 50px auto; background: var(--white); padding: 30px; border-radius: 25px; box-shadow: 0 10px 25px rgba(9, 44, 86, 0.05); }
+        .history-section h2 { border-bottom: 2px solid var(--quartz); color: var(--lapis); margin-bottom: 25px; padding-bottom: 10px; text-align: left; }
+        
+        .visite-row { border-bottom: 1px solid var(--quartz); padding: 15px; margin-bottom: 10px; background: #f8faff; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-left: 3px solid var(--slate); transition: transform 0.2s; }
         .visite-row:hover { transform: translateX(5px); }
 
-        /* CHAMPS */
-        input, select, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 8px 0 15px 0; 
-            border: 2px solid var(--slate); 
-            border-radius: 10px; 
-            box-sizing: border-box; 
-            font-family: inherit; 
-            background: var(--quartz);
-            color: var(--abyss);
-            font-weight: 500;
-        }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--lapis); background: var(--white); }
-        input::placeholder { color: #8ba0b3; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 2px solid var(--slate); border-radius: 10px; box-sizing: border-box; font-family: inherit; background: var(--quartz); color: var(--abyss); font-weight: 500; }
+        input:focus { outline: none; border-color: var(--lapis); background: var(--white); }
 
-        /* TAGS */
         .gratuites-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .gratuites-container label { 
-            background: var(--quartz); 
-            color: var(--abyss); 
-            padding: 8px 12px; 
-            border-radius: 20px; 
-            font-size: 0.9em; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            border: 2px solid var(--slate); 
-            transition: 0.2s;
-            font-weight: bold;
-        }
+        .gratuites-container label { background: var(--quartz); color: var(--abyss); padding: 8px 12px; border-radius: 20px; font-size: 0.9em; cursor: pointer; display: flex; align-items: center; border: 2px solid var(--slate); transition: 0.2s; font-weight: bold; }
         .gratuites-container label:hover { background: var(--slate); color: white; border-color: var(--slate); }
         .gratuites-container input { margin-right: 8px; accent-color: var(--lapis); }
-        
         .badge-gratuit { display: inline-block; background: var(--lapis); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin: 2px; font-weight: bold; box-shadow: 0 2px 5px rgba(34, 86, 136, 0.2); }
 
-        /* BOUTONS ACTIONS */
-        button.btn-save { 
-            width: 100%; 
-            padding: 14px; 
-            background-color: var(--lapis); 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: bold; 
-            transition: 0.2s;
-            box-shadow: 0 5px 15px rgba(34, 86, 136, 0.3);
-        }
+        button.btn-save { width: 100%; padding: 14px; background-color: var(--lapis); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; box-shadow: 0 5px 15px rgba(34, 86, 136, 0.3); }
         button.btn-save:hover { background-color: var(--abyss); transform: translateY(-2px); }
         button.btn-save.mode-edit { background-color: var(--slate); } 
         button.btn-save.mode-edit:hover { background-color: var(--lapis); }
 
-        /* EXPOS */
-        .add-expo-zone { 
-            background: var(--quartz); 
-            padding: 20px; 
-            border-radius: 15px; 
-            border: 2px dashed var(--slate); 
-            margin-bottom: 25px; 
-        }
-        .btn-add-expo { 
-            background: var(--slate); 
-            color: white; 
-            border: none; 
-            width: 100%; 
-            padding: 10px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            margin-top: 10px;
-            transition: 0.2s;
-        }
+        .add-expo-zone { background: var(--quartz); padding: 20px; border-radius: 15px; border: 2px dashed var(--slate); margin-bottom: 25px; }
+        .btn-add-expo { background: var(--slate); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.2s; }
         .btn-add-expo:hover { background: var(--lapis); }
-
         .mini-list-expo li { font-size: 0.95em; margin-bottom: 8px; border-bottom: 1px solid var(--glacier); padding-bottom: 5px; color: var(--abyss); }
         
-        .expo-item { 
-            background: var(--quartz); 
-            border-radius: 10px; 
-            padding: 12px; 
-            margin-bottom: 10px; 
-            text-align: left; 
-            border-left: 4px solid var(--lapis); 
-        }
+        .expo-item { background: var(--quartz); border-radius: 10px; padding: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid var(--lapis); }
         .expo-header { display:flex; justify-content:space-between; align-items:center; }
-        
-        .btn-check-small { 
-            background: var(--lapis); 
-            color: white; 
-            border: none; 
-            padding: 6px 10px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 0.85em; 
-            font-weight: bold;
-            transition: 0.2s;
-        }
+        .btn-check-small { background: var(--lapis); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; transition: 0.2s; }
         .btn-check-small:hover { background: var(--abyss); }
-        
         .date-fin { font-size: 0.85em; color: var(--danger-soft); font-weight: bold; display: block; margin-top: 4px; }
+        .btn-accept { background: var(--lapis); color: white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; transition:0.2s;}
+        .btn-reject { background: var(--slate); color: white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; transition:0.2s;}
     </style>
 </head>
 <body>
 
    <div class="top-nav">
+        <button onclick="trierParUrgence()" class="btn-sort">⏳ Urgences</button>
         <a href="sorties.html" class="btn-nav-switch">🎭 Spectacles</a>
         <button onclick="deconnexion()" class="btn-logout">Déconnexion</button>
     </div>
@@ -379,7 +218,7 @@
 
         let listeAVisiter = [];
         let indexActuel = 0;
-        let globalMuseesData = {};
+        let globalMuseesData = {}; // On stocke les données brutes ici
         let tempExpos = []; 
         let globalPropositions = {};
 
@@ -388,139 +227,98 @@
             window.location.href = "login.html";
         }
 
-        // --- GESTION DES PROPOSITIONS ---
-        function chargerPropositions() {
-            const divProp = document.getElementById('listePropositions');
-            const container = document.getElementById('inbox-container');
+        // --- NOUVELLE FONCTION DE TRI ---
+        function trierParUrgence() {
+            // 1. Convertir les données (objet) en tableau pour pouvoir les trier
+            let tableauMusees = Object.values(globalMuseesData);
 
-            db.collection('propositions').onSnapshot(snapshot => {
-                if (snapshot.empty) {
-                    container.style.display = 'none';
-                    return;
+            // 2. Trier le tableau
+            tableauMusees.sort((a, b) => {
+                let dateA = getProchaineDateFin(a);
+                let dateB = getProchaineDateFin(b);
+
+                // Si pas de date, on met à la fin
+                if (!dateA) return 1; 
+                if (!dateB) return -1;
+
+                // Sinon on compare les dates (la plus petite/proche en premier)
+                return dateA.localeCompare(dateB);
+            });
+
+            // 3. Reconstruire la liste HTML (listeAVisiter) avec le nouvel ordre
+            listeAVisiter = [];
+            tableauMusees.forEach(data => {
+                genererHTMLCarte(data, data.id); // On utilise une fonction pour éviter de dupliquer le code
+            });
+
+            // 4. Reset l'affichage
+            indexActuel = 0;
+            afficherCarteCarousel();
+            alert("Trié ! Les expos qui ferment bientôt sont affichées en premier. ⏳");
+        }
+
+        // Aide pour trouver la date la plus urgente d'un musée
+        function getProchaineDateFin(musee) {
+            if (!musee.expositions) return null;
+            // On cherche la première expo non visitée qui a une date de fin
+            for (let expo of musee.expositions) {
+                if (!expo.estVisite && expo.dateFin) {
+                    return expo.dateFin;
                 }
-                
-                container.style.display = 'block';
-                divProp.innerHTML = '';
+            }
+            return null; // Pas de date trouvée
+        }
 
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    const id = doc.id;
-                    globalPropositions[id] = d;
+        // --- GENERATION HTML (Extrait pour être réutilisé par le tri) ---
+        function genererHTMLCarte(data, id) {
+            let tagsHtml = '';
+            let labelGratuit = '';
+            if (data.tags && data.tags.length > 0) {
+                tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
+                labelGratuit = '<div style="font-size:0.9em; font-weight:bold; color:var(--lapis); margin-top:15px; margin-bottom:5px;">Gratuit si :</div>';
+            }
 
-                    const typeLabel = (d.typeCible === 'musees') ? '🏛️ Musée' : '🎭 Sortie';
-                    
-                    const el = document.createElement('div');
-                    el.className = 'prop-item';
-                    el.innerHTML = `
-                        <div>
-                            <strong style="color:var(--lapis);">${typeLabel} : ${d.nom || d.titre}</strong><br>
-                            <small style="color:var(--slate);">📍 ${d.lieu || '?'} | 💸 ${d.prix || '?'}</small><br>
-                            <small style="color:var(--abyss);">Note: ${d.commentaire || ''}</small>
-                        </div>
-                        <div class="prop-actions">
-                            <button class="btn-accept" onclick="accepterProposition('${id}')">✅</button>
-                            <button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button>
+            let aDesExposAFaire = false;
+            let exposAfficheesDansCarte = "";
+            
+            data.expositions.forEach((expo, index) => {
+                let finExpoHtml = expo.dateFin ? `<span class="date-fin">⚠️ Fin : ${expo.dateFin}</span>` : "";
+
+                if (!expo.estVisite) {
+                    aDesExposAFaire = true;
+                    exposAfficheesDansCarte += `
+                        <div class="expo-item">
+                            <div class="expo-header">
+                                <strong style="color:var(--abyss);">${expo.nom}</strong>
+                                <button class="btn-check-small" onclick="validerExpo('${id}', ${index})">✅ Fait</button>
+                            </div>
+                            ${finExpoHtml}
                         </div>
                     `;
-                    divProp.appendChild(el);
-                });
-            });
-        }
-
-        function accepterProposition(propId) {
-            const prop = globalPropositions[propId];
-            if(!prop) return;
-
-            if(!confirm("Valider et ajouter '" + (prop.nom || prop.titre) + "' ?")) return;
-
-            let dataToAdd = {};
-            if(prop.typeCible === 'musees') {
-                dataToAdd = {
-                    nom: prop.nom || prop.titre,
-                    prix: prop.prix || "0",
-                    tags: [],
-                    expositions: [{ nom: "Général", estVisite: false }],
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-            } else {
-                dataToAdd = {
-                    titre: prop.titre || prop.nom,
-                    type: 'temporaire',
-                    lieu: prop.lieu || 'A définir',
-                    prix: prop.prix || "0",
-                    estFait: false,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-            }
-
-            db.collection(prop.typeCible).add(dataToAdd).then(() => {
-                db.collection('propositions').doc(propId).delete();
-                alert("Ajouté avec succès !");
-            });
-        }
-
-        function supprimerProposition(id) {
-            if(confirm("Refuser cette idée ?")) db.collection('propositions').doc(id).delete();
-        }
-
-        // --- GESTION FORMULAIRE ---
-        function ajouterExpoAuFormulaire() {
-            const nom = document.getElementById('newExpoName').value;
-            const date = document.getElementById('newExpoDate').value;
-            if(!nom) { alert("Met au moins un nom d'expo !"); return; }
-            tempExpos.push({ nom: nom, dateFin: date, estVisite: false, note: null, commentaire: null, dateVisite: null });
-            document.getElementById('newExpoName').value = '';
-            document.getElementById('newExpoDate').value = '';
-            afficherListeExposForm();
-        }
-
-        function afficherListeExposForm() {
-            const ul = document.getElementById('listeExposForm');
-            ul.innerHTML = '';
-            tempExpos.forEach((expo, index) => {
-                const li = document.createElement('li');
-                const status = expo.estVisite ? "✅" : "⏳";
-                const dateInfo = expo.dateFin ? `(Fin: ${expo.dateFin})` : "";
-                li.innerHTML = `${status} <strong>${expo.nom}</strong> ${dateInfo} <button onclick="supprimerExpoForm(${index})" style="color:var(--danger-soft); border:none; background:none; cursor:pointer; font-weight:bold; float:right;">X</button>`;
-                ul.appendChild(li);
-            });
-        }
-
-        function supprimerExpoForm(index) {
-            tempExpos.splice(index, 1);
-            afficherListeExposForm();
-        }
-
-        function gererEnregistrement() {
-            try {
-                const idModif = document.getElementById('editId').value;
-                const nomMusee = document.getElementById('nomMusee').value;
-                const prix = document.getElementById('prixMusee').value;
-                const checkboxes = document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked');
-                const tags = Array.from(checkboxes).map(cb => cb.value);
-
-                if (!nomMusee) { alert("Il faut un nom de musée !"); return; }
-                if (tempExpos.length === 0) { alert("Ajoute au moins une expo (bouton +) !"); return; }
-
-                let data = {
-                    nom: nomMusee,
-                    prix: prix || "0",
-                    tags: tags,
-                    expositions: tempExpos,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                if (idModif) {
-                    db.collection('musees').doc(idModif).update(data).then(() => { resetForm(); alert("Mis à jour !"); });
-                } else {
-                    db.collection('musees').add(data).then(() => { resetForm(); alert("Enregistré !"); });
                 }
-            } catch (error) {
-                alert("Erreur : " + error.message);
+            });
+
+            if (aDesExposAFaire) {
+                let carteHtml = `
+                    <div class="card-tinder">
+                        <h3 style="color:var(--abyss); font-size:1.5em; margin-bottom:10px;">${data.nom}</h3>
+                        <p style="font-weight:bold; color:var(--lapis); font-size:1.1em;">💸 ${data.prix}€</p>
+                        <div style="margin: 15px 0; max-height:200px; overflow-y:auto; padding-right:5px;">
+                            ${exposAfficheesDansCarte}
+                        </div>
+                        ${labelGratuit}
+                        <div style="margin-bottom:15px; display:flex; flex-wrap:wrap; justify-content:center;">${tagsHtml}</div>
+                        <div style="margin-top:20px; display:flex; justify-content:center; gap:15px;">
+                            <button onclick="preparerModification('${id}')" style="background:var(--quartz); border:2px solid var(--slate); color:var(--slate); border-radius:10px; padding:8px 15px; cursor:pointer; font-weight:bold; transition:0.2s;">✏️ Modif</button>
+                            <button onclick="supprimerMusee('${id}')" style="background:var(--quartz); border:2px solid var(--danger-soft); color:var(--danger-soft); border-radius:10px; padding:8px 15px; cursor:pointer; font-weight:bold; transition:0.2s;">🗑️ Suppr</button>
+                        </div>
+                    </div>
+                `;
+                listeAVisiter.push(carteHtml);
             }
         }
+        // -----------------------------------------------------------
 
-        // --- CHARGEMENT ROBUSTE ---
         function chargerMusees() {
             const divVisites = document.getElementById('listeVisites');
             const zoneCarte = document.getElementById('zoneCarteUnique');
@@ -539,8 +337,6 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
-                    
-                    // --- CORRECTION CRITIQUE (Compatibilité) ---
                     if (!data.expositions || !Array.isArray(data.expositions)) {
                         data.expositions = [{
                             nom: data.expo || "Expo Principale",
@@ -551,77 +347,40 @@
                             dateVisite: data.dateVisite || null
                         }];
                     }
-                    
                     data.id = id;
-                    globalMuseesData[id] = data;
+                    globalMuseesData[id] = data; // Stockage important pour le tri
 
-                    let tagsHtml = '';
-                    let labelGratuit = '';
-                    if (data.tags && data.tags.length > 0) {
-                        tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
-                        labelGratuit = '<div style="font-size:0.9em; font-weight:bold; color:var(--lapis); margin-top:15px; margin-bottom:5px;">Gratuit si :</div>';
-                    }
-
-                    let aDesExposAFaire = false;
-                    let exposAfficheesDansCarte = "";
+                    // On sépare l'affichage Historique (ici) et Carte (via la fonction genererHTMLCarte)
                     
-                    data.expositions.forEach((expo, index) => {
-                        let finExpoHtml = expo.dateFin ? `<span class="date-fin">⚠️ Fin : ${expo.dateFin}</span>` : "";
-
+                    // 1. GESTION HISTORIQUE
+                    data.expositions.forEach((expo) => {
                         if (expo.estVisite) {
-                            // C'EST FAIT (HISTORIQUE)
+                            let tagsHtml = (data.tags && data.tags.length > 0) ? data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('') : "";
                             const row = document.createElement('div');
                             row.className = 'visite-row';
                             row.innerHTML = `
                                 <div style="flex:1;">
                                     <strong style="color:var(--lapis); font-size:1.1em;">${data.nom}</strong> - <span style="color:var(--abyss); font-weight:bold;">${expo.nom}</span><br>
                                     <small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br>
-                                    <em style="color:#555">"${expo.commentaire || ''}"</em>
+                                    <em style="color:#555; display:block; margin-top:5px;">"${expo.commentaire || ''}"</em>
                                 </div>
                                 <div style="text-align:right;">
-                                    <div>${"⭐".repeat(expo.note || 1)}</div>
-                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid var(--slate); color:var(--slate); border-radius:5px; padding:2px 5px; cursor:pointer; font-size:0.8em;">✏️</button>
+                                    <div style="font-size:1.2em;">${"⭐".repeat(expo.note || 1)}</div>
+                                    <button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--slate); color:var(--slate); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-top:5px; font-weight:bold;">✏️ Modif</button>
                                 </div>`;
                             divVisites.appendChild(row);
-                        } else {
-                            // C'EST A FAIRE (CARTE)
-                            aDesExposAFaire = true;
-                            exposAfficheesDansCarte += `
-                                <div class="expo-item">
-                                    <div class="expo-header">
-                                        <strong style="color:var(--abyss);">${expo.nom}</strong>
-                                        <button class="btn-check-small" onclick="validerExpo('${id}', ${index})">✅ Fait</button>
-                                    </div>
-                                    ${finExpoHtml}
-                                </div>
-                            `;
                         }
                     });
 
-                    if (aDesExposAFaire) {
-                        let carteHtml = `
-                            <div class="card-tinder">
-                                <h3 style="color:var(--abyss); font-size:1.5em; margin-bottom:10px;">${data.nom}</h3>
-                                <p style="font-weight:bold; color:var(--lapis); font-size:1.1em;">💸 ${data.prix}€</p>
-                                <div style="margin: 15px 0; max-height:200px; overflow-y:auto; padding-right:5px;">
-                                    ${exposAfficheesDansCarte}
-                                </div>
-                                ${labelGratuit}
-                                <div style="margin-bottom:15px; display:flex; flex-wrap:wrap; justify-content:center;">${tagsHtml}</div>
-                                <div style="margin-top:20px; display:flex; justify-content:center; gap:15px;">
-                                    <button onclick="preparerModification('${id}')" style="background:var(--quartz); border:2px solid var(--slate); color:var(--slate); border-radius:10px; padding:8px 15px; cursor:pointer; font-weight:bold; transition:0.2s;">✏️ Modif</button>
-                                    <button onclick="supprimerMusee('${id}')" style="background:var(--quartz); border:2px solid var(--danger-soft); color:var(--danger-soft); border-radius:10px; padding:8px 15px; cursor:pointer; font-weight:bold; transition:0.2s;">🗑️ Suppr</button>
-                                </div>
-                            </div>
-                        `;
-                        listeAVisiter.push(carteHtml);
-                    }
+                    // 2. GESTION CARTE A FAIRE
+                    genererHTMLCarte(data, id);
                 });
                 
                 afficherCarteCarousel();
             });
         }
 
+        // ... LE RESTE DES FONCTIONS RESTE IDENTIQUE ...
         function afficherCarteCarousel() {
             const zone = document.getElementById('zoneCarteUnique');
             if (listeAVisiter.length === 0) { zone.innerHTML = "<p style='color:var(--lapis); font-weight:bold; font-size:1.2em;'>Tout est visité ! 🎉</p>"; return; }
@@ -633,8 +392,7 @@
         function cartePrecedente() { if (listeAVisiter.length > 0) { indexActuel--; afficherCarteCarousel(); } }
 
         function validerExpo(museeId, expoIndex) {
-            const note = prompt("Note sur 5 ?");
-            if (!note) return;
+            const note = prompt("Note sur 5 ?"); if (!note) return;
             const date = prompt("Date visite ?", new Date().toISOString().split('T')[0]);
             const comm = prompt("Commentaire pour CETTE expo ?");
             let data = globalMuseesData[museeId];
@@ -646,16 +404,13 @@
         }
 
         function preparerModification(id) {
-            const data = globalMuseesData[id];
-            if (!data) return;
+            const data = globalMuseesData[id]; if (!data) return;
             document.getElementById('editId').value = id;
             document.getElementById('nomMusee').value = data.nom;
             document.getElementById('prixMusee').value = data.prix;
             tempExpos = JSON.parse(JSON.stringify(data.expositions)); 
             afficherListeExposForm();
-            document.querySelectorAll('#tagsContainer input').forEach(cb => {
-                cb.checked = data.tags && data.tags.includes(cb.value);
-            });
+            document.querySelectorAll('#tagsContainer input').forEach(cb => { cb.checked = data.tags && data.tags.includes(cb.value); });
             const btn = document.getElementById('btnAction');
             btn.textContent = "Mettre à jour le musée";
             btn.classList.add('mode-edit');
@@ -680,14 +435,107 @@
             document.getElementById('btnAnnuler').style.display = "none";
         }
 
-        function supprimerMusee(id) {
-            if(confirm("⚠️ Attention ! Supprimer TOUT ce musée et ses souvenirs ?")) db.collection('musees').doc(id).delete();
+        function supprimerMusee(id) { if(confirm("⚠️ Attention ! Supprimer TOUT ce musée et ses souvenirs ?")) db.collection('musees').doc(id).delete(); }
+        
+        // Copie des fonctions propositions pour que tout marche
+        function chargerPropositions() {
+            const divProp = document.getElementById('listePropositions');
+            const container = document.getElementById('inbox-container');
+            db.collection('propositions').onSnapshot(snapshot => {
+                if (snapshot.empty) { container.style.display = 'none'; return; }
+                container.style.display = 'block';
+                divProp.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    const id = doc.id;
+                    globalPropositions[id] = d;
+                    const typeLabel = (d.typeCible === 'musees') ? '🏛️ Musée' : '🎭 Sortie';
+                    const el = document.createElement('div');
+                    el.className = 'prop-item';
+                    el.innerHTML = `
+                        <div>
+                            <strong style="color:var(--lapis);">${typeLabel} : ${d.nom || d.titre}</strong><br>
+                            <small style="color:var(--slate);">📍 ${d.lieu || '?'} | 💸 ${d.prix || '?'}</small><br>
+                            <small style="color:var(--abyss);">Note: ${d.commentaire || ''}</small>
+                        </div>
+                        <div class="prop-actions">
+                            <button class="btn-accept" onclick="accepterProposition('${id}')">✅</button>
+                            <button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button>
+                        </div>`;
+                    divProp.appendChild(el);
+                });
+            });
+        }
+        function accepterProposition(propId) {
+            const prop = globalPropositions[propId];
+            if(!prop || !confirm("Valider et ajouter '" + (prop.nom || prop.titre) + "' ?")) return;
+            let dataToAdd = {
+                nom: prop.nom || prop.titre,
+                prix: prop.prix || "0",
+                tags: [],
+                expositions: [{ nom: "Général", estVisite: false }],
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            db.collection('musees').add(dataToAdd).then(() => {
+                db.collection('propositions').doc(propId).delete();
+                alert("Ajouté avec succès !");
+            });
+        }
+        function supprimerProposition(id) {
+            if(confirm("Refuser cette idée ?")) db.collection('propositions').doc(id).delete();
+        }
+        function ajouterExpoAuFormulaire() {
+            const nom = document.getElementById('newExpoName').value;
+            const date = document.getElementById('newExpoDate').value;
+            if(!nom) { alert("Met au moins un nom d'expo !"); return; }
+            tempExpos.push({ nom: nom, dateFin: date, estVisite: false, note: null, commentaire: null, dateVisite: null });
+            document.getElementById('newExpoName').value = '';
+            document.getElementById('newExpoDate').value = '';
+            afficherListeExposForm();
+        }
+        function afficherListeExposForm() {
+            const ul = document.getElementById('listeExposForm');
+            ul.innerHTML = '';
+            tempExpos.forEach((expo, index) => {
+                const li = document.createElement('li');
+                const status = expo.estVisite ? "✅" : "⏳";
+                const dateInfo = expo.dateFin ? `(Fin: ${expo.dateFin})` : "";
+                li.innerHTML = `${status} <strong>${expo.nom}</strong> ${dateInfo} <button onclick="supprimerExpoForm(${index})" style="color:var(--danger-soft); border:none; background:none; cursor:pointer; font-weight:bold; float:right;">X</button>`;
+                ul.appendChild(li);
+            });
+        }
+        function supprimerExpoForm(index) {
+            tempExpos.splice(index, 1);
+            afficherListeExposForm();
+        }
+        function gererEnregistrement() {
+            try {
+                const idModif = document.getElementById('editId').value;
+                const nomMusee = document.getElementById('nomMusee').value;
+                const prix = document.getElementById('prixMusee').value;
+                const checkboxes = document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked');
+                const tags = Array.from(checkboxes).map(cb => cb.value);
+
+                if (!nomMusee) { alert("Il faut un nom de musée !"); return; }
+                if (tempExpos.length === 0) { alert("Ajoute au moins une expo (bouton +) !"); return; }
+
+                let data = {
+                    nom: nomMusee,
+                    prix: prix || "0",
+                    tags: tags,
+                    expositions: tempExpos,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (idModif) {
+                    db.collection('musees').doc(idModif).update(data).then(() => { resetForm(); alert("Mis à jour !"); });
+                } else {
+                    db.collection('musees').add(data).then(() => { resetForm(); alert("Enregistré !"); });
+                }
+            } catch (error) { alert("Erreur : " + error.message); }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            chargerMusees();
-            chargerPropositions(); 
-        });
+        document.addEventListener('DOMContentLoaded', () => { chargerMusees(); chargerPropositions(); });
     </script>
 </body>
 </html>
