@@ -6,29 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; color: #333; }
-        .login-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 300px; width: 90%; }
+        .login-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 320px; width: 90%; }
         h1 { margin-bottom: 20px; font-size: 1.5em; color: #444; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1.1em; text-align: center; }
-        button { width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 10px; font-size: 1em; cursor: pointer; transition: 0.2s; font-weight: bold; }
-        button:hover { background: #555; transform: translateY(-2px); }
         
-        /* Style du nouveau lien */
-        .guest-link { margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; display: block; }
-        .guest-link a { color: #00838f; text-decoration: none; font-size: 0.9em; font-weight: 500; transition: 0.2s; }
-        .guest-link a:hover { color: #006064; text-decoration: underline; }
+        /* Bouton principal (Admin) */
+        .btn-main { width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 10px; font-size: 1em; cursor: pointer; transition: 0.2s; font-weight: bold; margin-bottom: 20px; }
+        .btn-main:hover { background: #555; transform: translateY(-2px); }
+        
+        /* Zone des liens publics */
+        .public-links { border-top: 1px solid #eee; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .btn-public {
+            display: block;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: 0.2s;
+            font-size: 0.95em;
+        }
+
+        /* Bouton Vitrine (Bleu doux) */
+        .btn-vitrine { background-color: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+        .btn-vitrine:hover { background-color: #bbdefb; }
+
+        /* Bouton Livre d'Or (Turquoise/Guest) */
+        .btn-guest { background-color: #e0f2f1; color: #00695c; border: 1px solid #b2dfdb; }
+        .btn-guest:hover { background-color: #b2dfdb; }
+
     </style>
 </head>
 <body>
     <div class="login-box">
         <h1>🔐 Accès Privé</h1>
-        <p style="font-size:0.9em; color:#666; margin-bottom:20px;">Entre le code secret</p>
+        <p style="font-size:0.9em; color:#666; margin-bottom:20px;">Espace réservé aux administrateurs</p>
         
-        <input type="password" id="passcode" placeholder="Code..." onkeypress="checkEnter(event)">
-        <button onclick="verifier()">Entrer</button>
+        <input type="password" id="passcode" placeholder="Code secret..." onkeypress="checkEnter(event)">
+        <button class="btn-main" onclick="verifier()">Entrer</button>
         <p id="error" style="color:red; display:none; margin-top:10px; font-size:0.9em;">Code incorrect !</p>
 
-        <div class="guest-link">
-            <a href="guest.html">📖 Juste ici pour le Livre d'Or ?</a>
+        <div class="public-links">
+            <a href="visiteur.html" class="btn-public btn-vitrine">🎭 Vitrine Culturelle (Idées)</a>
+            <a href="guest.html" class="btn-public btn-guest">📖 Signer le Livre d'Or</a>
         </div>
     </div>
 
@@ -39,14 +59,10 @@
             const code = document.getElementById("passcode").value;
             const err = document.getElementById("error");
             
-            // TON CODE PERSO (Remplace '0000' par le tien)
+            // REMPLACE '0000' PAR TON CODE A TOI
             if (code === "060317") { 
                 localStorage.setItem("estConnecte", "true");
-                window.location.href = "index.html"; // Accès Admin
-            } 
-            // On garde quand même le code 1973 au cas où
-            else if (code === "1973") {
-                window.location.href = "guest.html"; 
+                window.location.href = "musees.html"; 
             } 
             else {
                 err.style.display = "block";
