@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Idées de sorties</title>
+    <title>Idées de sorties ✨</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
@@ -12,17 +12,34 @@
     <style>
       /* --- THÈME "PLUIE DE JUIN" --- */
       :root { 
-        --misty-violet: #5f5baf; --rainy-blue: #568de4; --rain-purple: #ba9fe1; 
-        --deep-iris: #9a64c5; --cloudy-lilac: #c4c5e8; --white: #ffffff; --soft-bg: #fcfaff;
+        --misty-violet: #5f5baf; 
+        --rainy-blue: #568de4; 
+        --rain-purple: #ba9fe1; 
+        --deep-iris: #9a64c5; 
+        --cloudy-lilac: #c4c5e8; 
+        --white: #ffffff; 
+        --soft-bg: #fcfaff;
       }
       
       body { 
-        font-family: 'Segoe UI', sans-serif; background-color: var(--cloudy-lilac); 
-        color: var(--misty-violet); text-align: center; margin: 0; padding: 20px; 
-        background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); min-height: 100vh;
+        font-family: 'Segoe UI', sans-serif; 
+        background-color: var(--cloudy-lilac); 
+        color: var(--misty-violet); 
+        text-align: center; 
+        margin: 0; 
+        padding: 20px; 
+        background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); 
+        min-height: 100vh; 
       }
       
-      h1 { color: var(--misty-violet); margin-top: 80px; font-size: 2.2em; text-shadow: 2px 2px 0px rgba(255,255,255,0.4); margin-bottom: 5px; }
+      h1 { 
+        color: var(--misty-violet); 
+        margin-top: 80px; 
+        font-size: 2.2em; 
+        text-shadow: 2px 2px 0px rgba(255,255,255,0.4); 
+        margin-bottom: 5px;
+      }
+      
       .phrase { font-style: italic; color: var(--deep-iris); margin-bottom: 30px; font-weight: 500; }
       
       /* --- NAVIGATION --- */
@@ -108,12 +125,14 @@
     <div id="sorties">
         <p style="color: var(--misty-violet); font-style: italic;">Chargement des idées...</p>
     </div>
-    // --- SÉCURITÉ : VÉRIFICATION DE LA CONNEXION ---
-        if (!localStorage.getItem("estConnecte")) {
-    window.location.href = "login.html";
-    }
+
     <script>
-        // CONFIGURATION FIREBASE
+        // 🛑 1. SÉCURITÉ : Vérifie si connecté, sinon renvoie au login
+        if (!localStorage.getItem("estConnecte")) {
+            window.location.href = "login.html";
+        }
+
+        // --- 2. CONFIGURATION FIREBASE ---
         const firebaseConfig = { 
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
             authDomain: "date-d927b.firebaseapp.com", 
@@ -130,15 +149,26 @@
         let db; 
         try { db = firebase.firestore(); } catch (e) { console.error("Erreur Firebase:", e); }
 
+        // --- 3. FONCTIONS ---
+
         function chargerIdees() { 
             const container = document.getElementById('sorties'); 
+            
+            // On récupère la collection 'dates'
             db.collection("dates").onSnapshot((snapshot) => { 
                 container.innerHTML = ""; 
-                if(snapshot.empty) { container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic; margin-top:20px;'>Pas encore d'idées... Lance-toi ! ✨</p>"; return; } 
+                
+                if(snapshot.empty) { 
+                    container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic; margin-top:20px;'>Pas encore d'idées... Lance-toi ! ✨</p>"; 
+                    return; 
+                } 
                 
                 let items = [];
-                snapshot.forEach(doc => { items.push({ id: doc.id, ...doc.data() }); });
+                snapshot.forEach(doc => {
+                    items.push({ id: doc.id, ...doc.data() });
+                });
 
+                // Tri : Les plus récents en haut (ceux sans date à la fin)
                 items.sort((a, b) => {
                     let timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
                     let timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
@@ -182,7 +212,9 @@
                             </div>
                         `; 
                         container.appendChild(carte); 
-                    } catch (err) { console.log("Erreur d'affichage :", err); }
+                    } catch (err) {
+                        console.log("Erreur d'affichage sur un élément (ignoré)", err);
+                    }
                 }); 
             }); 
         }
@@ -192,14 +224,21 @@
             const date = document.getElementById("dateIdee").value; 
             const prix = document.getElementById("prixIdee").value; 
             const lieu = document.getElementById("lieuIdee").value; 
+            
             const checkboxes = document.querySelectorAll('#categories input:checked'); 
             let categories = []; 
             checkboxes.forEach((checkbox) => { categories.push(checkbox.value); }); 
             
             if (texte === "") { alert("Il faut au moins un titre !"); return; } 
             
+            // Note: On utilise bien la collection 'dates' pour garder tes données
             db.collection("dates").add({ 
-                texte: texte, nom: texte, categories: categories, date: date, prix: prix, lieu: lieu, 
+                texte: texte,
+                nom: texte,
+                categories: categories, 
+                date: date, 
+                prix: prix, 
+                lieu: lieu, 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp() 
             }).then(() => { 
                 document.getElementById("nouvelleIdee").value = ""; 
@@ -207,7 +246,10 @@
                 document.getElementById("prixIdee").value = ""; 
                 document.getElementById("lieuIdee").value = ""; 
                 checkboxes.forEach(cb => cb.checked = false); 
-            }).catch((error) => { alert("Erreur lors de l'ajout : " + error.message); }); 
+            }).catch((error) => { 
+                console.error("Erreur : ", error); 
+                alert("Erreur: " + error.message);
+            }); 
         }
 
         function supprimerIdee(id) { 
@@ -217,6 +259,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => { chargerIdees(); });
+
     </script>
 </body>
 </html>
