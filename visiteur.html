@@ -1,131 +1,364 @@
-import React from 'react';
-import { Sparkles, MapPin, Ticket, Calendar, Send, Lightbulb, Clock } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitrine Culturelle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 1. CONFIGURATION DE BASE --- */
+        :root {
+            --bg-color: #ffeccf; /* Le fond pêche */
+            --primary-text: #4a5568;
+            --blue-title: #5b8db8;
+            --purple-border: #d6bcfa; /* Couleur pointillés */
+            --btn-blue: #8fcae6; /* Bouton envoyer */
+            --btn-salmon: #ffb3a7; /* Bouton proposer */
+        }
 
-const events = [
-  {
-    id: 1,
-    title: "Bourse de Commerce",
-    subtitle: "Pinault Collection - Minimal",
-    type: "Musée",
-    price: "10.00€",
-    deadline: "2026-01-19",
-    tagColor: "bg-orange-100 text-orange-800"
-  },
-  {
-    id: 2,
-    title: "Petit Palais",
-    subtitle: "Jean-Baptiste Greuze",
-    type: "Musée",
-    price: "10€",
-    deadline: "2026-01-25",
-    tagColor: "bg-yellow-100 text-yellow-800"
-  },
-  {
-    id: 3,
-    title: "Institut Giacometti",
-    subtitle: "Giacometti / MARWAN.OBSESSIONS",
-    type: "Musée",
-    price: "3€",
-    deadline: "2026-01-25",
-    tagColor: "bg-blue-100 text-blue-800"
-  },
-  {
-    id: 4,
-    title: "Mairie du 17e",
-    subtitle: "Hommage à Arman",
-    type: "Expo",
-    price: "Gratuit",
-    deadline: "2026-01-31",
-    tagColor: "bg-green-100 text-green-800"
-  }
-];
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--primary-text);
+        }
 
-const CulturalShowcase = () => {
-  return (
-    // 1. LE FOND : On remplace le bleu gris froid par un crème chaleureux (bg-orange-50)
-    <div className="min-h-screen bg-orange-50 p-8 font-sans">
-      
-      {/* HEADER */}
-      <div className="max-w-5xl mx-auto mb-10 text-center">
-        <h1 className="text-4xl font-bold text-indigo-900 flex justify-center items-center gap-3">
-          <Sparkles className="text-orange-400" />
-          Vitrine Culturelle
-          <Sparkles className="text-orange-400" />
-        </h1>
-        <p className="text-indigo-400 mt-2 italic">Les expos & spectacles du moment...</p>
-      </div>
+        .container {
+            max-width: 700px; /* Largeur contenue comme sur l'image */
+            margin: 0 auto;
+        }
 
-      {/* 2. LE FORMULAIRE D'IDÉES (Réintroduction de l'interactif) */}
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-orange-100 p-6 mb-12 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-300 to-pink-300"></div>
-        <div className="flex items-center gap-2 mb-4 text-orange-500 font-semibold">
-          <Lightbulb size={20} />
-          <h2>Une idée lumineuse ?</h2>
-        </div>
+        /* --- 2. HEADER --- */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #9f7aea; /* Violet clair */
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 1.8rem;
+        }
+
+        .sparkle {
+            color: #f6ad55;
+            font-size: 1.5rem;
+        }
+
+        /* --- 3. FORMULAIRE IDÉE LUMINEUSE --- */
+        .idea-box {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            /* La fameuse bordure en pointillés */
+            border: 3px dashed var(--purple-border);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .idea-title {
+            text-align: center;
+            color: #f687b3;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .idea-subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            box-sizing: border-box; /* Important pour ne pas casser la largeur */
+            outline: none;
+            background-color: #fffafa;
+        }
         
-        <div className="flex gap-3">
-          <input 
-            type="text" 
-            placeholder="Propose-nous une sortie (Lieu, titre...)" 
-            className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 transition"
-          />
-          <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium transition flex items-center gap-2">
-            <Send size={16} /> Envoyer
-          </button>
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--purple-border);
+            background-color: #fff;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row .half {
+            flex: 1;
+            position: relative;
+        }
+
+        /* Icônes dans les inputs */
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #cbd5e0;
+            font-size: 0.8rem;
+        }
+        .with-icon {
+            padding-left: 35px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--btn-blue);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #7ab8d6;
+        }
+
+        /* --- 4. LISTE DES SORTIES --- */
+        .section-title {
+            color: var(--blue-title);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #fffaf0;
+            color: #ed8936;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            border: 1px solid #feeebc;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .badge-museum {
+            background-color: #63b3ed;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: fit-content;
+        }
+
+        .card-title h3 {
+            margin: 0;
+            color: var(--blue-title);
+            font-size: 1rem;
+        }
+
+        .card-title p {
+            margin: 2px 0 0 0;
+            color: #a0aec0;
+            font-size: 0.8rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 15px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .tag-price { background-color: #fed7e2; color: #b83280; } /* Rose */
+        .tag-info { background-color: #fefcbf; color: #b7791f; } /* Jaune */
+
+        .btn-propose {
+            background-color: var(--btn-salmon);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: transform 0.1s;
+        }
+        .btn-propose:hover {
+            transform: scale(1.02);
+            background-color: #ff9e8f;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <i class="fas fa-sparkles sparkle"></i>
+            <h1>Vitrine Culturelle</h1>
+            <i class="fas fa-sparkles sparkle"></i>
         </div>
-        <p className="text-xs text-gray-400 mt-2 ml-1">Si on valide, elle apparaîtra dans la liste ci-dessous.</p>
-      </div>
 
-      {/* 3. LA GRILLE (Plus aérée mais avec des cartes denses en info) */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {events.map((event) => (
-          <div key={event.id} className="bg-white rounded-xl p-5 shadow-sm border border-orange-50 hover:shadow-md transition duration-300 flex flex-col justify-between group">
-            
-            {/* Haut de carte */}
-            <div>
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-bold text-indigo-900 group-hover:text-orange-500 transition-colors">
-                  {event.title}
-                </h3>
-                {/* Icône musée discrète */}
-                <div className="bg-gray-100 p-2 rounded-full text-gray-400">
-                  <span className="text-xl">🏛️</span>
+        <div class="idea-box">
+            <div class="idea-title">
+                <i class="far fa-lightbulb" style="color:#ecc94b;"></i> Une idée lumineuse ?
+            </div>
+            <p class="idea-subtitle">Propose-nous une sortie ! Si on valide, elle apparaîtra dans la liste.</p>
+
+            <form>
+                <div class="form-group">
+                    <select>
+                        <option>🏛️ C'est un Musée / Expo</option>
+                        <option>🎭 Spectacle</option>
+                        <option>🍹 Verre / Resto</option>
+                    </select>
                 </div>
-              </div>
-              
-              <p className="text-indigo-400 font-medium mb-4">{event.subtitle}</p>
 
-              {/* Les Tags (Au lieu du texte brut) */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${event.tagColor}`}>
-                  <MapPin size={12} /> {event.type}
-                </span>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600 flex items-center gap-1">
-                  <Ticket size={12} /> {event.price}
-                </span>
-                
-                {/* Date transformée en Tag d'urgence doux au lieu du gros bloc rouge */}
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-500 flex items-center gap-1 border border-red-100">
-                  <Clock size={12} /> Jusqu'au {event.deadline}
-                </span>
-              </div>
+                <div class="form-group">
+                    <input type="text" placeholder="Titre (Nom du musée ou du spectacle)">
+                </div>
+
+                <div class="form-group row">
+                    <div class="half">
+                        <i class="fas fa-map-marker-alt input-icon" style="color: #ed64a6;"></i>
+                        <input type="text" class="with-icon" placeholder="Lieu (Adresse...)">
+                    </div>
+                    <div class="half">
+                        <i class="fas fa-tag input-icon" style="color: #48bb78;"></i>
+                        <input type="text" class="with-icon" placeholder="Prix estimé">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <textarea rows="2" placeholder="Pourquoi il faut y aller ? (Lien, infos...)"></textarea>
+                </div>
+
+                <button type="button" class="btn-submit">
+                    <i class="fas fa-rocket"></i> Envoyer l'idée
+                </button>
+            </form>
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-columns"></i> Au programme (À faire)
+        </div>
+
+        <div class="card">
+            <div class="status-badge"><i class="fas fa-hourglass-half"></i> À voir</div>
+            <div class="card-header">
+                <div class="badge-museum"><i class="fas fa-landmark"></i> MUSÉE</div>
+                <div class="card-title">
+                    <h3>MAM - Art Moderne</h3>
+                    <p>Otobong Nkanga</p>
+                </div>
             </div>
-
-            {/* 4. LE BOUTON D'ACTION (Le retour du bouton "Proposer") */}
-            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-               <span className="text-xs text-gray-400 italic">À faire absolument !</span>
-               
-               <button className="bg-orange-300 hover:bg-orange-400 text-white text-sm font-bold py-2 px-4 rounded-full shadow-sm transition transform active:scale-95 flex items-center gap-2">
-                 <Calendar size={14} />
-                 Proposer une date
-               </button>
+            <div class="card-footer">
+                <div class="tags">
+                    <span class="tag tag-price">10€</span>
+                    <span class="tag tag-info">Icon</span>
+                    <span class="tag tag-info">SLA</span>
+                    <span class="tag tag-info">Presse</span>
+                </div>
+                <button class="btn-propose">
+                    <i class="far fa-calendar-alt"></i> Proposer une date
+                </button>
             </div>
+        </div>
 
-          </div>
-        ))}
-      </div>
+        <div class="card">
+            <div class="status-badge"><i class="fas fa-hourglass-half"></i> À voir</div>
+            <div class="card-header">
+                <div class="badge-museum"><i class="fas fa-landmark"></i> MUSÉE</div>
+                <div class="card-title">
+                    <h3>Petit Palais</h3>
+                    <p>Pekka Halonen</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="tags">
+                    <span class="tag tag-price">10€</span>
+                    <span class="tag tag-info">Icon</span>
+                    <span class="tag tag-info">SLA</span>
+                </div>
+                <button class="btn-propose">
+                    <i class="far fa-calendar-alt"></i> Proposer une date
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="status-badge"><i class="fas fa-hourglass-half"></i> À voir</div>
+            <div class="card-header">
+                <div class="badge-museum"><i class="fas fa-landmark"></i> MUSÉE</div>
+                <div class="card-title">
+                    <h3>Musée Jacquemart-André</h3>
+                    <p>Georges de La Tour</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="tags">
+                    <span class="tag tag-price">15€</span>
+                    <span class="tag tag-info">Icon</span>
+                </div>
+                <button class="btn-propose">
+                    <i class="far fa-calendar-alt"></i> Proposer une date
+                </button>
+            </div>
+        </div>
+
     </div>
-  );
-};
 
-export default CulturalShowcase;
+</body>
+</html>
