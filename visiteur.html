@@ -2,359 +2,321 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <title>Vitrine Culturelle ✨</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vitrine Culturelle</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
-        /* --- DESIGN CHALEUREUX (PEACH) --- */
+        /* --- PALETTE "ARC-EN-CIEL DOUX" (Ton design chaleureux) --- */
         :root {
-            --bg-color: #ffeccf;
-            --primary-text: #4a5568;
-            --blue-title: #5b8db8;
-            --purple-border: #d6bcfa;
-            --btn-blue: #8fcae6;
-            --btn-salmon: #ffb3a7;
-            --card-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            --lilac: #9f99d1;   /* Titres */
+            --blue: #86bada;    /* Boutons, Musées */
+            --pink: #dbaad7;    /* Bordures, Sorties */
+            --peach: #f6beb0;   /* Actions, Alertes */
+            --cream: #ffe3b3;   /* Fond */
+            --text-dark: #4a4a4a;
+            --white: #ffffff;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-            color: var(--primary-text);
+        body { 
+            background-color: var(--cream); 
+            color: var(--text-dark); 
+            font-family: 'Segoe UI', sans-serif; 
+            padding: 20px; 
+            margin: 0; 
+            background-image: linear-gradient(to bottom right, var(--cream), #fff5e6);
+            min-height: 100vh;
         }
 
         .container { max-width: 800px; margin: 0 auto; }
 
-        /* HEADER */
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: #9f7aea; display: inline-block; margin: 0 10px; font-size: 2rem; font-weight: 800; }
-        .sparkle { color: #f6ad55; font-size: 1.5rem; }
-
-        /* FORMULAIRE IDÉE (Style Pointillés) */
-        .idea-box {
-            background: white; border-radius: 20px; padding: 25px;
-            border: 3px dashed var(--purple-border); margin-bottom: 40px;
-            box-shadow: var(--card-shadow);
-            position: relative;
+        h1 { 
+            text-align: center; color: var(--lilac); margin-bottom: 30px; 
+            font-weight: 800; text-shadow: 2px 2px 4px rgba(255,255,255,0.5); 
+            font-size: 2.2em;
         }
-        .idea-title { text-align: center; color: #f687b3; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
-        .idea-subtitle { text-align: center; font-size: 0.85rem; color: #a0aec0; margin-bottom: 20px; }
+
+        /* --- FORMULAIRE --- */
+        .proposition-box { 
+            background: var(--white); 
+            border: 3px dashed var(--pink); 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 40px; 
+            text-align: center; 
+            box-shadow: 0 10px 25px rgba(159, 153, 209, 0.2); 
+        }
+        .proposition-box h2 { margin-top: 0; color: var(--pink); margin-bottom: 5px; }
+        .proposition-box p { color: #888; margin-top: 0; font-size: 0.9em; font-style: italic; }
+
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .form-row > * { flex: 1; }
+
+        input, select, textarea { 
+            width: 100%; padding: 12px; margin: 8px 0; 
+            border: 2px solid var(--pink); border-radius: 12px; 
+            box-sizing: border-box; font-family: inherit; 
+            background: #fff9fc; color: var(--text-dark);
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
+
+        button.btn-propose { 
+            background: var(--blue); color: var(--white); border: none; 
+            padding: 12px 20px; border-radius: 12px; cursor: pointer; 
+            font-weight: bold; font-size: 16px; width: 100%; margin-top: 10px;
+            transition: transform 0.2s; box-shadow: 0 4px 10px rgba(134, 186, 218, 0.3);
+        }
+        button.btn-propose:hover { background: var(--lilac); transform: translateY(-2px); }
+
+        /* --- LISTES --- */
+        .section-title { 
+            border-bottom: 3px solid var(--cream); padding-bottom: 10px; 
+            margin-top: 50px; color: var(--lilac); font-size: 1.5em; 
+        }
         
-        input, select, textarea {
-            width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0;
-            border-radius: 12px; font-size: 0.95rem; box-sizing: border-box;
-            outline: none; background-color: #fffafa; margin-bottom: 12px;
-            font-family: inherit;
+        .item-row { 
+            background: var(--white); padding: 20px; margin-bottom: 20px; 
+            border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-left: 6px solid var(--lilac); transition: transform 0.2s; 
+            display: flex; flex-direction: column; gap: 8px;
         }
-        input:focus, select:focus, textarea:focus { border-color: var(--purple-border); background-color: #fff; }
+        .item-row:hover { transform: translateY(-3px); }
+
+        .row-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .row-header strong { font-size: 1.2em; color: var(--text-dark); }
         
-        .row { display: flex; gap: 10px; }
-        .row .half { flex: 1; }
+        .row-infos { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; margin-top: 5px; }
+
+        /* TAGS */
+        .tag { font-size: 0.7em; padding: 4px 8px; border-radius: 20px; font-weight: bold; text-transform: uppercase; color: white; letter-spacing: 0.5px; }
+        .tag-musee { background: var(--blue); }
+        .tag-sortie { background: var(--pink); }
         
-        .btn-submit {
-            width: 100%; background-color: var(--btn-blue); color: white;
-            border: none; padding: 12px; border-radius: 12px; font-weight: bold;
-            cursor: pointer; font-size: 1rem; transition: transform 0.1s;
+        .badge-prix { background: var(--peach); color: white; font-weight: bold; padding: 3px 8px; border-radius: 8px; font-size: 0.85em; }
+        .badge-gratuit { background: #e0f2f1; color: #00695c; padding: 3px 8px; border-radius: 8px; font-size: 0.8em; border: 1px solid #b2dfdb; }
+
+        .status-fait { color: var(--blue); background: #eef7fc; padding: 5px 10px; border-radius: 10px; font-weight: bold; font-size: 0.9em; }
+        .status-todo { color: var(--peach); background: #fff2ee; padding: 5px 10px; border-radius: 10px; font-weight: bold; font-size: 0.9em; }
+
+        /* BOUTON DATE */
+        .btn-date { 
+            background-color: var(--peach); color: white; border: none; 
+            padding: 8px 15px; border-radius: 25px; cursor: pointer; 
+            font-size: 0.9em; font-weight: bold; margin-top: 5px; 
+            align-self: flex-end; transition: 0.2s;
         }
-        .btn-submit:hover { transform: scale(1.02); background-color: #7bc0e0; }
+        .btn-date:hover { background-color: var(--pink); transform: scale(1.05); }
 
-        /* LISTE DES CARTES */
-        .section-title {
-            color: var(--blue-title); font-weight: bold; font-size: 1.4rem;
-            margin-bottom: 25px; display: flex; align-items: center; gap: 10px;
-        }
+        /* NAV */
+        .top-nav { position: fixed; top: 10px; right: 10px; }
+        .btn-login { text-decoration: none; background: rgba(255,255,255,0.5); padding: 8px 15px; border-radius: 20px; font-size: 0.8em; color: var(--lilac); font-weight: bold; }
 
-        .card {
-            background: white; border-radius: 18px; padding: 20px;
-            margin-bottom: 20px; position: relative;
-            box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255,255,255,0.5);
-            transition: transform 0.2s;
-        }
-        .card:hover { transform: translateY(-2px); }
-
-        /* BADGES STATUT */
-        .status-badge {
-            position: absolute; top: 20px; right: 20px;
-            background-color: #fffaf0; color: #ed8936;
-            font-size: 0.75rem; padding: 5px 10px; border-radius: 8px;
-            font-weight: bold; border: 1px solid #feeebc;
-        }
-        .status-badge.urgent { color: #e53e3e; background-color: #fff5f5; border-color: #feb2b2; }
-
-        .card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; padding-right: 90px; }
-        
-        .badge-type {
-            background-color: #63b3ed; color: white; padding: 4px 8px;
-            border-radius: 6px; font-size: 0.65rem; font-weight: bold;
-            text-transform: uppercase; display: flex; align-items: center; gap: 5px; height: fit-content; margin-top: 3px;
-        }
-
-        .card-title h3 { margin: 0; color: var(--blue-title); font-size: 1.1rem; }
-        .card-title p { margin: 4px 0 0 0; color: #718096; font-size: 0.9rem; }
-        
-        /* Liste des expos internes à la carte */
-        .expo-list { margin: 15px 0; border-left: 2px solid #e2e8f0; padding-left: 15px; }
-        .expo-item { font-size: 0.9rem; margin-bottom: 5px; color: #4a5568; display: flex; justify-content: space-between; align-items: center;}
-
-        .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
-        .tags { display: flex; gap: 6px; flex-wrap: wrap; max-width: 65%; }
-        
-        .tag { font-size: 0.75rem; padding: 4px 12px; border-radius: 15px; font-weight: bold; }
-        .tag-price { background-color: #fed7e2; color: #b83280; } /* Rose */
-        .tag-free  { background-color: #bee3f8; color: #2b6cb0; } /* Bleu */
-        .tag-info  { background-color: #fefcbf; color: #b7791f; } /* Jaune */
-
-        .btn-propose {
-            background-color: var(--btn-salmon); color: white; border: none;
-            padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
-            cursor: pointer; display: flex; align-items: center; gap: 6px;
-            box-shadow: 0 2px 5px rgba(255, 179, 167, 0.4);
-            transition: transform 0.1s;
-        }
-        .btn-propose:hover { transform: scale(1.05); background-color: #ff9e8f; }
-
-        /* Loader */
-        #loading { text-align: center; color: #a0aec0; font-style: italic; margin-top: 30px; }
+        .loading { text-align: center; color: #999; font-style: italic; }
     </style>
 </head>
 <body>
 
+    <div class="top-nav">
+        <a href="login.html" class="btn-login">🔒 Admin</a>
+    </div>
+
     <div class="container">
-        <div class="header">
-            <i class="fas fa-sparkles sparkle"></i>
-            <h1>Vitrine Culturelle</h1>
-            <i class="fas fa-sparkles sparkle"></i>
-        </div>
+        <h1>✨ Vitrine Culturelle</h1>
 
-        <div class="idea-box">
-            <div class="idea-title"><i class="far fa-lightbulb" style="color:#ecc94b;"></i> Une idée lumineuse ?</div>
-            <p class="idea-subtitle">Propose-nous une sortie ! Si on valide, elle apparaîtra dans la liste.</p>
+        <div class="proposition-box">
+            <h2>💡 Une idée lumineuse ?</h2>
+            <p>Propose-nous une sortie ! Si on valide, elle apparaîtra dans la liste.</p>
             
-            <select id="ideaType">
-                <option value="Musée">🏛️ C'est un Musée / Expo</option>
-                <option value="Spectacle">🎭 Spectacle</option>
-                <option value="Verre">🍹 Verre / Resto</option>
+            <select id="propType">
+                <option value="musees">🏛️ C'est un Musée / Expo</option>
+                <option value="sorties">🎭 C'est du Théâtre / Spectacle</option>
             </select>
-
-            <input type="text" id="ideaTitle" placeholder="Titre (Nom du musée ou du spectacle)">
             
-            <div class="row">
-                <div class="half">
-                    <input type="text" id="ideaPlace" placeholder="Lieu (Adresse...)">
-                </div>
-                <div class="half">
-                    <input type="text" id="ideaPrice" placeholder="Prix estimé">
-                </div>
+            <input type="text" id="propTitre" placeholder="Titre (Nom du musée ou du spectacle)">
+            
+            <div class="form-row">
+                <input type="text" id="propLieu" placeholder="📍 Lieu (Adresse...)">
+                <input type="text" id="propPrix" placeholder="💸 Prix estimé">
             </div>
 
-            <textarea id="ideaComment" rows="2" placeholder="Pourquoi il faut y aller ? (Lien, infos...)"></textarea>
-
-            <button onclick="ajouterProposition()" class="btn-submit">
-                <i class="fas fa-rocket"></i> Envoyer l'idée
-            </button>
+            <textarea id="propNote" rows="2" placeholder="Pourquoi il faut y aller ? (Lien, infos...)"></textarea>
+            
+            <button class="btn-propose" onclick="envoyerProposition()">🚀 Envoyer l'idée</button>
         </div>
 
-        <div class="section-title">
-            <i class="fas fa-columns"></i> Au programme (À faire)
-        </div>
+        <h2 class="section-title">📅 Au programme (À faire)</h2>
+        <div id="listeAFaire" class="loading">Chargement des merveilles...</div>
 
-        <div id="loading"><i class="fas fa-spinner fa-spin"></i> Chargement de tes données...</div>
-        <div id="liste-container"></div>
+        <h2 class="section-title">✅ Dans nos souvenirs (Déjà fait)</h2>
+        <div id="listeFait" class="loading">...</div>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION FIREBASE (TA CONFIG) ---
-        const firebaseConfig = { 
-            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
-            authDomain: "date-d927b.firebaseapp.com", 
-            projectId: "date-d927b", 
-            storageBucket: "date-d927b.appspot.com", 
-            messagingSenderId: "353304192798", 
-            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", 
-            measurementId: "G-T4N8PMNC3G" 
+        // CONFIGURATION FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
+            authDomain: "date-d927b.firebaseapp.com",
+            projectId: "date-d927b",
+            storageBucket: "date-d927b.appspot.com",
+            messagingSenderId: "353304192798",
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
+            measurementId: "G-T4N8PMNC3G"
         };
-        
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) { 
-            firebase.initializeApp(firebaseConfig); 
-        }
-        let db; 
-        try { db = firebase.firestore(); } catch (e) { console.error("Erreur Init:", e); }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // --- 2. LOGIQUE D'AJOUT (Comme dans ton ancien code 'Blue') ---
-        function ajouterProposition() {
-            const titre = document.getElementById('ideaTitle').value;
-            const type = document.getElementById('ideaType').value;
-            const lieu = document.getElementById('ideaPlace').value;
-            const prix = document.getElementById('ideaPrice').value;
-            const comm = document.getElementById('ideaComment').value;
+        // 1. ENVOYER UNE PROPOSITION
+        function envoyerProposition() {
+            const type = document.getElementById('propType').value;
+            const titre = document.getElementById('propTitre').value;
+            const lieu = document.getElementById('propLieu').value;
+            const prix = document.getElementById('propPrix').value;
+            const note = document.getElementById('propNote').value;
 
             if(!titre) { alert("Il faut au moins un titre !"); return; }
 
-            // On ajoute dans la collection 'propositions' pour validation ultérieure
+            const qui = prompt("Qui propose cette idée ? (Ton prénom)");
+            if(!qui) return;
+
             db.collection('propositions').add({
-                titre: titre,
-                type: type,
-                lieu: lieu,
-                prix: prix,
-                commentaire: comm,
-                source: "Interface_Peche",
+                typeCible: type, 
+                titre: titre,    
+                lieu: lieu || "Non précisé",
+                prix: prix || "Non précisé",
+                commentaire: `Proposé par ${qui}. Note: ${note}`,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert("✨ Idée envoyée dans l'inbox !");
-                // Reset
-                document.getElementById('ideaTitle').value = "";
-                document.getElementById('ideaPlace').value = "";
-                document.getElementById('ideaPrice').value = "";
-                document.getElementById('ideaComment').value = "";
-            }).catch(e => alert("Erreur: " + e.message));
+                alert("Merci ! Ton idée a été envoyée. ✨");
+                document.getElementById('propTitre').value = '';
+                document.getElementById('propLieu').value = '';
+                document.getElementById('propPrix').value = '';
+                document.getElementById('propNote').value = '';
+            });
         }
 
-        // --- 3. AFFICHAGE (Le mix : Données réelles + Design Pêche) ---
-        function chargerMusees() {
-            const container = document.getElementById('liste-container');
-            const loading = document.getElementById('loading');
-            
-            db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-                loading.style.display = 'none';
-                container.innerHTML = ''; 
+        // 2. PROPOSER UNE DATE
+        function proposerDate(nomItem, typeCollection) {
+            const qui = prompt("C'est qui ? (Ton prénom)");
+            if(!qui) return;
 
-                if (snapshot.empty) {
-                    container.innerHTML = "<p style='text-align:center; color:#a0aec0;'>Rien de prévu pour l'instant.</p>";
-                    return;
-                }
+            const dispo = prompt("Quand aimerais-tu y aller ? (ex: Ce weekend, Samedi 12...)");
+            if(!dispo) return;
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const id = doc.id;
-                    
-                    // Gestion de la compatibilité (Anciennes vs Nouvelles données)
-                    let expositions = [];
-                    if (data.expositions && Array.isArray(data.expositions)) {
-                        expositions = data.expositions;
-                    } else {
-                        // Si c'est un vieux format sans tableau d'expos
-                        expositions.push({ 
-                            nom: data.expo || "Exposition principale", 
-                            dateFin: data.dateFin,
-                            estVisite: data.estVisite || false 
-                        });
-                    }
+            db.collection('propositions').add({
+                typeCible: typeCollection, 
+                titre: "📅 DISPO : " + nomItem,
+                lieu: "Déjà listé",
+                prix: "-",
+                commentaire: `${qui} est chaud pour : ${dispo}`,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("C'est noté ! L'admin a reçu ta dispo. 📅");
+            });
+        }
 
-                    // On vérifie s'il reste des trucs à voir dans ce musée
-                    const aFaire = expositions.filter(e => !e.estVisite);
-                    
-                    if (aFaire.length > 0) {
-                        genererCarteHTML(container, data, aFaire, id);
-                    }
+        // 3. CHARGEMENT UNIFIÉ (Musées + Sorties)
+        async function chargerTout() {
+            const divAFaire = document.getElementById('listeAFaire');
+            const divFait = document.getElementById('listeFait');
+            divAFaire.innerHTML = ''; divFait.innerHTML = '';
+
+            let items = [];
+
+            // A. Charger les Musées
+            const snapMusees = await db.collection('musees').orderBy('timestamp', 'desc').get();
+            snapMusees.forEach(doc => {
+                const d = doc.data();
+                items.push({ 
+                    id: doc.id, 
+                    collection: 'musees',
+                    type: 'musee', 
+                    nom: d.nom, 
+                    fait: d.estVisite || false,
+                    details: d.expo || (d.expositions && d.expositions[0] ? d.expositions[0].nom : ""),
+                    prix: d.prix,
+                    tags: d.tags || []
                 });
             });
-        }
 
-        function genererCarteHTML(container, data, exposActives, id) {
-            // Calculer l'urgence (Date la plus proche)
-            let datePlusProche = null;
-            let texteUrgence = "À voir";
-            let classeUrgence = "";
-
-            exposActives.forEach(e => {
-                if(e.dateFin) {
-                    if(!datePlusProche || e.dateFin < datePlusProche) datePlusProche = e.dateFin;
-                }
+            // B. Charger les Sorties
+            const snapSorties = await db.collection('sorties').orderBy('timestamp', 'desc').get();
+            snapSorties.forEach(doc => {
+                const d = doc.data();
+                items.push({ 
+                    id: doc.id,
+                    collection: 'sorties',
+                    type: 'sortie', 
+                    nom: d.titre || d.nom || "Sortie", 
+                    fait: d.estFait || false, 
+                    details: d.lieu || "",
+                    prix: d.prix,
+                    tags: [] 
+                });
             });
 
-            if (datePlusProche) {
-                texteUrgence = "Jusqu'au " + datePlusProche;
-                // Petite logique simple : si c'est pour 2024 ou 2025, on peut colorer si proche
-                classeUrgence = "urgent"; 
+            if(items.length === 0) {
+                 divAFaire.innerHTML = "<p style='text-align:center;'>Rien de prévu pour l'instant... 💤</p>";
+                 divFait.innerHTML = "";
+                 return;
             }
 
-            // Gestion du prix (Gratuit vs Payant)
-            let prix = data.prix ? data.prix + "" : "?";
-            let tagPrixClass = (prix.toLowerCase().includes('0') || prix.toLowerCase().includes('gratuit')) ? 'tag-free' : 'tag-price';
-            if(!prix.includes('€') && !prix.toLowerCase().includes('gratuit')) prix += '€';
+            // C. Afficher tout le monde
+            items.forEach(item => {
+                // Déterminer le tag type
+                const tagType = item.type === 'musee' 
+                    ? '<span class="tag tag-musee">🏛️ Musée</span>' 
+                    : '<span class="tag tag-sortie">🎭 Sortie</span>';
 
-            // HTML des expos
-            let exposHTML = exposActives.map((e, idx) => `
-                <div class="expo-item">
-                    <span>▪ ${e.nom}</span>
-                    <small style="color:${e.dateFin ? '#e53e3e' : '#a0aec0'}">${e.dateFin || ''}</small>
-                </div>
-            `).join('');
+                // Gestion Prix
+                let prixHtml = "";
+                if(item.prix && !item.prix.includes('0') && !item.prix.toLowerCase().includes('gratuit')) {
+                    prixHtml = `<span class="badge-prix">${item.prix.includes('€') ? item.prix : item.prix + '€'}</span>`;
+                } else {
+                    prixHtml = `<span class="badge-prix" style="background:#81c784;">Gratuit</span>`;
+                }
 
-            // HTML des tags (ICOM, Presse...)
-            let tagsHTML = `<span class="tag ${tagPrixClass}">${prix}</span>`;
-            if (data.tags) {
-                data.tags.forEach(t => tagsHTML += `<span class="tag tag-info">${t}</span>`);
-            }
+                // Gestion Tags (Musées)
+                let tagsHtml = "";
+                if(item.tags && item.tags.length > 0) {
+                    tagsHtml = item.tags.map(t => `<span class="badge-gratuit">${t}</span>`).join(" ");
+                }
 
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="status-badge ${classeUrgence}">
-                    <i class="fas fa-hourglass-half"></i> ${texteUrgence}
-                </div>
+                // Bouton Dispo (Seulement si pas fait)
+                let btnDateHtml = "";
+                if (!item.fait) {
+                    const nomClean = item.nom.replace(/'/g, "\\'"); 
+                    btnDateHtml = `<button class="btn-date" onclick="proposerDate('${nomClean}', '${item.collection}')">📅 Proposer une date</button>`;
+                }
 
-                <div class="card-header">
-                    <div class="badge-type">
-                        <i class="fas fa-landmark"></i> ${data.type || 'MUSÉE'}
-                    </div>
-                    <div class="card-title">
-                        <h3>${data.nom}</h3>
-                        <div class="expo-list">
-                            ${exposHTML}
+                const html = `
+                    <div class="item-row">
+                        <div class="row-header">
+                            <div>
+                                ${tagType} <strong>${item.nom}</strong>
+                                <div style="color:#888; font-size:0.9em; margin-top:2px;">${item.details}</div>
+                            </div>
+                            <div class="${item.fait ? 'status-fait' : 'status-todo'}">
+                                ${item.fait ? '✨ Vu' : '⏳ À voir'}
+                            </div>
                         </div>
-                    </div>
-                </div>
+                        
+                        <div class="row-infos">
+                            ${prixHtml} ${tagsHtml}
+                        </div>
 
-                <div class="card-footer">
-                    <div class="tags">
-                        ${tagsHTML}
-                    </div>
-                    <button class="btn-propose" onclick="ouvrirModalAction('${id}', '${data.nom.replace(/'/g, "\\'")}')">
-                        <i class="far fa-calendar-alt"></i> Proposer une date
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
+                        ${btnDateHtml}
+                    </div>`;
+
+                if(item.fait) divFait.innerHTML += html;
+                else divAFaire.innerHTML += html;
+            });
         }
 
-        // --- 4. ACTION DU BOUTON "PROPOSER UNE DATE" ---
-        // Vu qu'on n'avait pas défini cette fonction précise, je la connecte 
-        // à une logique simple : Valider qu'on l'a fait (comme le bouton Check du code Bleu)
-        // OU juste un placeholder si tu veux coder un calendrier plus tard.
-        function ouvrirModalAction(id, nom) {
-            // Ici, on pourrait ouvrir un vrai calendrier. 
-            // Pour l'instant, je propose de marquer comme 'Vu' ou d'envoyer un mail/sms (simulation)
-            let choix = confirm("Veux-tu marquer '" + nom + "' comme visité/fait ?");
-            if (choix) {
-                // Logique simplifiée : on marque la première expo comme vue
-                // Idéalement il faudrait choisir QUELLE expo
-                db.collection('musees').doc(id).get().then(doc => {
-                    let d = doc.data();
-                    if(d.expositions) {
-                        d.expositions[0].estVisite = true; // On valide la 1ère par défaut pour l'exemple
-                        d.expositions[0].dateVisite = new Date().toISOString().split('T')[0];
-                        db.collection('musees').doc(id).update({expositions: d.expositions});
-                    } else {
-                        db.collection('musees').doc(id).update({estVisite: true});
-                    }
-                });
-            }
-        }
-
-        // Lancement
-        document.addEventListener('DOMContentLoaded', () => {
-            chargerMusees();
-        });
-
+        // Lancer le chargement au démarrage
+        document.addEventListener('DOMContentLoaded', () => { chargerTout(); });
     </script>
 </body>
 </html>
