@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8">
-    <title>Idées de sorties </title>
+    <title>Idées de sorties ☔</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-      /* PALETTE "PLUIE DE JUIN" (Hydrangea Mood) */
+      /* PALETTE "PLUIE DE JUIN" */
       :root {
           --misty-violet: #5f5baf;  
           --rainy-blue: #568de4;    
@@ -45,155 +45,54 @@
         font-weight: 500;
       }
       
-      /* NAVIGATION */
       nav { margin-bottom: 40px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
       
       .btn-nav {
-        text-decoration: none; 
-        padding: 10px 25px; 
-        border-radius: 30px; 
-        font-weight: bold; 
-        transition: 0.3s; 
-        display: inline-block;
-        background: rgba(255,255,255,0.6);
-        color: var(--misty-violet);
-        box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1);
+        text-decoration: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; transition: 0.3s; display: inline-block;
+        background: rgba(255,255,255,0.6); color: var(--misty-violet); box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1);
       }
       
-      .actif { 
-        background: var(--misty-violet); 
-        color: var(--white); 
-        box-shadow: 0 4px 15px rgba(95, 91, 175, 0.3);
-      }
+      .actif { background: var(--misty-violet); color: var(--white); box-shadow: 0 4px 15px rgba(95, 91, 175, 0.3); }
 
       .btn-logout {
-        background: #90a4ae; 
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 30px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-        font-size: 0.9em;
+        background: #90a4ae; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 0.9em;
       }
       .btn-logout:hover { background: #78909c; }
       
-      /* FORMULAIRE D'AJOUT */
       .input-zone {
-        background: var(--white);
-        padding: 25px;
-        border-radius: 20px;
-        max-width: 600px;
-        margin: 0 auto 40px auto;
-        box-shadow: 0 10px 25px rgba(95, 91, 175, 0.15);
-        border: 2px solid var(--rain-purple);
+        background: var(--white); padding: 25px; border-radius: 20px; max-width: 600px; margin: 0 auto 40px auto; box-shadow: 0 10px 25px rgba(95, 91, 175, 0.15); border: 2px solid var(--rain-purple);
       }
 
       input[type="text"], input[type="number"], input[type="date"] { 
-        padding: 12px; 
-        border-radius: 12px; 
-        margin-top: 10px; 
-        border: 1px solid var(--rain-purple); 
-        width: 90%;
-        font-family: inherit;
-        color: var(--misty-violet);
-        background: #fcfaff;
+        padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--rain-purple); width: 90%; font-family: inherit; color: var(--misty-violet); background: #fcfaff;
       }
       input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
 
-      /* CATEGORIES */
-      #categories { 
-        margin-top: 15px; 
-        display: flex; 
-        flex-wrap: wrap; 
-        justify-content: center; 
-        gap: 10px; 
-      }
-      #categories label { 
-        font-size: 0.9em; 
-        cursor: pointer; 
-        background: var(--cloudy-lilac); 
-        padding: 5px 10px; 
-        border-radius: 15px; 
-        color: var(--misty-violet);
-        transition: 0.2s;
-        border: 1px solid transparent;
-      }
+      #categories { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+      #categories label { font-size: 0.9em; cursor: pointer; background: var(--cloudy-lilac); padding: 5px 10px; border-radius: 15px; color: var(--misty-violet); transition: 0.2s; border: 1px solid transparent; }
       #categories label:hover { background: var(--rain-purple); color: white; }
       #categories input { margin-right: 5px; accent-color: var(--misty-violet); }
 
-      /* BOUTON AJOUTER */
       button.add { 
-        background: var(--rainy-blue); 
-        color: var(--white); 
-        cursor: pointer; 
-        border: none; 
-        padding: 12px 30px; 
-        border-radius: 12px; 
-        margin-top: 20px; 
-        font-size: 16px; 
-        font-weight: bold; 
-        width: 100%;
-        max-width: 300px;
-        transition: transform 0.2s, background 0.2s;
-        box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3);
+        background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; padding: 12px 30px; border-radius: 12px; margin-top: 20px; font-size: 16px; font-weight: bold; width: 100%; max-width: 300px; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3);
       }
-      button.add:hover { 
-        background: var(--misty-violet); 
-        transform: translateY(-2px); 
-      }
+      button.add:hover { background: var(--misty-violet); transform: translateY(-2px); }
       
-      /* CARTES */
-      #sorties { 
-        margin-top: 20px; 
-        display: flex; 
-        flex-wrap: wrap; 
-        justify-content: center; 
-        gap: 20px; 
-        padding-bottom: 50px;
-      }
+      #sorties { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; }
       .carte {
-        background: var(--white); 
-        width: 260px; 
-        padding: 20px;
-        border-radius: 20px; 
-        box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); 
-        text-align: left; 
-        transition: transform 0.2s; 
-        position: relative;
-        border-top: 5px solid var(--rainy-blue);
+        background: var(--white); width: 260px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 5px solid var(--rainy-blue);
       }
       .carte:hover { transform: translateY(-5px); }
-      
-      .carte h3 { 
-        margin: 0 0 10px 0; 
-        color: var(--misty-violet); 
-        font-size: 1.3em;
-      }
-      
+      .carte h3 { margin: 0 0 10px 0; color: var(--misty-violet); font-size: 1.3em; }
       .carte p { color: #666; line-height: 1.5; font-size: 0.95em; margin: 5px 0; }
       .badge-cat { font-size: 0.8em; background: var(--cloudy-lilac); padding: 3px 8px; border-radius: 10px; color: var(--misty-violet); font-weight: bold; }
 
-      .btn-delete {
-          background: #ffcdd2; 
-          color: #c62828; 
-          border: none; 
-          padding: 6px 12px;  
-          border-radius: 8px; 
-          cursor: pointer; 
-          margin-top: 15px; 
-          font-size: 12px;
-          font-weight: bold;
-          float: right;
-          transition: 0.2s;
-      }
+      .btn-delete { background: #ffcdd2; color: #c62828; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 12px; font-weight: bold; float: right; transition: 0.2s; }
       .btn-delete:hover { background: #ef9a9a; }
-
     </style>
   </head>
   <body>
-    <h1>Idées de sorties 🥰</h1>
+    <h1>Idées de sorties ☔</h1>
     <div class="phrase">Pour nos moments à nous...</div>
 
     <nav>
@@ -225,7 +124,7 @@
     <div id="sorties">Chargement...</div>
 
     <script>
-        // CONFIGURATION FIREBASE EXACTE
+        // CONFIGURATION FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
             authDomain: "date-d927b.firebaseapp.com",
@@ -239,7 +138,7 @@
         if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
 
-        // --- CHARGER LES IDEES ---
+        // --- CHARGER LES IDEES (Depuis 'dates') ---
         function chargerIdees() {
             const container = document.getElementById('sorties');
             
@@ -255,14 +154,12 @@
                     const data = doc.data();
                     const id = doc.id;
                     
-                    // Sécurité anti-bug
                     const nom = data.texte || data.nom || "Idée mystère";
                     const cats = data.categories ? data.categories.join(" ") : "";
                     const prix = data.prix ? `${data.prix}€` : "";
                     const date = data.date ? `📅 ${data.date}` : "";
                     const lieu = data.lieu ? `📍 ${data.lieu}` : "";
 
-                    // Création de la carte HTML
                     const carte = document.createElement("div");
                     carte.className = "carte";
                     carte.innerHTML = `
@@ -277,21 +174,21 @@
             });
         }
 
-        // --- AJOUTER UNE IDEE ---
+        // --- AJOUTER UNE IDEE (Dans 'dates' aussi !) ---
         function ajouterIdee() {
             const texte = document.getElementById("nouvelleIdee").value;
             const date = document.getElementById("dateIdee").value;
             const prix = document.getElementById("prixIdee").value;
             const lieu = document.getElementById("lieuIdee").value;
             
-            // Récupérer les cases cochées
             const checkboxes = document.querySelectorAll('#categories input:checked');
             let categories = [];
             checkboxes.forEach((checkbox) => { categories.push(checkbox.value); });
 
             if (texte === "") { alert("Écris quelque chose !"); return; }
 
-            db.collection("idees").add({
+            // CORRECTION ICI : "dates" au lieu de "idees"
+            db.collection("dates").add({
                 texte: texte,
                 categories: categories,
                 date: date,
@@ -299,7 +196,6 @@
                 lieu: lieu,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                // Reset du formulaire
                 document.getElementById("nouvelleIdee").value = "";
                 document.getElementById("dateIdee").value = "";
                 document.getElementById("prixIdee").value = "";
@@ -310,14 +206,14 @@
             });
         }
 
-        // --- SUPPRIMER UNE IDEE ---
+        // --- SUPPRIMER UNE IDEE (Dans 'dates' aussi !) ---
         function supprimerIdee(id) {
             if(confirm("Supprimer cette idée ?")) {
-                db.collection("idees").doc(id).delete();
+                // CORRECTION ICI : "dates" au lieu de "idees"
+                db.collection("dates").doc(id).delete();
             }
         }
 
-        // Lancer le chargement au démarrage
         document.addEventListener('DOMContentLoaded', () => {
             chargerIdees();
         });
