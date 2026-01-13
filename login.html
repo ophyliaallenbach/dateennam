@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connexion 🔐</title>
+    <title>Connexion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; color: #333; }
@@ -10,45 +10,39 @@
         h1 { margin-bottom: 20px; font-size: 1.5em; color: #444; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1.1em; text-align: center; }
         
-        /* Bouton principal (Admin) */
-        .btn-main { width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 10px; font-size: 1em; cursor: pointer; transition: 0.2s; font-weight: bold; margin-bottom: 20px; }
-        .btn-main:hover { background: #555; transform: translateY(-2px); }
+        /* BOUTON ADMIN */
+        .btn-admin { width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 10px; font-size: 1em; cursor: pointer; transition: 0.2s; font-weight: bold; margin-bottom: 25px; }
+        .btn-admin:hover { background: #555; transform: translateY(-2px); }
         
-        /* Zone des liens publics */
-        .public-links { border-top: 1px solid #eee; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        /* ZONE LIENS PUBLICS */
+        .public-links { border-top: 1px solid #eee; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; }
         
         .btn-public {
-            display: block;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: bold;
-            transition: 0.2s;
-            font-size: 0.95em;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; padding: 12px; border-radius: 10px; font-weight: bold; transition: 0.2s; font-size: 0.95em;
         }
 
-        /* Bouton Vitrine (Bleu doux) */
-        .btn-vitrine { background-color: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
-        .btn-vitrine:hover { background-color: #bbdefb; }
+        /* Vitrine (Idées) - Violet */
+        .btn-vitrine { background-color: #f3e5f5; color: #8e24aa; border: 1px solid #e1bee7; }
+        .btn-vitrine:hover { background-color: #e1bee7; }
 
-        /* Bouton Livre d'Or (Turquoise/Guest) */
-        .btn-guest { background-color: #e0f2f1; color: #00695c; border: 1px solid #b2dfdb; }
-        .btn-guest:hover { background-color: #b2dfdb; }
+        /* Livre d'Or - Bleu Lagon */
+        .btn-guest { background-color: #e0f7fa; color: #006064; border: 1px solid #b2ebf2; }
+        .btn-guest:hover { background-color: #b2ebf2; }
 
     </style>
 </head>
 <body>
     <div class="login-box">
         <h1>🔐 Accès Privé</h1>
-        <p style="font-size:0.9em; color:#666; margin-bottom:20px;">Espace réservé aux administrateurs</p>
         
         <input type="password" id="passcode" placeholder="Code secret..." onkeypress="checkEnter(event)">
-        <button class="btn-main" onclick="verifier()">Entrer</button>
-        <p id="error" style="color:red; display:none; margin-top:10px; font-size:0.9em;">Code incorrect !</p>
+        <button class="btn-admin" onclick="verifier()">Entrer (Admin)</button>
+        <p id="error" style="color:red; display:none; margin-top:-15px; margin-bottom:15px; font-size:0.9em;">Code incorrect !</p>
 
         <div class="public-links">
-            <a href="visiteur.html" class="btn-public btn-vitrine">🎭 Vitrine Culturelle (Idées)</a>
-            <a href="guest.html" class="btn-public btn-guest">📖 Signer le Livre d'Or</a>
+            <a href="index.html" class="btn-public btn-vitrine">✨ Vitrine Culturelle (Idées)</a>
+            <a href="guest.html" class="btn-public btn-guest">🖊️ Signer le Livre d'Or</a>
         </div>
     </div>
 
@@ -59,12 +53,11 @@
             const code = document.getElementById("passcode").value;
             const err = document.getElementById("error");
             
-            // REMPLACE '0000' PAR TON CODE A TOI
-            if (code === "060317") { 
+            // TON CODE ADMIN
+            if (code === "0000") { 
                 localStorage.setItem("estConnecte", "true");
                 window.location.href = "musees.html"; 
-            } 
-            else {
+            } else {
                 err.style.display = "block";
                 document.getElementById("passcode").value = "";
             }
