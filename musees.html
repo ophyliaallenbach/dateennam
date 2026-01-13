@@ -12,10 +12,10 @@
             --abyss: #092C56;    /* Texte principal, Titres forts */
             --lapis: #225688;    /* Boutons primaires, Nav active */
             --slate: #668CA9;    /* Boutons secondaires, Bordures, Tags */
-            --glacier: #A9CBE0;  /* Fonds d'accentuation, Survol doux */
+            --glacier: #A9CBE0;  /* Fonds d'accentuation */
             --quartz: #F0F5F4;   /* Fond de page principal */
             --white: #ffffff;    /* Fond des cartes */
-            --danger-soft: #e57373; /* Pour les boutons supprimer */
+            --danger-soft: #e57373; /* Rouge doux pour supprimer */
         }
 
         body { 
@@ -24,8 +24,8 @@
             font-family: 'Segoe UI', sans-serif; 
             padding: 20px; 
             margin: 0; 
-            /* Léger dégradé minéral */
             background-image: linear-gradient(to bottom right, var(--quartz), #e1eef5);
+            min-height: 100vh;
         }
 
         h1 { 
@@ -141,6 +141,7 @@
             border-top: 5px solid var(--lapis);
             text-align: center; 
             animation: fadeIn 0.5s ease; 
+            position: relative; 
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -536,6 +537,7 @@
                     const data = doc.data();
                     const id = doc.id;
                     
+                    // --- CORRECTION CRITIQUE (Compatibilité) ---
                     if (!data.expositions || !Array.isArray(data.expositions)) {
                         data.expositions = [{
                             nom: data.expo || "Expo Principale",
