@@ -2,12 +2,12 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8">
-    <title>Idées de sorties </title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
+    <title>Idées de sorties 🥰</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
       /* PALETTE "PLUIE DE JUIN" (Hydrangea Mood) */
@@ -27,7 +27,6 @@
         text-align: center; 
         margin: 0;
         padding: 20px;
-        /* Un léger dégradé pour donner de la profondeur comme un ciel de pluie */
         background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%);
         min-height: 100vh;
       }
@@ -68,7 +67,7 @@
       }
 
       .btn-logout {
-        background: #90a4ae; /* Gris bleuté neutre pour sortir */
+        background: #90a4ae; 
         color: white;
         border: none;
         padding: 10px 20px;
@@ -103,7 +102,7 @@
       }
       input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
 
-      /* CATEGORIES (CHECKBOXES) */
+      /* CATEGORIES */
       #categories { 
         margin-top: 15px; 
         display: flex; 
@@ -152,6 +151,7 @@
         flex-wrap: wrap; 
         justify-content: center; 
         gap: 20px; 
+        padding-bottom: 50px;
       }
       .carte {
         background: var(--white); 
@@ -162,20 +162,21 @@
         text-align: left; 
         transition: transform 0.2s; 
         position: relative;
-        border-top: 5px solid var(--rainy-blue); /* Petite touche de couleur en haut */
+        border-top: 5px solid var(--rainy-blue);
       }
       .carte:hover { transform: translateY(-5px); }
       
       .carte h3 { 
         margin: 0 0 10px 0; 
         color: var(--misty-violet); 
-        font-size: 1.2em;
+        font-size: 1.3em;
       }
       
-      .carte p { color: #666; line-height: 1.5; font-size: 0.95em; }
+      .carte p { color: #666; line-height: 1.5; font-size: 0.95em; margin: 5px 0; }
+      .badge-cat { font-size: 0.8em; background: var(--cloudy-lilac); padding: 3px 8px; border-radius: 10px; color: var(--misty-violet); font-weight: bold; }
 
       .btn-delete {
-          background: #ffcdd2; /* Rouge très doux pastel */
+          background: #ffcdd2; 
           color: #c62828; 
           border: none; 
           padding: 6px 12px;  
@@ -192,7 +193,7 @@
     </style>
   </head>
   <body>
-    <h1>Idées de sorties 🥰</h1>
+    <h1>Idées de sorties ☔</h1>
     <div class="phrase">Pour nos moments à nous...</div>
 
     <nav>
@@ -221,8 +222,104 @@
       <button class="add" onclick="ajouterIdee()">Ajouter à la liste</button>
     </div>
 
-    <div id="sorties"></div>
+    <div id="sorties">Chargement...</div>
 
-    <script src="sketch.js"></script>
+    <script>
+        // CONFIGURATION FIREBASE (La même que les autres pages)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4",
+            authDomain: "date-d927b.firebaseapp.com",
+            projectId: "date-d927b",
+            storageBucket: "date-d927b.appspot.com",
+            messagingSenderId: "353304192798",
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f",
+            measurementId: "G-T4N8PMNC3G"
+        };
+
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
+
+        // --- CHARGER LES IDEES ---
+        function chargerIdees() {
+            const container = document.getElementById('sorties');
+            
+            db.collection("idees").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+                container.innerHTML = "";
+                
+                if(snapshot.empty) {
+                    container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic;'>Pas encore d'idées... Lance-toi ! ✨</p>";
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    
+                    // Sécurité anti-bug
+                    const nom = data.texte || data.nom || "Idée mystère";
+                    const cats = data.categories ? data.categories.join(" ") : "";
+                    const prix = data.prix ? `${data.prix}€` : "";
+                    const date = data.date ? `📅 ${data.date}` : "";
+                    const lieu = data.lieu ? `📍 ${data.lieu}` : "";
+
+                    // Création de la carte HTML
+                    const carte = document.createElement("div");
+                    carte.className = "carte";
+                    carte.innerHTML = `
+                        <h3>${nom}</h3>
+                        <p>${cats ? `<span class="badge-cat">${cats}</span>` : ""}</p>
+                        <p>${lieu} ${prix ? `| 💸 ${prix}` : ""}</p>
+                        <p style="color:var(--rainy-blue); font-weight:bold;">${date}</p>
+                        <button class="btn-delete" onclick="supprimerIdee('${id}')">Supprimer</button>
+                    `;
+                    container.appendChild(carte);
+                });
+            });
+        }
+
+        // --- AJOUTER UNE IDEE ---
+        function ajouterIdee() {
+            const texte = document.getElementById("nouvelleIdee").value;
+            const date = document.getElementById("dateIdee").value;
+            const prix = document.getElementById("prixIdee").value;
+            const lieu = document.getElementById("lieuIdee").value;
+            
+            // Récupérer les cases cochées
+            const checkboxes = document.querySelectorAll('#categories input:checked');
+            let categories = [];
+            checkboxes.forEach((checkbox) => { categories.push(checkbox.value); });
+
+            if (texte === "") { alert("Écris quelque chose !"); return; }
+
+            db.collection("idees").add({
+                texte: texte,
+                categories: categories,
+                date: date,
+                prix: prix,
+                lieu: lieu,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                // Reset du formulaire
+                document.getElementById("nouvelleIdee").value = "";
+                document.getElementById("dateIdee").value = "";
+                document.getElementById("prixIdee").value = "";
+                document.getElementById("lieuIdee").value = "";
+                checkboxes.forEach(cb => cb.checked = false);
+            }).catch((error) => {
+                console.error("Erreur : ", error);
+            });
+        }
+
+        // --- SUPPRIMER UNE IDEE ---
+        function supprimerIdee(id) {
+            if(confirm("Supprimer cette idée ?")) {
+                db.collection("idees").doc(id).delete();
+            }
+        }
+
+        // Lancer le chargement au démarrage
+        chargerIdees();
+
+    </script>
   </body>
 </html>
