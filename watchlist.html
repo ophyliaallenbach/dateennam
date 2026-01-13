@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Watchlist pipi caca</title>
+    <title>Watchlist 🍿</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
     
@@ -131,7 +131,7 @@
         <a href="index.html" class="btn-nav">🏠 Accueil</a>
         <a href="musees.html" class="btn-nav">🏛️ Musées</a>
         <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>
-        <button onclick="window.location.href='login.html'" class="btn-nav" style="border:none; cursor:pointer;">🔒</button>
+        <button onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';" class="btn-nav" style="border:none; cursor:pointer;">🔒</button>
     </div>
 
     <h1>🍿 Notre Watchlist</h1>
@@ -139,7 +139,8 @@
 
     <div class="add-box">
         <h3 style="margin-top:0; color:var(--rainy-blue);" id="formTitle">Ajouter un titre</h3>
-        <input type="hidden" id="editId"> <input type="text" id="titre" placeholder="Titre (ex: Spy x Family...)">
+        <input type="hidden" id="editId">
+        <input type="text" id="titre" placeholder="Titre (ex: Spy x Family...)">
         
         <div class="row">
             <select id="type" onchange="toggleSeriesFields()">
@@ -173,6 +174,11 @@
     <div id="watchlistGrid">Chargement...</div>
 
     <script>
+        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
+        if (!localStorage.getItem("estConnecte")) {
+            window.location.href = "login.html";
+        }
+
         const firebaseConfig = { 
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
             authDomain: "date-d927b.firebaseapp.com", 
