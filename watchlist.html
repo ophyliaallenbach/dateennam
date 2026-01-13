@@ -48,6 +48,14 @@
         .row { display: flex; gap: 10px; }
         .hidden { display: none; }
 
+        /* NOUVEAU : Zone pour les inputs dynamiques des saisons */
+        #dynamicSeasons {
+            display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;
+        }
+        .mini-input-saison {
+            width: 80px !important; font-size: 0.8em; text-align: center;
+        }
+
         button.add-btn { 
             width: 100%; background: var(--rainy-blue); color: white; border: none; 
             padding: 12px; border-radius: 12px; font-weight: bold; font-size: 1.1em; 
@@ -55,6 +63,7 @@
         }
         button.add-btn:hover { background: var(--misty-violet); }
 
+        /* GRID */
         #watchlistGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
 
         /* CARTE */
@@ -84,8 +93,8 @@
             background: var(--bg-soft); padding: 10px; border-radius: 12px; margin: 10px 0; 
             display: flex; justify-content: space-around; align-items: center; border: 1px dashed var(--cloudy-lilac);
         }
-        .check-col { display: flex; flex-direction: column; align-items: center; font-size: 0.8em; font-weight: bold; color: var(--deep-iris); }
-        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rainy-blue); cursor: pointer; }
+        .check-col { cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.85em; font-weight: bold; color: var(--deep-iris); user-select: none; }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rainy-blue); cursor: pointer; margin-bottom: 5px; }
 
         /* SERIE COMPTEUR */
         .series-counter { 
@@ -122,7 +131,7 @@
 
     <div class="add-box">
         <h3 style="margin-top:0; color:var(--rainy-blue);">Ajouter un titre</h3>
-        <input type="text" id="titre" placeholder="Titre (ex: Arcane, Inception...)">
+        <input type="text" id="titre" placeholder="Titre (ex: Spy x Family...)">
         
         <div class="row">
             <select id="type" onchange="toggleSeriesFields()">
@@ -143,9 +152,11 @@
 
         <input type="text" id="autrePlateforme" class="hidden" placeholder="Nom de la plateforme...">
 
-        <div id="seriesFields" class="hidden row">
-            <input type="number" id="nbSaisons" placeholder="Nb Saisons">
-            <input type="number" id="nbEpisodes" placeholder="Nb Ep/Saison">
+        <div id="seriesFields" class="hidden">
+            <label style="font-size:0.9em; color:var(--misty-violet); font-weight:bold;">Nombre de Saisons :</label>
+            <input type="number" id="nbSaisons" placeholder="Ex: 3" oninput="genererChampsSaisons()">
+            
+            <div id="dynamicSeasons"></div>
         </div>
 
         <button class="add-btn" onclick="ajouterWatchlist()">Ajouter à la liste</button>
@@ -166,6 +177,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // Gère l'affichage des champs Saisons
         function toggleSeriesFields() {
             const type = document.getElementById('type').value;
             const fields = document.getElementById('seriesFields');
@@ -173,6 +185,7 @@
             else fields.classList.add('hidden');
         }
 
+        // Affiche/Masque "Autre plateforme"
         function toggleAutreField() {
             const plat = document.getElementById('plateforme').value;
             const autreInput = document.getElementById('autrePlateforme');
@@ -180,28 +193,54 @@
             else autreInput.classList.add('hidden');
         }
 
+        // GÉNÈRE LES INPUTS D'ÉPISODES PAR SAISON
+        function genererChampsSaisons() {
+            const nb = parseInt(document.getElementById('nbSaisons').value) || 0;
+            const container = document.getElementById('dynamicSeasons');
+            container.innerHTML = ""; // Reset
+
+            for(let i=1; i<=nb; i++) {
+                const input = document.createElement('input');
+                input.type = "number";
+                input.placeholder = `Ep S${i}`;
+                input.className = "mini-input-saison";
+                input.id = `eps_s${i}`; // ID unique pour récupérer la valeur
+                container.appendChild(input);
+            }
+        }
+
         function ajouterWatchlist() {
             const titre = document.getElementById('titre').value;
             const type = document.getElementById('type').value;
             let platform = document.getElementById('plateforme').value;
+            
             if (platform === 'Autre') {
                 const autreVal = document.getElementById('autrePlateforme').value;
                 platform = autreVal || "Autre";
             }
-            const nbS = document.getElementById('nbSaisons').value || 1;
-            const nbE = document.getElementById('nbEpisodes').value || 1;
 
             if(!titre) return alert("Il faut un titre !");
+
+            let episodesParSaison = [];
+            let totalSaisons = 0;
+
+            if (type === 'Série') {
+                totalSaisons = parseInt(document.getElementById('nbSaisons').value) || 1;
+                // On récupère les valeurs des petits inputs générés
+                for(let i=1; i<=totalSaisons; i++) {
+                    const val = document.getElementById(`eps_s${i}`).value;
+                    episodesParSaison.push(parseInt(val) || 10); // 10 par défaut si vide
+                }
+            }
 
             db.collection('watchlist').add({
                 titre: titre,
                 type: type,
                 platform: platform,
-                totalSaisons: type === 'Série' ? parseInt(nbS) : 0,
-                totalEpisodes: type === 'Série' ? parseInt(nbE) : 0,
+                totalSaisons: totalSaisons,
+                episodesParSaison: episodesParSaison, // On stocke le tableau [25, 12, 13]
                 currentSaison: 1, 
                 currentEpisode: 1,
-                // On initialise l'objet "episodesData" pour stocker l'historique
                 episodesData: {}, 
                 noteTristhan: 0, noteOphylia: 0,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -209,11 +248,10 @@
                 alert("Ajouté !");
                 document.getElementById('titre').value = "";
                 document.getElementById('type').value = "Film";
-                document.getElementById('plateforme').value = "Netflix";
-                document.getElementById('autrePlateforme').value = "";
+                document.getElementById('nbSaisons').value = "";
+                document.getElementById('dynamicSeasons').innerHTML = "";
                 toggleSeriesFields();
-                toggleAutreField();
-            });
+            }).catch(e => alert("Erreur ajout : " + e.message));
         }
 
         function chargerWatchlist() {
@@ -225,11 +263,12 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
+                    const sNum = data.currentSaison || 1;
                     const epNum = data.currentEpisode || 1;
                     
-                    // Récupération de l'état "Vu" pour l'épisode actuel
-                    // Si pas d'historique (vieille donnée ou jamais coché), on considère non vu.
-                    const epHistory = (data.episodesData && data.episodesData[epNum]) || { vuTristhan: false, vuOphylia: false };
+                    // Clé unique pour l'historique : "S1-E1", "S2-E5", etc.
+                    const uniqueKey = `S${sNum}-E${epNum}`;
+                    const epHistory = (data.episodesData && data.episodesData[uniqueKey]) || { vuTristhan: false, vuOphylia: false };
                     
                     let badgeClass = "plat-Autre";
                     const p = data.platform.toLowerCase();
@@ -242,14 +281,32 @@
                     else if(p.includes('apple')) badgeClass = "plat-Apple";
 
                     let seriesHtml = "";
+                    let maxEp = 0; // Pour savoir combien d'ep dans la saison actuelle
+
                     if(data.type === 'Série') {
+                        // Compatibilité avec les anciennes données qui n'ont pas episodesParSaison
+                        if(data.episodesParSaison && Array.isArray(data.episodesParSaison)) {
+                            // On prend l'index sNum - 1 car les tableaux commencent à 0
+                            maxEp = data.episodesParSaison[sNum - 1] || 99; 
+                        } else {
+                            maxEp = data.totalEpisodes || 99;
+                        }
+
+                        // On passe les infos (Saison actuelle, Ep actuel, Max Ep de cette saison, Id, Total Saisons)
+                        // Note: On encode les données complexes en JSON dans l'attribut du bouton pour simplifier
+                        const seriesData = JSON.stringify({
+                            s: sNum, e: epNum, max: maxEp, totalS: data.totalSaisons, epArray: data.episodesParSaison
+                        }).replace(/"/g, "&quot;");
+
                         seriesHtml = `
                         <div class="series-counter">
-                            <div><small>Saison</small><br><strong>${data.currentSaison}</strong></div>
-                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">Ep. ${epNum}</div>
+                            <div><small>Saison</small><br><strong>${sNum}</strong></div>
+                            <div style="flex:1; text-align:center; font-weight:bold; color:var(--rainy-blue);">
+                                Ep. ${epNum} <span style="font-size:0.8em; color:#999;">/ ${maxEp}</span>
+                            </div>
                             <div>
-                                <button class="counter-btn" onclick="updateProgress('${id}', -1, ${epNum})">-</button>
-                                <button class="counter-btn" onclick="updateProgress('${id}', 1, ${epNum})">+</button>
+                                <button class="counter-btn" onclick="navSeries('${id}', -1, ${seriesData})">-</button>
+                                <button class="counter-btn" onclick="navSeries('${id}', 1, ${seriesData})">+</button>
                             </div>
                         </div>`;
                     }
@@ -268,20 +325,24 @@
                             </div>
                         </div>
                         ${seriesHtml}
+                        
                         <div class="check-zone">
-                            <div class="check-col">
-                                <input type="checkbox" ${epHistory.vuTristhan ? 'checked' : ''} onchange="updateVu('${id}', ${epNum}, 'Tristhan', this.checked)">
-                                <label>Tristhan</label>
-                            </div>
-                            <div class="check-col">
-                                <input type="checkbox" ${nousChecked} onchange="updateNous('${id}', ${epNum}, this.checked)">
-                                <label style="color:var(--rainy-blue)">NOUS</label>
-                            </div>
-                            <div class="check-col">
-                                <input type="checkbox" ${epHistory.vuOphylia ? 'checked' : ''} onchange="updateVu('${id}', ${epNum}, 'Ophylia', this.checked)">
-                                <label>Ophylia</label>
-                            </div>
+                            <label class="check-col">
+                                <input type="checkbox" ${epHistory.vuTristhan ? 'checked' : ''} onchange="updateVu('${id}', '${uniqueKey}', 'Tristhan', this.checked)">
+                                Tristhan
+                            </label>
+                            
+                            <label class="check-col">
+                                <input type="checkbox" ${nousChecked} onchange="updateNous('${id}', '${uniqueKey}', this.checked)">
+                                <span style="color:var(--rainy-blue)">NOUS</span>
+                            </label>
+                            
+                            <label class="check-col">
+                                <input type="checkbox" ${epHistory.vuOphylia ? 'checked' : ''} onchange="updateVu('${id}', '${uniqueKey}', 'Ophylia', this.checked)">
+                                Ophylia
+                            </label>
                         </div>
+
                         <div class="rating-zone">
                             <div class="rating-row"><span>Note Tristhan</span><div>${genererEtoiles(id, 'Tristhan', data.noteTristhan)}</div></div>
                             <div class="rating-row"><span>Note Ophylia</span><div>${genererEtoiles(id, 'Ophylia', data.noteOphylia)}</div></div>
@@ -292,31 +353,65 @@
             });
         }
 
-        // MISE A JOUR PER-EPISODE (Utilise set avec merge pour gérer l'historique)
-        function updateVu(id, epNum, personne, etat) {
-            let updateData = {};
-            // Structure : episodesData : { "1": { vuTristhan: true } }
-            updateData[`episodesData.${epNum}.vu${personne}`] = etat;
-            
-            // On utilise set + merge: true pour créer l'objet s'il n'existe pas
+        // --- NAVIGATION INTELLIGENTE ---
+        function navSeries(id, delta, data) {
+            // data contient { s, e, max, totalS, epArray }
+            let newS = data.s;
+            let newE = data.e + delta;
+
+            // AVANCER (+)
+            if (delta > 0) {
+                // Si on dépasse le max d'épisodes de la saison
+                if (newE > data.max) {
+                    // S'il reste des saisons
+                    if (newS < data.totalS) {
+                        newS++; // Saison suivante
+                        newE = 1; // Episode 1
+                    } else {
+                        // Fin de la série, on bloque
+                        return; 
+                    }
+                }
+            } 
+            // RECULER (-)
+            else {
+                // Si on passe sous l'épisode 1
+                if (newE < 1) {
+                    // S'il y a une saison avant
+                    if (newS > 1) {
+                        newS--; // Saison précédente
+                        // On doit trouver combien d'épisodes avait la saison d'avant
+                        // epArray est [nbS1, nbS2...], donc saison précédente est index (newS - 1)
+                        if(data.epArray) {
+                            newE = data.epArray[newS - 1]; // Dernier épisode de la saison précédente
+                        } else {
+                            newE = 1; // Sécurité si données corrompues
+                        }
+                    } else {
+                        // Début série, on bloque
+                        return;
+                    }
+                }
+            }
+
+            db.collection('watchlist').doc(id).update({ 
+                currentSaison: newS,
+                currentEpisode: newE
+            }).catch(e => alert("Erreur nav : " + e.message));
+        }
+
+        // --- SAUVEGARDE HISTORIQUE (Avec clé "S1-E1") ---
+        function updateVu(id, uniqueKey, personne, etat) {
             let deepObj = { episodesData: {} };
-            deepObj.episodesData[epNum] = {};
-            deepObj.episodesData[epNum][`vu${personne}`] = etat;
-            
+            deepObj.episodesData[uniqueKey] = {};
+            deepObj.episodesData[uniqueKey][`vu${personne}`] = etat;
             db.collection('watchlist').doc(id).set(deepObj, { merge: true });
         }
 
-        function updateNous(id, epNum, etat) {
+        function updateNous(id, uniqueKey, etat) {
             let deepObj = { episodesData: {} };
-            deepObj.episodesData[epNum] = { vuTristhan: etat, vuOphylia: etat };
+            deepObj.episodesData[uniqueKey] = { vuTristhan: etat, vuOphylia: etat };
             db.collection('watchlist').doc(id).set(deepObj, { merge: true });
-        }
-
-        function updateProgress(id, delta, current) {
-            let next = current + delta;
-            if(next < 1) next = 1;
-            // On change juste le numéro, l'historique sera rechargé au prochain affichage
-            db.collection('watchlist').doc(id).update({ currentEpisode: next });
         }
 
         function genererEtoiles(id, personne, noteActuelle) {
