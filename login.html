@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connexion</title>
+    <title>Connexion 🔐</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; color: #333; }
@@ -37,11 +37,11 @@
         <h1>🔐 Accès Privé</h1>
         
         <input type="password" id="passcode" placeholder="Code secret..." onkeypress="checkEnter(event)">
-        <button class="btn-admin" onclick="verifier()">Entrer (Admin)</button>
+        <button class="btn-admin" onclick="verifier()">Entrer</button>
         <p id="error" style="color:red; display:none; margin-top:-15px; margin-bottom:15px; font-size:0.9em;">Code incorrect !</p>
 
         <div class="public-links">
-            <a href="index.html" class="btn-public btn-vitrine">✨ Vitrine Culturelle (Idées)</a>
+            <a href="visiteur.html" class="btn-public btn-vitrine">✨ Vitrine Culturelle (Idées)</a>
             <a href="guest.html" class="btn-public btn-guest">🖊️ Signer le Livre d'Or</a>
         </div>
     </div>
@@ -53,11 +53,17 @@
             const code = document.getElementById("passcode").value;
             const err = document.getElementById("error");
             
-            // TON CODE ADMIN
-            if (code === "0000") { 
+            if (code === "060317") { 
+                // Code pour les DATES / IDEES
+                localStorage.setItem("estConnecte", "true");
+                window.location.href = "index.html"; 
+            } 
+            else if (code === "171103") { 
+                // Code pour les MUSEES
                 localStorage.setItem("estConnecte", "true");
                 window.location.href = "musees.html"; 
-            } else {
+            } 
+            else {
                 err.style.display = "block";
                 document.getElementById("passcode").value = "";
             }
