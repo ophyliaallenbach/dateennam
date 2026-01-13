@@ -162,9 +162,15 @@
     </div>
 
     <script>
+        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
+        if (!localStorage.getItem("estConnecte")) {
+            window.location.href = "login.html";
+        }
+
         const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
         if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
+        
         let listeASortir = []; let indexActuel = 0; let globalSortiesData = {}; let globalPropositions = {};
         function deconnexion() { localStorage.removeItem("estConnecte"); window.location.href = "login.html"; }
         
@@ -173,9 +179,8 @@
         function accepterProposition(propId) { const prop = globalPropositions[propId]; if(!prop || !confirm("Ajouter ?")) return; let dataToAdd = { titre: prop.titre || prop.nom, type: 'temporaire', lieu: prop.lieu || 'A définir', prix: prop.prix || "0", estFait: false, estReserve: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }; db.collection(prop.typeCible).add(dataToAdd).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); }); }
         function supprimerProposition(id) { if(confirm("Refuser ?")) db.collection('propositions').doc(id).delete(); }
         
-        // --- NOUVELLE FONCTION VALIDATION ROBUSTE ---
+        // --- VALIDATION AVIS ROBUSTE ---
         function accepterAvis(propId) {
-            // (Même logique que sur la page Musées pour être sûr)
             const prop = globalPropositions[propId];
             if(!prop || !confirm("Valider l'avis de " + prop.auteur + " ?")) return;
             if (prop.sourceType === 'sortie') {
@@ -200,7 +205,6 @@
                     const data = doc.data(); const id = doc.id; data.id = id; globalSortiesData[id] = data; 
                     const titreAffiche = data.titre || data.nom || "Sortie sans titre"; const lieuAffiche = data.lieu || ""; const prixAffiche = data.prix || "?"; 
                     if (data.estFait) { 
-                        // --- AVIS INVITE ---
                         let htmlInvite = "";
                         if (data.avisInvite) {
                             htmlInvite = `<div class="guest-review"><strong>🖊️ ${data.avisInvite.auteur} :</strong><br><em>"${data.avisInvite.message}"</em></div>`;
