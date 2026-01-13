@@ -7,78 +7,301 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        body { background-color: #E3F2FD; color: #0D47A1; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
-        h1 { text-align: center; color: #1565C0; margin-bottom: 30px; margin-top: 40px; }
-        
-        /* STYLE BOITE A IDEES */
-        #inbox-container { max-width: 1200px; margin: 20px auto; display: none; }
-        .inbox-alert { background: #FFF3E0; border: 2px solid #FF9800; padding: 15px; border-radius: 15px; }
-        .prop-item { background: white; padding: 10px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .prop-actions button { margin-left: 5px; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-accept { background: #4CAF50; color: white; }
-        .btn-reject { background: #f44336; color: white; }
+        /* PALETTE "RÊVE DE MÉDITERRANÉE" */
+        :root {
+            --cloudy-blue: #a0afb6;   /* Titres, Navigation */
+            --sage-whisper: #b3b69e;  /* Boutons valider, Succès */
+            --rose-dust: #e6cdc6;     /* Fonds secondaires, Alertes */
+            --warm-sand: #e5cab5;     /* Accents, Edit */
+            --shell-white: #e6ddd4;   /* Fond Principal */
+            --slate-text: #5e6b72;    /* Texte lisible (dérivé du bleu) */
+            --white: #ffffff;
+        }
 
-        /* LAYOUT PRINCIPAL */
+        body { 
+            background-color: var(--shell-white); 
+            color: var(--slate-text); 
+            font-family: 'Segoe UI', sans-serif; 
+            padding: 20px; 
+            margin: 0; 
+            /* Léger grain ou dégradé pour effet papier/pierre */
+            background-image: linear-gradient(to bottom, #e6ddd4, #efebe9);
+        }
+
+        h1 { 
+            text-align: center; 
+            color: var(--slate-text); 
+            margin-bottom: 30px; 
+            margin-top: 40px; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--cloudy-blue);
+            display: inline-block;
+            padding-bottom: 10px;
+            /* Centrer le trait */
+            position: relative; 
+            left: 50%; 
+            transform: translateX(-50%);
+        }
+
+        /* NAVIGATION */
+        .btn-logout { 
+            position: fixed; top: 15px; right: 15px; 
+            background-color: var(--rose-dust); 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            z-index: 1000; 
+            transition: 0.2s;
+        }
+        .btn-logout:hover { background-color: #dcbdb6; }
+
+        .btn-nav-switch {
+            position: fixed; top: 15px; right: 110px;
+            background-color: var(--cloudy-blue); 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            text-decoration:none; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            z-index: 1000;
+            transition: 0.2s;
+        }
+        .btn-nav-switch:hover { background-color: #8f9fa6; }
+
+        /* BOITE A IDEES */
+        #inbox-container { max-width: 1200px; margin: 20px auto; display: none; }
+        .inbox-alert { 
+            background: #fffbf7; 
+            border: 2px dashed var(--warm-sand); 
+            padding: 20px; 
+            border-radius: 10px; 
+        }
+        .prop-item { 
+            background: white; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            border-left: 4px solid var(--warm-sand);
+        }
+        .btn-accept { background: var(--sage-whisper); color: white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;}
+        .btn-reject { background: var(--rose-dust); color: white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;}
+
+        /* LAYOUT */
         .top-section { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
-        .form-container { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 20px; }
+        .form-container { 
+            flex: 1; 
+            min-width: 300px; 
+            background: var(--white); 
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(160, 175, 182, 0.2); /* Ombre bleutée */
+            position: sticky; 
+            top: 20px; 
+        }
         
-        /* CAROUSEL (Zone Droite) */
-        .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 400px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 15px; border: 2px dashed #BBDEFB; }
+        /* CAROUSEL */
+        .carousel-container { 
+            flex: 1; 
+            min-width: 300px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 10px; 
+            min-height: 400px; 
+            background: rgba(255,255,255,0.4); 
+            border-radius: 15px; 
+            padding: 15px; 
+            border: 2px solid var(--white); 
+        }
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         
-        /* CARTE TINDER */
-        .card-tinder { background: white; width: 100%; max-width: 320px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); border: 1px solid #90CAF9; text-align: center; animation: fadeIn 0.5s ease; }
+        .card-tinder { 
+            background: var(--white); 
+            width: 100%; 
+            max-width: 320px; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+            border-top: 5px solid var(--cloudy-blue);
+            text-align: center; 
+            animation: fadeIn 0.5s ease; 
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .arrow-btn { background: #1976D2; color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        
-        .history-section { max-width: 1200px; margin: 40px auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .visite-row { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #90CAF9; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
-        
+        .arrow-btn { 
+            background: var(--cloudy-blue); 
+            color: white; 
+            border: none; 
+            min-width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            font-size: 20px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.2s;
+        }
+        .arrow-btn:hover { background: var(--slate-text); }
+
+        /* LISTE HISTORIQUE */
+        .history-section { 
+            max-width: 1200px; 
+            margin: 40px auto; 
+            background: var(--white); 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        }
+        .history-section h2 { 
+            border-bottom: 2px solid var(--shell-white); 
+            color: var(--sage-whisper);
+            margin-bottom: 20px;
+            display: block;
+            text-align: left;
+            position: static;
+            transform: none;
+        }
+
+        .visite-row { 
+            border-bottom: 1px solid var(--shell-white); 
+            padding: 15px 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+        }
+
+        /* CHAMPS */
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 5px 0 15px 0; 
+            border: 1px solid var(--cloudy-blue); 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: inherit; 
+            background: #fafafa;
+        }
+        input:focus { outline: none; border-color: var(--sage-whisper); background: #fff; }
+
         /* TAGS */
         .gratuites-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .gratuites-container label { background: #E1F5FE; color: #0277BD; padding: 5px 10px; border-radius: 15px; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; border: 1px solid #B3E5FC; }
-        .gratuites-container input { margin-right: 5px; }
-        .badge-gratuit { display: inline-block; background: #ffecb3; color: #f57f17; padding: 3px 6px; border-radius: 10px; font-size: 0.75em; margin: 2px; }
+        .gratuites-container label { 
+            background: var(--shell-white); 
+            color: var(--slate-text); 
+            padding: 5px 10px; 
+            border-radius: 15px; 
+            font-size: 0.85em; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            border: 1px solid transparent; 
+            transition: 0.2s;
+        }
+        .gratuites-container label:hover { background: var(--warm-sand); color: white; }
+        .gratuites-container input { margin-right: 5px; accent-color: var(--sage-whisper); }
         
-        button.btn-save { width: 100%; padding: 12px; background-color: #1976D2; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        button.btn-save.mode-edit { background-color: #FF9800; } 
-        
+        .badge-gratuit { display: inline-block; background: var(--warm-sand); color: white; padding: 3px 6px; border-radius: 10px; font-size: 0.75em; margin: 2px; }
+
+        /* BOUTONS ACTIONS */
+        button.btn-save { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: var(--sage-whisper); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold; 
+            transition: 0.2s;
+        }
+        button.btn-save:hover { background-color: #9da08a; }
+        button.btn-save.mode-edit { background-color: var(--warm-sand); } 
+
         /* EXPOS */
-        .add-expo-zone { background: #f1f8e9; padding: 10px; border-radius: 10px; border: 1px dashed #81c784; margin-bottom: 15px; }
-        .btn-add-expo { background: #81c784; color: white; border: none; width: 100%; padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .add-expo-zone { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px dashed var(--sage-whisper); 
+            margin-bottom: 20px; 
+        }
+        .btn-add-expo { 
+            background: var(--cloudy-blue); 
+            color: white; 
+            border: none; 
+            width: 100%; 
+            padding: 8px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 5px;
+        }
         .mini-list-expo li { font-size: 0.9em; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
-        .expo-item { background: #F5F5F5; border-radius: 8px; padding: 8px; margin-bottom: 8px; text-align: left; border-left: 4px solid #1976D2; }
+        
+        .expo-item { 
+            background: var(--shell-white); 
+            border-radius: 6px; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            text-align: left; 
+            border-left: 3px solid var(--sage-whisper); 
+        }
         .expo-header { display:flex; justify-content:space-between; align-items:center; }
-        .btn-check-small { background: #4CAF50; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.85em; }
-        .date-fin { font-size: 0.8em; color: #d32f2f; font-weight: bold; display: block; margin-top: 2px; }
+        
+        .btn-check-small { 
+            background: var(--sage-whisper); 
+            color: white; 
+            border: none; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.85em; 
+        }
+        
+        .date-fin { font-size: 0.8em; color: #d88; font-weight: bold; display: block; margin-top: 2px; }
     </style>
 </head>
 <body>
 
-   <div style="position: fixed; top: 15px; right: 15px; display:flex; gap:10px; z-index: 1000;">
-        <a href="sorties.html" style="background-color: #6A1B9A; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; text-decoration:none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">🎭 Spectacles</a>
-        <button onclick="deconnexion()" style="background-color: #ff5252; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Déconnexion</button>
+   <div>
+        <a href="sorties.html" class="btn-nav-switch">🎭 Spectacles</a>
+        <button onclick="deconnexion()" class="btn-logout">Déconnexion</button>
     </div>
 
-    <h1>🏛️ Mes Musées en 2026</h1>
+    <h1>🏛️ Mes Musées 2026</h1>
 
     <div id="inbox-container">
         <div class="inbox-alert">
-            <h3 style="margin-top:0; color:#E65100;">📬 Boîte à idées (Visiteurs)</h3>
+            <h3 style="margin-top:0; color:var(--slate-text);">📬 Boîte à idées (Visiteurs)</h3>
             <div id="listePropositions">Chargement...</div>
         </div>
     </div>
 
     <div class="top-section">
         <div class="form-container">
-            <h2 id="titreFormulaire">Ajouter un musée</h2>
+            <h2 id="titreFormulaire" style="color:var(--cloudy-blue); border-bottom: 1px solid #eee; padding-bottom:10px;">Ajouter un musée</h2>
             <input type="hidden" id="editId">
             <input type="text" id="nomMusee" placeholder="Nom du musée (ex: Louvre)">
 
             <div class="add-expo-zone">
-                <label style="font-weight:bold; font-size:0.9em;">Ajouter une expo :</label>
+                <label style="font-weight:bold; font-size:0.9em; color:var(--slate-text);">Ajouter une expo :</label>
                 <input type="text" id="newExpoName" placeholder="Nom (ex: Permanente / Egypte...)">
                 <input type="date" id="newExpoDate" placeholder="Date fin">
                 <button class="btn-add-expo" onclick="ajouterExpoAuFormulaire()">➕ Ajouter cette expo</button>
@@ -87,7 +310,7 @@
 
             <input type="number" id="prixMusee" placeholder="Prix (€)">
 
-            <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 0.9em; color:#555;">Réductions / Gratuités :</p>
+            <p style="margin: 0 0 10px 0; font-weight: bold; font-size: 0.9em; color:var(--slate-text);">Réductions / Gratuités :</p>
             <div class="gratuites-container" id="tagsContainer">
                 <label><input type="checkbox" value="Icom"> Icom</label>
                 <label><input type="checkbox" value="Etudiant"> Étudiant</label>
@@ -140,7 +363,7 @@
             window.location.href = "login.html";
         }
 
-        // --- GESTION PROPOSITIONS ---
+        // --- GESTION DES PROPOSITIONS ---
         function chargerPropositions() {
             const divProp = document.getElementById('listePropositions');
             const container = document.getElementById('inbox-container');
@@ -272,7 +495,7 @@
             }
         }
 
-        // --- CHARGEMENT ROBUSTE (C'est là que j'ai renforcé le code) ---
+        // --- CHARGEMENT ROBUSTE ---
         function chargerMusees() {
             const divVisites = document.getElementById('listeVisites');
             const zoneCarte = document.getElementById('zoneCarteUnique');
@@ -281,8 +504,7 @@
                 listeAVisiter = [];
                 divVisites.innerHTML = '';
                 globalMuseesData = {};
-                
-                // Si la base est vide
+
                 if (snapshot.empty) {
                     zoneCarte.innerHTML = "<p>Aucune idée...</p>";
                     divVisites.innerHTML = "<p style='color:#777'>Pas encore de souvenirs...</p>";
@@ -293,13 +515,12 @@
                     const data = doc.data();
                     const id = doc.id;
                     
-                    // --- CORRECTION CRITIQUE POUR LES ANCIENNES DONNÉES ---
-                    // On force la création d'une liste d'expos si elle n'existe pas
+                    // --- CORRECTION CRITIQUE (Compatibilité) ---
                     if (!data.expositions || !Array.isArray(data.expositions)) {
                         data.expositions = [{
                             nom: data.expo || "Expo Principale",
                             dateFin: data.dateFinExpo || "",
-                            estVisite: data.estVisite || false, // Si undefined, ça devient false
+                            estVisite: data.estVisite || false,
                             note: data.note || null,
                             commentaire: data.commentaire || null,
                             dateVisite: data.dateVisite || null
@@ -313,13 +534,12 @@
                     let labelGratuit = '';
                     if (data.tags && data.tags.length > 0) {
                         tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('');
-                        labelGratuit = '<div style="font-size:0.85em; font-weight:bold; color:#555; margin-top:10px; margin-bottom:5px;">Gratuit si :</div>';
+                        labelGratuit = '<div style="font-size:0.85em; font-weight:bold; color:var(--slate-text); margin-top:10px; margin-bottom:5px;">Gratuit si :</div>';
                     }
 
                     let aDesExposAFaire = false;
                     let exposAfficheesDansCarte = "";
                     
-                    // On parcourt les expos pour voir ce qu'il faut afficher
                     data.expositions.forEach((expo, index) => {
                         let finExpoHtml = expo.dateFin ? `<span class="date-fin">⚠️ Fin : ${expo.dateFin}</span>` : "";
 
@@ -335,7 +555,7 @@
                                 </div>
                                 <div style="text-align:right;">
                                     <div>${"⭐".repeat(expo.note || 1)}</div>
-                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; padding:2px 5px; cursor:pointer; font-size:0.8em;">✏️</button>
+                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid var(--warm-sand); color:var(--warm-sand); border-radius:5px; padding:2px 5px; cursor:pointer; font-size:0.8em;">✏️</button>
                                 </div>`;
                             divVisites.appendChild(row);
                         } else {
@@ -353,11 +573,10 @@
                         }
                     });
 
-                    // On crée la carte seulement s'il y a des choses à faire
                     if (aDesExposAFaire) {
                         let carteHtml = `
                             <div class="card-tinder">
-                                <h3>${data.nom}</h3>
+                                <h3 style="color:var(--slate-text)">${data.nom}</h3>
                                 <p>💸 ${data.prix}€</p>
                                 <div style="margin: 15px 0; max-height:150px; overflow-y:auto;">
                                     ${exposAfficheesDansCarte}
@@ -365,8 +584,8 @@
                                 ${labelGratuit}
                                 <div style="margin-bottom:10px;">${tagsHtml}</div>
                                 <div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">
-                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid #FF9800; color:#FF9800; border-radius:5px; padding:5px 10px; cursor:pointer;">✏️ Modif</button>
-                                    <button onclick="supprimerMusee('${id}')" style="background:none; border:1px solid #d32f2f; color:#d32f2f; border-radius:5px; padding:5px 10px; cursor:pointer;">🗑️ Suppr</button>
+                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid var(--warm-sand); color:var(--warm-sand); border-radius:5px; padding:5px 10px; cursor:pointer;">✏️ Modif</button>
+                                    <button onclick="supprimerMusee('${id}')" style="background:none; border:1px solid var(--rose-dust); color:var(--rose-dust); border-radius:5px; padding:5px 10px; cursor:pointer;">🗑️ Suppr</button>
                                 </div>
                             </div>
                         `;
@@ -380,12 +599,9 @@
 
         function afficherCarteCarousel() {
             const zone = document.getElementById('zoneCarteUnique');
-            if (listeAVisiter.length === 0) { zone.innerHTML = "<p>Tout est visité (ou rien de prévu) ! 🎉</p>"; return; }
-            
-            // Sécurité pour l'index
+            if (listeAVisiter.length === 0) { zone.innerHTML = "<p>Tout est visité ! 🎉</p>"; return; }
             if (indexActuel >= listeAVisiter.length) indexActuel = 0;
             if (indexActuel < 0) indexActuel = listeAVisiter.length - 1;
-            
             zone.innerHTML = listeAVisiter[indexActuel];
         }
         function carteSuivante() { if (listeAVisiter.length > 0) { indexActuel++; afficherCarteCarousel(); } }
