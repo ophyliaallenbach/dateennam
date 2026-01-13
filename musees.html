@@ -45,35 +45,37 @@
             text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
         }
 
-        /* NAVIGATION */
-        .btn-logout { 
-            position: fixed; top: 15px; right: 15px; 
-            background-color: var(--slate); 
-            color: white; 
+        /* NAVIGATION (CORRIGÉE) */
+        .top-nav { 
+            position: fixed; 
+            top: 15px; 
+            right: 15px; 
+            display: flex; 
+            gap: 10px; /* Espace garanti entre les boutons */
+            z-index: 1000; 
+        }
+
+        .btn-nav-switch, .btn-logout { 
             border: none; 
             padding: 8px 15px; 
             border-radius: 20px; 
             cursor: pointer; 
             font-weight: bold; 
-            box-shadow: 0 4px 10px rgba(102, 140, 169, 0.3); 
-            z-index: 1000; 
+            box-shadow: 0 4px 10px rgba(9, 44, 86, 0.2); 
             transition: 0.2s;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .btn-logout { 
+            background-color: var(--slate); 
+            color: white; 
         }
         .btn-logout:hover { background-color: var(--danger-soft); }
 
         .btn-nav-switch {
-            position: fixed; top: 15px; right: 110px;
             background-color: var(--lapis); 
             color: white; 
-            border: none; 
-            padding: 8px 15px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            text-decoration:none; 
-            box-shadow: 0 4px 10px rgba(34, 86, 136, 0.3); 
-            z-index: 1000;
-            transition: 0.2s;
         }
         .btn-nav-switch:hover { background-color: var(--abyss); transform: translateY(-2px); }
 
@@ -301,7 +303,7 @@
 </head>
 <body>
 
-   <div>
+   <div class="top-nav">
         <a href="sorties.html" class="btn-nav-switch">🎭 Spectacles</a>
         <button onclick="deconnexion()" class="btn-logout">Déconnexion</button>
     </div>
@@ -572,12 +574,12 @@
                             row.innerHTML = `
                                 <div style="flex:1;">
                                     <strong style="color:var(--lapis); font-size:1.1em;">${data.nom}</strong> - <span style="color:var(--abyss); font-weight:bold;">${expo.nom}</span><br>
-                                    <small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€</small><br>
-                                    <em style="color:#555; display:block; margin-top:5px;">"${expo.commentaire || ''}"</em>
+                                    <small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br>
+                                    <em style="color:#555">"${expo.commentaire || ''}"</em>
                                 </div>
                                 <div style="text-align:right;">
-                                    <div style="font-size:1.2em;">${"⭐".repeat(expo.note || 1)}</div>
-                                    <button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--slate); color:var(--slate); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-top:5px; font-weight:bold;">✏️ Modif</button>
+                                    <div>${"⭐".repeat(expo.note || 1)}</div>
+                                    <button onclick="preparerModification('${id}')" style="background:none; border:1px solid var(--slate); color:var(--slate); border-radius:5px; padding:2px 5px; cursor:pointer; font-size:0.8em;">✏️</button>
                                 </div>`;
                             divVisites.appendChild(row);
                         } else {
