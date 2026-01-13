@@ -50,16 +50,18 @@
         /* HISTORIQUE & AVIS */
         .history-section { background: var(--white); padding: 20px; border-radius: 25px; margin-top: 40px; }
         .visite-row { border-bottom: 1px solid var(--quartz); padding: 15px; background: #f8faff; border-radius: 10px; margin-bottom: 10px; border-left: 3px solid var(--slate); }
-        .avis-invite-block { background: #e0f7fa; padding: 10px; border-radius: 10px; margin-top: 10px; border-left: 3px solid var(--guest); font-size: 0.9em; }
-        .avis-header { font-weight: bold; color: var(--guest); display: flex; justify-content: space-between; }
+        
+        /* STYLE DU COMMENTAIRE INVITE */
+        .guest-review { background-color: #e0f2f1; border-left: 4px solid #00897b; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 0.9em; color: #004d40; }
+        .guest-review strong { color: #00695c; }
         
         /* INBOX */
         #inbox-container { display:none; margin: 20px 0; }
         .inbox-alert { background: var(--white); padding: 15px; border-radius: 15px; border: 2px dashed var(--slate); }
         .prop-item { background: var(--quartz); padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 4px solid var(--lapis); display:flex; justify-content:space-between; align-items:center;}
         .prop-item.avis-type { border-left-color: var(--guest); background: #e0f7fa; }
-        .btn-accept { background: var(--lapis); color: white; border:none; padding:5px 10px; border-radius:6px; margin-right:5px;}
-        .btn-reject { background: var(--slate); color: white; border:none; padding:5px 10px; border-radius:6px;}
+        .btn-accept { background: var(--lapis); color: white; border:none; padding:5px 10px; border-radius:6px; margin-right:5px; cursor:pointer;}
+        .btn-reject { background: var(--slate); color: white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer;}
 
         /* CARTES */
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
@@ -180,28 +182,37 @@
         function chargerMusees() { 
             const divVisites = document.getElementById('listeVisites'); 
             const zoneCarte = document.getElementById('zoneCarteUnique'); 
+            
             db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => { 
                 divVisites.innerHTML = ''; globalMuseesData = {}; 
                 if (snapshot.empty) { zoneCarte.innerHTML = "<p style='color:var(--slate);'>Aucune idée...</p>"; divVisites.innerHTML = "<p style='color:var(--slate);'>Rien...</p>"; return; } 
+                
                 snapshot.forEach(doc => { 
                     const data = doc.data(); const id = doc.id; 
-                    if (!data.expositions || !Array.isArray(data.expositions)) { data.expositions = [{ nom: data.expo || "Expo Principale", dateFin: data.dateFinExpo || "", estVisite: data.estVisite || false, note: data.note || null, commentaire: data.commentaire || null, dateVisite: data.dateVisite || null }]; } 
+                    // Correctif vieux format
+                    if (!data.expositions || !Array.isArray(data.expositions)) { 
+                        data.expositions = [{ nom: data.expo || "Expo", estVisite: data.estVisite || false, note: data.note, commentaire: data.commentaire, dateVisite: data.dateVisite, avisInvite: data.avisInvite }]; 
+                    } 
                     data.id = id; globalMuseesData[id] = data; 
+                    
                     data.expositions.forEach((expo) => { 
                         if (expo.estVisite) { 
                             let tagsHtml = (data.tags && data.tags.length > 0) ? data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('') : ""; 
-                            // GESTION AVIS INVITE
-                            let avisInviteHtml = "";
+                            
+                            // AFFICHAGE AVIS INVITE
+                            let htmlInvite = "";
                             if (expo.avisInvite) {
-                                avisInviteHtml = `<div class="avis-invite-block"><div class="avis-header"><span>🖊️ ${expo.avisInvite.auteur}</span></div><em>"${expo.avisInvite.message}"</em></div>`;
+                                htmlInvite = `<div class="guest-review"><strong>🖊️ ${expo.avisInvite.auteur} :</strong><br><em>"${expo.avisInvite.message}"</em></div>`;
                             }
+
                             const row = document.createElement('div'); row.className = 'visite-row'; 
-                            row.innerHTML = `<div style="flex:1;"><strong style="color:var(--lapis);">${data.nom}</strong> - <span style="color:var(--abyss); font-weight:bold;">${expo.nom}</span><br><small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br><em style="color:#555; display:block; margin-top:5px; font-size:0.9em;">"${expo.commentaire || ''}"</em>${avisInviteHtml}</div><div style="text-align:right;"><div style="font-size:1.1em;">${"⭐".repeat(expo.note || 1)}</div><button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--slate); color:var(--slate); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-top:5px; font-weight:bold;">✏️</button></div>`; 
+                            row.innerHTML = `<div style="flex:1;"><strong style="color:var(--lapis);">${data.nom}</strong> - <span style="color:var(--abyss); font-weight:bold;">${expo.nom}</span><br><small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br><em style="color:#555; display:block; margin-top:5px; font-size:0.9em;">"${expo.commentaire || ''}"</em>${htmlInvite}</div><div style="text-align:right;"><div style="font-size:1.1em;">${"⭐".repeat(expo.note || 1)}</div><button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--slate); color:var(--slate); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-top:5px; font-weight:bold;">✏️</button></div>`; 
                             divVisites.appendChild(row); 
                         } 
                     }); 
                 }); 
-                filtrerListe('tout', document.querySelector('.filter-btn.active'));
+                const btnActif = document.querySelector('.filter-btn.active');
+                if(btnActif) filtrerListe(btnActif.textContent.includes('Gratuit') ? 'gratuit' : (btnActif.textContent.includes('Payant') ? 'payant' : 'tout'), btnActif);
             }); 
         }
 
@@ -216,11 +227,10 @@
                     const d = doc.data(); const id = doc.id; globalPropositions[id] = d; 
                     const el = document.createElement('div'); 
                     
-                    // Si c'est un AVIS INVITE
                     if(d.typeCible === 'avis_invite') {
                         el.className = 'prop-item avis-type';
                         el.innerHTML = `<div><strong style="color:var(--guest); font-size:0.9em;">🖊️ Avis de ${d.auteur}</strong><br><small>Sur : ${d.titreContext || 'Expo'}</small><br><em style="font-size:0.85em; display:block; margin-top:3px;">"${d.commentaire}"</em></div><div><button class="btn-accept" onclick="accepterAvis('${id}')">✅</button><button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button></div>`;
-                    } else { // Si c'est une PROPOSITION CLASSIQUE
+                    } else { 
                         el.className = 'prop-item'; 
                         el.innerHTML = `<div><strong style="color:var(--lapis); font-size:0.9em;">🏛️ ${d.nom || d.titre}</strong><br><small style="font-size:0.8em;">${d.commentaire || ''}</small></div><div><button class="btn-accept" onclick="accepterProposition('${id}')">✅</button><button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button></div>`; 
                     }
@@ -232,30 +242,52 @@
         function accepterAvis(propId) {
             const prop = globalPropositions[propId];
             if(!prop || !confirm("Valider l'avis de " + prop.auteur + " ?")) return;
-            // On récupère le musée concerné
-            db.collection('musees').doc(prop.museeId).get().then(doc => {
-                if(doc.exists) {
-                    let data = doc.data();
-                    // On ajoute l'avis à l'expo spécifique
-                    if(data.expositions && data.expositions[prop.expoIndex]) {
-                        data.expositions[prop.expoIndex].avisInvite = {
-                            auteur: prop.auteur,
-                            message: prop.commentaire
-                        };
-                        // Mise à jour
-                        db.collection('musees').doc(prop.museeId).update({ expositions: data.expositions }).then(() => {
-                            db.collection('propositions').doc(propId).delete();
-                            alert("Avis publié !");
-                        });
+
+            // CAS SORTIE
+            if (prop.sourceType === 'sortie') {
+                db.collection('sorties').doc(prop.docId).update({
+                    avisInvite: { auteur: prop.auteur, message: prop.commentaire }
+                }).then(() => {
+                    db.collection('propositions').doc(propId).delete();
+                    alert("Avis ajouté au spectacle !");
+                });
+            } 
+            // CAS MUSEE
+            else {
+                db.collection('musees').doc(prop.docId).get().then(doc => {
+                    if(doc.exists) {
+                        let data = doc.data();
+                        
+                        if (!data.expositions || !Array.isArray(data.expositions)) {
+                            data.expositions = [{ 
+                                nom: data.expo || "Expo", 
+                                estVisite: data.estVisite, 
+                                note: data.note, 
+                                commentaire: data.commentaire, 
+                                dateVisite: data.dateVisite 
+                            }];
+                            prop.expoIndex = 0; 
+                        }
+
+                        if(data.expositions[prop.expoIndex]) {
+                            data.expositions[prop.expoIndex].avisInvite = {
+                                auteur: prop.auteur,
+                                message: prop.commentaire
+                            };
+                            db.collection('musees').doc(prop.docId).update({ expositions: data.expositions }).then(() => {
+                                db.collection('propositions').doc(propId).delete();
+                                alert("Avis ajouté au musée !");
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         function accepterProposition(propId) { const prop = globalPropositions[propId]; if(!prop || !confirm("Ajouter ?")) return; let dataToAdd = { nom: prop.nom || prop.titre, prix: prop.prix || "0", tags: [], expositions: [{ nom: "Général", estVisite: false }], timestamp: firebase.firestore.FieldValue.serverTimestamp() }; db.collection('musees').add(dataToAdd).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); }); }
         function supprimerProposition(id) { if(confirm("Refuser ?")) db.collection('propositions').doc(id).delete(); }
         
-        // --- FONCTIONS STANDARD (Formulaire, etc.) ---
+        // --- FONCTIONS STANDARD ---
         function afficherCarteCarousel() { const zone = document.getElementById('zoneCarteUnique'); if (listeAVisiter.length === 0) { zone.innerHTML = "<p style='color:var(--lapis); font-weight:bold;'>Rien à afficher</p>"; return; } if (indexActuel >= listeAVisiter.length) indexActuel = 0; if (indexActuel < 0) indexActuel = listeAVisiter.length - 1; zone.innerHTML = listeAVisiter[indexActuel]; }
         function carteSuivante() { if (listeAVisiter.length > 0) { indexActuel++; afficherCarteCarousel(); } }
         function cartePrecedente() { if (listeAVisiter.length > 0) { indexActuel--; afficherCarteCarousel(); } }
