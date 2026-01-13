@@ -20,13 +20,20 @@
 
         /* LISTES LECTURE SEULE */
         .section-title { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px; color: #555; }
-        .item-row { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        
+        .item-row { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;}
+        
         .tag { font-size: 0.8em; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; margin-right: 5px; }
         .tag-musee { background: #E3F2FD; color: #1565C0; }
         .tag-sortie { background: #F3E5F5; color: #6A1B9A; }
+        
         .status-fait { color: #4CAF50; font-weight: bold; }
         .status-todo { color: #FF9800; font-style: italic; }
-        
+
+        /* BOUTON DATE */
+        .btn-date { background-color: #FF9800; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.85em; margin-left: 10px; transition: 0.2s; }
+        .btn-date:hover { background-color: #F57C00; transform: scale(1.05); }
+
         .btn-login { position: fixed; top: 15px; right: 15px; background: #333; color: white; text-decoration: none; padding: 8px 12px; border-radius: 8px; font-size: 0.9em; }
     </style>
 </head>
@@ -78,7 +85,7 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. ENVOYER UNE PROPOSITION (Mise à jour avec Lieu et Prix)
+        // 1. ENVOYER UNE PROPOSITION CLASSIQUE
         function envoyerProposition() {
             const type = document.getElementById('propType').value;
             const titre = document.getElementById('propTitre').value;
@@ -98,7 +105,6 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert("Merci ! Ton idée a été envoyée. 📩");
-                // Reset form
                 document.getElementById('propTitre').value = '';
                 document.getElementById('propLieu').value = '';
                 document.getElementById('propPrix').value = '';
@@ -106,7 +112,26 @@
             });
         }
 
-        // 2. LIRE UNIQUEMENT MUSEES ET SPECTACLES (Filtré)
+        // 2. PROPOSER UNE DATE POUR UN TRUC EXISTANT
+        function proposerDate(nomItem, typeCollection) {
+            const dispo = prompt("Quand aimerais-tu y aller ? (ex: Ce weekend, Samedi 12, Mardi soir...)");
+            
+            if(dispo) {
+                db.collection('propositions').add({
+                    typeCible: typeCollection, // Pour que ça arrive dans la bonne boite
+                    nom: "📅 DISPO : " + nomItem, // Titre Spécial
+                    titre: "📅 DISPO : " + nomItem,
+                    lieu: "Déjà listé",
+                    prix: "-",
+                    commentaire: "Dispo proposée : " + dispo,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert("C'est noté ! L'admin a reçu ta dispo pour : " + nomItem + " 📩");
+                });
+            }
+        }
+
+        // 3. CHARGER LA LISTE ET AJOUTER LE BOUTON
         async function chargerTout() {
             const divAFaire = document.getElementById('listeAFaire');
             const divFait = document.getElementById('listeFait');
@@ -118,24 +143,53 @@
             const snapMusees = await db.collection('musees').get();
             snapMusees.forEach(doc => {
                 const d = doc.data();
-                items.push({ type: 'musee', nom: d.nom, fait: d.estVisite, details: d.expo || "Général" });
+                items.push({ 
+                    id: doc.id, 
+                    collection: 'musees',
+                    type: 'musee', 
+                    nom: d.nom, 
+                    fait: d.estVisite, 
+                    details: d.expo || "Général" 
+                });
             });
 
             // Sorties
             const snapSorties = await db.collection('sorties').get();
             snapSorties.forEach(doc => {
                 const d = doc.data();
-                items.push({ type: 'sortie', nom: d.titre, fait: d.estFait, details: d.lieu || "" });
+                // Gestion "Titre" ou "Nom" pour éviter les bugs
+                const leNom = d.titre || d.nom || "Sortie";
+                items.push({ 
+                    id: doc.id,
+                    collection: 'sorties',
+                    type: 'sortie', 
+                    nom: leNom, 
+                    fait: d.estFait, 
+                    details: d.lieu || "" 
+                });
             });
 
             // Affichage
             items.forEach(item => {
                 const tag = item.type === 'musee' ? '<span class="tag tag-musee">🏛️ Musée</span>' : '<span class="tag tag-sortie">🎭 Sortie</span>';
+                
+                // Bouton Dispo seulement si pas encore fait
+                let btnDateHtml = "";
+                if (!item.fait) {
+                    // On échappe les guillemets simples dans le nom pour pas casser le JS
+                    const nomClean = item.nom.replace(/'/g, "\\'"); 
+                    btnDateHtml = `<button class="btn-date" onclick="proposerDate('${nomClean}', '${item.collection}')">📅 Proposer date</button>`;
+                }
+
                 const html = `
                     <div class="item-row">
                         <div>${tag} <strong>${item.nom}</strong> <small>(${item.details})</small></div>
-                        <div class="${item.fait ? 'status-fait' : 'status-todo'}">${item.fait ? '✅ Vu' : '⏳ À voir'}</div>
+                        <div class="${item.fait ? 'status-fait' : 'status-todo'}">
+                            ${item.fait ? '✅ Vu' : '⏳ À voir'}
+                            ${btnDateHtml}
+                        </div>
                     </div>`;
+                
                 if(item.fait) divFait.innerHTML += html;
                 else divAFaire.innerHTML += html;
             });
