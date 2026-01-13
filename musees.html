@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes Musées</title>
+    <title>Mes Musées 🏛️</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
     
@@ -10,47 +10,34 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
         /* PALETTE "BLUE AGATE" */
-        :root { --abyss: #092C56; --lapis: #225688; --slate: #668CA9; --glacier: #A9CBE0; --quartz: #F0F5F4; --white: #ffffff; --danger-soft: #e57373; --urgent: #f0ad4e; }
+        :root { --abyss: #092C56; --lapis: #225688; --slate: #668CA9; --glacier: #A9CBE0; --quartz: #F0F5F4; --white: #ffffff; --danger-soft: #e57373; --urgent: #f0ad4e; --guest: #00838f; }
         body { background-color: var(--quartz); color: var(--abyss); font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; background-image: linear-gradient(to bottom right, var(--quartz), #e1eef5); min-height: 100vh; }
         
-        h1 { text-align: center; color: var(--abyss); margin-bottom: 30px; margin-top: 100px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 3px solid var(--lapis); display: inline-block; padding-bottom: 10px; position: relative; left: 50%; transform: translateX(-50%); text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
+        h1 { text-align: center; color: var(--abyss); margin-bottom: 20px; margin-top: 100px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; border-bottom: 3px solid var(--lapis); display: inline-block; padding-bottom: 10px; position: relative; left: 50%; transform: translateX(-50%); text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
 
-        /* MENU */
+        /* MENU HAUT */
         .top-nav { position: fixed; top: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 8px; z-index: 9999; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 15px; backdrop-filter: blur(5px); justify-content: flex-end; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-nav, .btn-logout, .btn-sort { border: none; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(9, 44, 86, 0.1); transition: 0.2s; text-decoration: none; font-size: 0.85em; display: flex; align-items: center; justify-content: center; }
         .btn-nav { background-color: var(--lapis); color: white; }
         .btn-sort { background-color: var(--urgent); color: white; }
         .btn-logout { background-color: var(--slate); color: white; }
 
-        /* CONTAINERS */
+        /* FILTRES */
+        .filter-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .filter-btn { background: var(--white); border: 2px solid var(--slate); color: var(--slate); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .filter-btn:hover, .filter-btn.active { background: var(--lapis); color: white; border-color: var(--lapis); transform: scale(1.05); }
+
+        /* LAYOUT & RESPONSIVE */
         .top-section { display: flex; flex-wrap: wrap; gap: 25px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; min-width: 300px; background: var(--white); padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(9, 44, 86, 0.1); position: sticky; top: 80px; border: 1px solid var(--glacier); z-index: 10; }
         .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 400px; background: rgba(255,255,255,0.5); border-radius: 25px; padding: 15px; border: 3px dotted var(--slate); }
         
-        /* CARTES */
-        #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
-        .card-tinder { background: var(--white); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(9, 44, 86, 0.15); border-top: 5px solid var(--lapis); text-align: center; animation: fadeIn 0.5s ease; position: relative; }
-        
-        /* --- MEDIA QUERY : C'EST ICI QUE LA MAGIE MOBILE OPERE --- */
         @media (max-width: 768px) {
-            /* On empile tout verticalement */
-            .top-section { flex-direction: column-reverse; } /* Inverse l'ordre : Carte en haut, Formulaire en bas (ou inverse selon préférence, ici formulaire en bas) */
-            .top-section { flex-direction: column; } /* Formulaire en haut, Carte en bas */
-            
-            /* Le formulaire prend toute la largeur */
+            .top-section { flex-direction: column; } 
             .form-container { width: 100%; min-width: 0; position: static; padding: 20px; margin-bottom: 20px; box-sizing: border-box; }
-            
-            /* Le carousel prend toute la largeur */
             .carousel-container { width: 100%; min-width: 0; padding: 10px; box-sizing: border-box; }
-            
-            /* On pousse le titre encore plus bas car le menu prend de la place sur mobile */
             h1 { margin-top: 130px; font-size: 1.8em; }
-            
-            /* Le menu prend moins de place ou se centre */
             .top-nav { top: 5px; right: 5px; left: 5px; justify-content: center; }
-            
-            /* Ajustement boutons */
-            .btn-nav, .btn-logout, .btn-sort { font-size: 0.75em; padding: 6px 10px; }
         }
 
         /* Elements internes */
@@ -59,20 +46,33 @@
         .gratuites-container label { background: var(--quartz); color: var(--abyss); padding: 6px 10px; border-radius: 20px; font-size: 0.85em; display: flex; align-items: center; border: 2px solid var(--slate); font-weight: bold; }
         .badge-gratuit { display: inline-block; background: var(--lapis); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin: 2px; }
         button.btn-save { width: 100%; padding: 14px; background-color: var(--lapis); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        
+        /* HISTORIQUE & AVIS */
         .history-section { background: var(--white); padding: 20px; border-radius: 25px; margin-top: 40px; }
         .visite-row { border-bottom: 1px solid var(--quartz); padding: 15px; background: #f8faff; border-radius: 10px; margin-bottom: 10px; border-left: 3px solid var(--slate); }
+        .avis-invite-block { background: #e0f7fa; padding: 10px; border-radius: 10px; margin-top: 10px; border-left: 3px solid var(--guest); font-size: 0.9em; }
+        .avis-header { font-weight: bold; color: var(--guest); display: flex; justify-content: space-between; }
+        
+        /* INBOX */
+        #inbox-container { display:none; margin: 20px 0; }
+        .inbox-alert { background: var(--white); padding: 15px; border-radius: 15px; border: 2px dashed var(--slate); }
+        .prop-item { background: var(--quartz); padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 4px solid var(--lapis); display:flex; justify-content:space-between; align-items:center;}
+        .prop-item.avis-type { border-left-color: var(--guest); background: #e0f7fa; }
+        .btn-accept { background: var(--lapis); color: white; border:none; padding:5px 10px; border-radius:6px; margin-right:5px;}
+        .btn-reject { background: var(--slate); color: white; border:none; padding:5px 10px; border-radius:6px;}
+
+        /* CARTES */
+        #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
+        .card-tinder { background: var(--white); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(9, 44, 86, 0.15); border-top: 5px solid var(--lapis); text-align: center; animation: fadeIn 0.5s ease; position: relative; }
+        .expo-item { background: var(--quartz); border-radius: 8px; padding: 10px; margin-bottom: 8px; border-left: 4px solid var(--lapis); text-align: left;}
+        .expo-header { display:flex; justify-content:space-between; align-items:center; }
         .add-expo-zone { background: var(--quartz); padding: 15px; border-radius: 15px; border: 2px dashed var(--slate); margin-bottom: 20px; }
         .btn-add-expo { background: var(--slate); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
         .btn-check-small { background: var(--lapis); color: white; border: none; padding: 5px 8px; border-radius: 6px; font-size: 0.8em; font-weight: bold; }
         .arrow-btn { background: var(--slate); color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .expo-item { background: var(--quartz); border-radius: 8px; padding: 10px; margin-bottom: 8px; border-left: 4px solid var(--lapis); text-align: left;}
-        .expo-header { display:flex; justify-content:space-between; align-items:center; }
         .date-fin { font-size: 0.8em; color: var(--danger-soft); font-weight: bold; display: block; margin-top: 2px; }
-        #inbox-container { display:none; margin: 20px 0; }
-        .inbox-alert { background: var(--white); padding: 15px; border-radius: 15px; border: 2px dashed var(--slate); }
-        .prop-item { background: var(--quartz); padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 4px solid var(--lapis); display:flex; justify-content:space-between; align-items:center;}
-        .btn-accept { background: var(--lapis); color: white; border:none; padding:5px 10px; border-radius:6px; margin-right:5px;}
-        .btn-reject { background: var(--slate); color: white; border:none; padding:5px 10px; border-radius:6px;}
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -85,9 +85,15 @@
 
     <h1>🏛️ Mes Musées</h1>
 
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="filtrerListe('tout', this)">Tout</button>
+        <button class="filter-btn" onclick="filtrerListe('gratuit', this)">Gratuit (0€)</button>
+        <button class="filter-btn" onclick="filtrerListe('payant', this)">Payant</button>
+    </div>
+
     <div id="inbox-container">
         <div class="inbox-alert">
-            <h3 style="margin-top:0; color:var(--abyss);">📬 Propositions</h3>
+            <h3 style="margin-top:0; color:var(--abyss);">📬 Notifications & Avis</h3>
             <div id="listePropositions"></div>
         </div>
     </div>
@@ -97,6 +103,7 @@
             <h2 id="titreFormulaire" style="color:var(--lapis); border-bottom: 2px solid var(--quartz); padding-bottom:15px; margin-top:0;">Ajouter un musée</h2>
             <input type="hidden" id="editId">
             <input type="text" id="nomMusee" placeholder="Nom du musée (ex: Louvre)">
+            
             <div class="add-expo-zone">
                 <label style="font-weight:bold; font-size:0.9em; color:var(--lapis);">Ajouter une expo :</label>
                 <input type="text" id="newExpoName" placeholder="Nom (ex: Egypte...)">
@@ -128,7 +135,7 @@
         </div>
     </div>
     <div class="history-section">
-        <h2>✅ Déjà visités</h2>
+        <h2>✅ Déjà visités (Livre d'or)</h2>
         <div id="listeVisites"></div>
     </div>
 
@@ -136,26 +143,131 @@
         const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
         if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
-        let listeAVisiter = []; let indexActuel = 0; let globalMuseesData = {}; let tempExpos = []; let globalPropositions = {};
+        
+        let globalMuseesData = {}; let listeAVisiter = []; let listeDonneesFiltrees = []; let indexActuel = 0; let tempExpos = []; let globalPropositions = {};
         function deconnexion() { localStorage.removeItem("estConnecte"); window.location.href = "login.html"; }
-        function trierParUrgence() { let tableauMusees = Object.values(globalMuseesData); tableauMusees.sort((a, b) => { let dateA = getProchaineDateFin(a); let dateB = getProchaineDateFin(b); if (!dateA) return 1; if (!dateB) return -1; return dateA.localeCompare(dateB); }); listeAVisiter = []; tableauMusees.forEach(data => { genererHTMLCarte(data, data.id); }); indexActuel = 0; afficherCarteCarousel(); alert("Trié par urgence ! ⏳"); }
+
+        // --- FILTRES ---
+        function filtrerListe(critere, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
+            let tableauMusees = Object.values(globalMuseesData);
+            if (critere === 'gratuit') listeDonneesFiltrees = tableauMusees.filter(m => m.prix == "0" || m.prix == 0);
+            else if (critere === 'payant') listeDonneesFiltrees = tableauMusees.filter(m => m.prix != "0" && m.prix != 0);
+            else listeDonneesFiltrees = tableauMusees;
+            reconstruireCarrousel();
+        }
+        function trierParUrgence() {
+            listeDonneesFiltrees.sort((a, b) => { let dateA = getProchaineDateFin(a); let dateB = getProchaineDateFin(b); if (!dateA) return 1; if (!dateB) return -1; return dateA.localeCompare(dateB); });
+            reconstruireCarrousel(); alert("Trié par urgence ! ⏳");
+        }
+        function reconstruireCarrousel() { listeAVisiter = []; listeDonneesFiltrees.forEach(data => { genererHTMLCarte(data, data.id); }); indexActuel = 0; afficherCarteCarousel(); }
         function getProchaineDateFin(musee) { if (!musee.expositions) return null; for (let expo of musee.expositions) { if (!expo.estVisite && expo.dateFin) { return expo.dateFin; } } return null; }
-        function genererHTMLCarte(data, id) { let tagsHtml = ''; let labelGratuit = ''; if (data.tags && data.tags.length > 0) { tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join(''); labelGratuit = '<div style="font-size:0.9em; font-weight:bold; color:var(--lapis); margin-top:10px; margin-bottom:5px;">Gratuit si :</div>'; } let aDesExposAFaire = false; let exposAfficheesDansCarte = ""; data.expositions.forEach((expo, index) => { let finExpoHtml = expo.dateFin ? `<span class="date-fin">⚠️ Fin : ${expo.dateFin}</span>` : ""; if (!expo.estVisite) { aDesExposAFaire = true; exposAfficheesDansCarte += `<div class="expo-item"><div class="expo-header"><strong style="color:var(--abyss); font-size:0.95em;">${expo.nom}</strong><button class="btn-check-small" onclick="validerExpo('${id}', ${index})">✅</button></div>${finExpoHtml}</div>`; } }); if (aDesExposAFaire) { let carteHtml = `<div class="card-tinder"><h3 style="color:var(--abyss); font-size:1.4em; margin-bottom:5px; margin-top:0;">${data.nom}</h3><p style="font-weight:bold; color:var(--lapis); font-size:1.1em; margin:5px 0;">💸 ${data.prix}€</p><div style="margin: 10px 0; max-height:180px; overflow-y:auto; padding-right:2px;">${exposAfficheesDansCarte}</div>${labelGratuit}<div style="margin-bottom:10px; display:flex; flex-wrap:wrap; justify-content:center;">${tagsHtml}</div><div style="margin-top:15px; display:flex; justify-content:center; gap:10px;"><button onclick="preparerModification('${id}')" style="background:var(--quartz); border:2px solid var(--slate); color:var(--slate); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">✏️</button><button onclick="supprimerMusee('${id}')" style="background:var(--quartz); border:2px solid var(--danger-soft); color:var(--danger-soft); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">🗑️</button></div></div>`; listeAVisiter.push(carteHtml); } }
-        function chargerMusees() { const divVisites = document.getElementById('listeVisites'); const zoneCarte = document.getElementById('zoneCarteUnique'); db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => { listeAVisiter = []; divVisites.innerHTML = ''; globalMuseesData = {}; if (snapshot.empty) { zoneCarte.innerHTML = "<p style='color:var(--slate);'>Aucune idée...</p>"; divVisites.innerHTML = "<p style='color:var(--slate);'>Rien...</p>"; return; } snapshot.forEach(doc => { const data = doc.data(); const id = doc.id; if (!data.expositions || !Array.isArray(data.expositions)) { data.expositions = [{ nom: data.expo || "Expo Principale", dateFin: data.dateFinExpo || "", estVisite: data.estVisite || false, note: data.note || null, commentaire: data.commentaire || null, dateVisite: data.dateVisite || null }]; } data.id = id; globalMuseesData[id] = data; data.expositions.forEach((expo) => { if (expo.estVisite) { let tagsHtml = (data.tags && data.tags.length > 0) ? data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('') : ""; const row = document.createElement('div'); row.className = 'visite-row'; row.innerHTML = `<div style="flex:1;"><strong style="color:var(--lapis);">${data.nom}</strong> - <span style="color:var(--abyss); font-weight:bold;">${expo.nom}</span><br><small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br><em style="color:#555; display:block; margin-top:5px; font-size:0.9em;">"${expo.commentaire || ''}"</em></div><div style="text-align:right;"><div style="font-size:1.1em;">${"⭐".repeat(expo.note || 1)}</div><button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--slate); color:var(--slate); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-top:5px; font-weight:bold;">✏️</button></div>`; divVisites.appendChild(row); } }); genererHTMLCarte(data, id); }); afficherCarteCarousel(); }); }
-        function afficherCarteCarousel() { const zone = document.getElementById('zoneCarteUnique'); if (listeAVisiter.length === 0) { zone.innerHTML = "<p style='color:var(--lapis); font-weight:bold;'>Tout visité !</p>"; return; } if (indexActuel >= listeAVisiter.length) indexActuel = 0; if (indexActuel < 0) indexActuel = listeAVisiter.length - 1; zone.innerHTML = listeAVisiter[indexActuel]; }
+        
+        function genererHTMLCarte(data, id) { 
+            let tagsHtml = ''; let labelGratuit = ''; 
+            if (data.tags && data.tags.length > 0) { tagsHtml = data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join(''); labelGratuit = '<div style="font-size:0.9em; font-weight:bold; color:var(--lapis); margin-top:10px; margin-bottom:5px;">Gratuit si :</div>'; } 
+            let aDesExposAFaire = false; let exposAfficheesDansCarte = ""; 
+            data.expositions.forEach((expo, index) => { 
+                let finExpoHtml = expo.dateFin ? `<span class="date-fin">⚠️ Fin : ${expo.dateFin}</span>` : ""; 
+                if (!expo.estVisite) { aDesExposAFaire = true; exposAfficheesDansCarte += `<div class="expo-item"><div class="expo-header"><strong style="color:var(--abyss); font-size:0.95em;">${expo.nom}</strong><button class="btn-check-small" onclick="validerExpo('${id}', ${index})">✅</button></div>${finExpoHtml}</div>`; } 
+            }); 
+            if (aDesExposAFaire) { 
+                let carteHtml = `<div class="card-tinder"><h3 style="color:var(--abyss); font-size:1.4em; margin-bottom:5px; margin-top:0;">${data.nom}</h3><p style="font-weight:bold; color:var(--lapis); font-size:1.1em; margin:5px 0;">💸 ${data.prix}€</p><div style="margin: 10px 0; max-height:180px; overflow-y:auto; padding-right:2px;">${exposAfficheesDansCarte}</div>${labelGratuit}<div style="margin-bottom:10px; display:flex; flex-wrap:wrap; justify-content:center;">${tagsHtml}</div><div style="margin-top:15px; display:flex; justify-content:center; gap:10px;"><button onclick="preparerModification('${id}')" style="background:var(--quartz); border:2px solid var(--slate); color:var(--slate); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">✏️</button><button onclick="supprimerMusee('${id}')" style="background:var(--quartz); border:2px solid var(--danger-soft); color:var(--danger-soft); border-radius:10px; padding:6px 12px; cursor:pointer; font-weight:bold;">🗑️</button></div></div>`; 
+                listeAVisiter.push(carteHtml); 
+            } 
+        }
+
+        function chargerMusees() { 
+            const divVisites = document.getElementById('listeVisites'); 
+            const zoneCarte = document.getElementById('zoneCarteUnique'); 
+            db.collection('musees').orderBy('timestamp', 'desc').onSnapshot(snapshot => { 
+                divVisites.innerHTML = ''; globalMuseesData = {}; 
+                if (snapshot.empty) { zoneCarte.innerHTML = "<p style='color:var(--slate);'>Aucune idée...</p>"; divVisites.innerHTML = "<p style='color:var(--slate);'>Rien...</p>"; return; } 
+                snapshot.forEach(doc => { 
+                    const data = doc.data(); const id = doc.id; 
+                    if (!data.expositions || !Array.isArray(data.expositions)) { data.expositions = [{ nom: data.expo || "Expo Principale", dateFin: data.dateFinExpo || "", estVisite: data.estVisite || false, note: data.note || null, commentaire: data.commentaire || null, dateVisite: data.dateVisite || null }]; } 
+                    data.id = id; globalMuseesData[id] = data; 
+                    data.expositions.forEach((expo) => { 
+                        if (expo.estVisite) { 
+                            let tagsHtml = (data.tags && data.tags.length > 0) ? data.tags.map(tag => `<span class="badge-gratuit">${tag}</span>`).join('') : ""; 
+                            // GESTION AVIS INVITE
+                            let avisInviteHtml = "";
+                            if (expo.avisInvite) {
+                                avisInviteHtml = `<div class="avis-invite-block"><div class="avis-header"><span>🖊️ ${expo.avisInvite.auteur}</span></div><em>"${expo.avisInvite.message}"</em></div>`;
+                            }
+                            const row = document.createElement('div'); row.className = 'visite-row'; 
+                            row.innerHTML = `<div style="flex:1;"><strong style="color:var(--lapis);">${data.nom}</strong> - <span style="color:var(--abyss); font-weight:bold;">${expo.nom}</span><br><small style="color:var(--slate);">📅 ${expo.dateVisite || '?'} | 💸 ${data.prix}€ ${tagsHtml}</small><br><em style="color:#555; display:block; margin-top:5px; font-size:0.9em;">"${expo.commentaire || ''}"</em>${avisInviteHtml}</div><div style="text-align:right;"><div style="font-size:1.1em;">${"⭐".repeat(expo.note || 1)}</div><button onclick="preparerModification('${id}')" style="background:none; border:2px solid var(--slate); color:var(--slate); border-radius:8px; padding:4px 8px; cursor:pointer; font-size:0.9em; margin-top:5px; font-weight:bold;">✏️</button></div>`; 
+                            divVisites.appendChild(row); 
+                        } 
+                    }); 
+                }); 
+                filtrerListe('tout', document.querySelector('.filter-btn.active'));
+            }); 
+        }
+
+        // --- GESTION INBOX (PROPOSITIONS & AVIS INVITES) ---
+        function chargerPropositions() { 
+            const divProp = document.getElementById('listePropositions'); 
+            const container = document.getElementById('inbox-container'); 
+            db.collection('propositions').onSnapshot(snapshot => { 
+                if (snapshot.empty) { container.style.display = 'none'; return; } 
+                container.style.display = 'block'; divProp.innerHTML = ''; 
+                snapshot.forEach(doc => { 
+                    const d = doc.data(); const id = doc.id; globalPropositions[id] = d; 
+                    const el = document.createElement('div'); 
+                    
+                    // Si c'est un AVIS INVITE
+                    if(d.typeCible === 'avis_invite') {
+                        el.className = 'prop-item avis-type';
+                        el.innerHTML = `<div><strong style="color:var(--guest); font-size:0.9em;">🖊️ Avis de ${d.auteur}</strong><br><small>Sur : ${d.titreContext || 'Expo'}</small><br><em style="font-size:0.85em; display:block; margin-top:3px;">"${d.commentaire}"</em></div><div><button class="btn-accept" onclick="accepterAvis('${id}')">✅</button><button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button></div>`;
+                    } else { // Si c'est une PROPOSITION CLASSIQUE
+                        el.className = 'prop-item'; 
+                        el.innerHTML = `<div><strong style="color:var(--lapis); font-size:0.9em;">🏛️ ${d.nom || d.titre}</strong><br><small style="font-size:0.8em;">${d.commentaire || ''}</small></div><div><button class="btn-accept" onclick="accepterProposition('${id}')">✅</button><button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button></div>`; 
+                    }
+                    divProp.appendChild(el); 
+                }); 
+            }); 
+        }
+
+        function accepterAvis(propId) {
+            const prop = globalPropositions[propId];
+            if(!prop || !confirm("Valider l'avis de " + prop.auteur + " ?")) return;
+            // On récupère le musée concerné
+            db.collection('musees').doc(prop.museeId).get().then(doc => {
+                if(doc.exists) {
+                    let data = doc.data();
+                    // On ajoute l'avis à l'expo spécifique
+                    if(data.expositions && data.expositions[prop.expoIndex]) {
+                        data.expositions[prop.expoIndex].avisInvite = {
+                            auteur: prop.auteur,
+                            message: prop.commentaire
+                        };
+                        // Mise à jour
+                        db.collection('musees').doc(prop.museeId).update({ expositions: data.expositions }).then(() => {
+                            db.collection('propositions').doc(propId).delete();
+                            alert("Avis publié !");
+                        });
+                    }
+                }
+            });
+        }
+
+        function accepterProposition(propId) { const prop = globalPropositions[propId]; if(!prop || !confirm("Ajouter ?")) return; let dataToAdd = { nom: prop.nom || prop.titre, prix: prop.prix || "0", tags: [], expositions: [{ nom: "Général", estVisite: false }], timestamp: firebase.firestore.FieldValue.serverTimestamp() }; db.collection('musees').add(dataToAdd).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); }); }
+        function supprimerProposition(id) { if(confirm("Refuser ?")) db.collection('propositions').doc(id).delete(); }
+        
+        // --- FONCTIONS STANDARD (Formulaire, etc.) ---
+        function afficherCarteCarousel() { const zone = document.getElementById('zoneCarteUnique'); if (listeAVisiter.length === 0) { zone.innerHTML = "<p style='color:var(--lapis); font-weight:bold;'>Rien à afficher</p>"; return; } if (indexActuel >= listeAVisiter.length) indexActuel = 0; if (indexActuel < 0) indexActuel = listeAVisiter.length - 1; zone.innerHTML = listeAVisiter[indexActuel]; }
         function carteSuivante() { if (listeAVisiter.length > 0) { indexActuel++; afficherCarteCarousel(); } }
         function cartePrecedente() { if (listeAVisiter.length > 0) { indexActuel--; afficherCarteCarousel(); } }
         function validerExpo(museeId, expoIndex) { const note = prompt("Note sur 5 ?"); if (!note) return; const date = prompt("Date visite ?", new Date().toISOString().split('T')[0]); const comm = prompt("Commentaire ?"); let data = globalMuseesData[museeId]; data.expositions[expoIndex].estVisite = true; data.expositions[expoIndex].note = note; data.expositions[expoIndex].dateVisite = date; data.expositions[expoIndex].commentaire = comm; db.collection('musees').doc(museeId).update({ expositions: data.expositions }); }
-        function preparerModification(id) { const data = globalMuseesData[id]; if (!data) return; document.getElementById('editId').value = id; document.getElementById('nomMusee').value = data.nom; document.getElementById('prixMusee').value = data.prix; tempExpos = JSON.parse(JSON.stringify(data.expositions)); afficherListeExposForm(); document.querySelectorAll('#tagsContainer input').forEach(cb => { cb.checked = data.tags && data.tags.includes(cb.value); }); const btn = document.getElementById('btnAction'); btn.textContent = "Mettre à jour"; btn.classList.add('mode-edit'); document.getElementById('titreFormulaire').textContent = "Modifier : " + data.nom; document.getElementById('btnAnnuler').style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function preparerModification(id) { const data = globalMuseesData[id]; if (!data) return; document.getElementById('editId').value = id; document.getElementById('nomMusee').value = data.nom; document.getElementById('prixMusee').value = data.prix; tempExpos = JSON.parse(JSON.stringify(data.expositions)); afficherListeExposForm(); document.querySelectorAll('#tagsContainer input').forEach(cb => { cb.checked = data.tags && data.tags.includes(cb.value); }); const btn = document.getElementById('btnAction'); btn.textContent = "Mettre à jour le musée"; btn.classList.add('mode-edit'); document.getElementById('titreFormulaire').textContent = "Modifier : " + data.nom; document.getElementById('btnAnnuler').style.display = "block"; window.scrollTo({ top: 0, behavior: 'smooth' }); }
         function resetForm() { document.getElementById('editId').value = ''; document.getElementById('nomMusee').value = ''; document.getElementById('prixMusee').value = ''; document.getElementById('newExpoName').value = ''; document.getElementById('newExpoDate').value = ''; tempExpos = []; afficherListeExposForm(); document.querySelectorAll('#tagsContainer input').forEach(cb => cb.checked = false); const btn = document.getElementById('btnAction'); btn.textContent = "Enregistrer le musée"; btn.classList.remove('mode-edit'); document.getElementById('titreFormulaire').textContent = "Ajouter un musée"; document.getElementById('btnAnnuler').style.display = "none"; }
         function supprimerMusee(id) { if(confirm("Supprimer ce musée ?")) db.collection('musees').doc(id).delete(); }
-        function chargerPropositions() { const divProp = document.getElementById('listePropositions'); const container = document.getElementById('inbox-container'); db.collection('propositions').onSnapshot(snapshot => { if (snapshot.empty) { container.style.display = 'none'; return; } container.style.display = 'block'; divProp.innerHTML = ''; snapshot.forEach(doc => { const d = doc.data(); const id = doc.id; globalPropositions[id] = d; const el = document.createElement('div'); el.className = 'prop-item'; el.innerHTML = `<div><strong style="color:var(--lapis); font-size:0.9em;">${d.nom || d.titre}</strong><br><small style="font-size:0.8em;">${d.commentaire || ''}</small></div><div><button class="btn-accept" onclick="accepterProposition('${id}')">✅</button><button class="btn-reject" onclick="supprimerProposition('${id}')">❌</button></div>`; divProp.appendChild(el); }); }); }
-        function accepterProposition(propId) { const prop = globalPropositions[propId]; if(!prop || !confirm("Ajouter ?")) return; let dataToAdd = { nom: prop.nom || prop.titre, prix: prop.prix || "0", tags: [], expositions: [{ nom: "Général", estVisite: false }], timestamp: firebase.firestore.FieldValue.serverTimestamp() }; db.collection('musees').add(dataToAdd).then(() => { db.collection('propositions').doc(propId).delete(); alert("Fait !"); }); }
-        function supprimerProposition(id) { if(confirm("Refuser ?")) db.collection('propositions').doc(id).delete(); }
         function ajouterExpoAuFormulaire() { const nom = document.getElementById('newExpoName').value; const date = document.getElementById('newExpoDate').value; if(!nom) { alert("Nom expo manquant"); return; } tempExpos.push({ nom: nom, dateFin: date, estVisite: false, note: null, commentaire: null, dateVisite: null }); document.getElementById('newExpoName').value = ''; document.getElementById('newExpoDate').value = ''; afficherListeExposForm(); }
         function afficherListeExposForm() { const ul = document.getElementById('listeExposForm'); ul.innerHTML = ''; tempExpos.forEach((expo, index) => { const li = document.createElement('li'); const dateInfo = expo.dateFin ? `(${expo.dateFin})` : ""; li.innerHTML = `${expo.estVisite ? "✅" : "⏳"} <strong>${expo.nom}</strong> ${dateInfo} <button onclick="supprimerExpoForm(${index})" style="color:red; border:none; background:none;">X</button>`; ul.appendChild(li); }); }
         function supprimerExpoForm(index) { tempExpos.splice(index, 1); afficherListeExposForm(); }
         function gererEnregistrement() { try { const idModif = document.getElementById('editId').value; const nomMusee = document.getElementById('nomMusee').value; const prix = document.getElementById('prixMusee').value; const checkboxes = document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked'); const tags = Array.from(checkboxes).map(cb => cb.value); if (!nomMusee) { alert("Nom manquant"); return; } if (tempExpos.length === 0) { alert("Ajoute une expo"); return; } let data = { nom: nomMusee, prix: prix || "0", tags: tags, expositions: tempExpos, timestamp: firebase.firestore.FieldValue.serverTimestamp() }; if (idModif) { db.collection('musees').doc(idModif).update(data).then(() => { resetForm(); alert("MAJ OK"); }); } else { db.collection('musees').add(data).then(() => { resetForm(); alert("Enregistré"); }); } } catch (error) { alert("Erreur : " + error.message); } }
+        
         document.addEventListener('DOMContentLoaded', () => { chargerMusees(); chargerPropositions(); });
     </script>
 </body>
