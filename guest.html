@@ -56,35 +56,33 @@
             const select = document.getElementById('choixExpo');
             let count = 0;
 
-            // 1. LES MUSEES (Avec le correctif "Traducteur" !)
+            // 1. LES MUSEES (Logique blindée grâce à ta capture d'écran)
             museesSnapshot.forEach(doc => {
-                let data = doc.data();
+                const data = doc.data();
                 
-                // --- LE CORRECTIF EST ICI ---
-                // Si c'est un "vieux" format de donnée, on le transforme en nouveau format pour le lire
-                if (!data.expositions || !Array.isArray(data.expositions)) {
-                    data.expositions = [{
-                        nom: data.expo || "Expo Principale",
-                        estVisite: data.estVisite || false // On récupère l'info ici
-                    }];
-                }
-                // ----------------------------
-
-                if(data.expositions) {
+                // CAS A : Format "Liste d'expos" (Le nouveau standard)
+                if(data.expositions && Array.isArray(data.expositions)) {
                     data.expositions.forEach((expo, index) => {
                         if(expo.estVisite) {
-                            let option = document.createElement('option');
-                            option.value = JSON.stringify({ 
+                            ajouterOption(select, {
                                 type: 'musee',
-                                id: doc.id, 
-                                expoIndex: index, 
-                                titre: data.nom + " (" + expo.nom + ")" 
-                            });
-                            option.textContent = `🏛️ ${data.nom} - ${expo.nom}`;
-                            select.appendChild(option);
+                                id: doc.id,
+                                expoIndex: index, // On garde l'index pour savoir laquelle c'est
+                                titre: data.nom + " (" + expo.nom + ")"
+                            }, `🏛️ ${data.nom} - ${expo.nom}`);
                             count++;
                         }
                     });
+                } 
+                // CAS B : Format "Plat" (Celui de ta capture d'écran - Monnaie de Paris)
+                else if (data.estVisite === true) {
+                    ajouterOption(select, {
+                        type: 'musee',
+                        id: doc.id,
+                        expoIndex: 0, // Par défaut c'est la première
+                        titre: data.nom + " (" + (data.expo || "Expo") + ")"
+                    }, `🏛️ ${data.nom} - ${data.expo || "Visite"}`);
+                    count++;
                 }
             });
 
@@ -92,14 +90,11 @@
             sortiesSnapshot.forEach(doc => {
                 const data = doc.data();
                 if(data.estFait) {
-                    let option = document.createElement('option');
-                    option.value = JSON.stringify({ 
+                    ajouterOption(select, {
                         type: 'sortie',
-                        id: doc.id, 
+                        id: doc.id,
                         titre: data.titre || data.nom
-                    });
-                    option.textContent = `🎭 ${data.titre || data.nom}`;
-                    select.appendChild(option);
+                    }, `🎭 ${data.titre || data.nom}`);
                     count++;
                 }
             });
@@ -108,10 +103,17 @@
             if(count > 0) {
                 document.getElementById('formulaire').style.display = 'block';
             } else {
-                document.getElementById('loading').innerHTML = "Aucune visite terminée trouvée... 😢<br><small>(Vérifie que tu as bien coché ✅ sur la carte)</small>";
+                document.getElementById('loading').innerHTML = "Aucune visite terminée trouvée... 😢";
                 document.getElementById('loading').style.display = 'block';
             }
         });
+
+        function ajouterOption(select, valueObj, text) {
+            let option = document.createElement('option');
+            option.value = JSON.stringify(valueObj);
+            option.textContent = text;
+            select.appendChild(option);
+        }
 
         function envoyerAvis() {
             const selection = document.getElementById('choixExpo').value;
