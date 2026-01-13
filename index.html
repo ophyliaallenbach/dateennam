@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8">
-    <title>Idées de sorties</title>
+    <title>Idées de sorties ✨</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
@@ -10,80 +10,218 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-      /* PALETTE "PLUIE DE JUIN" */
-      :root { --misty-violet: #5f5baf; --rainy-blue: #568de4; --rain-purple: #ba9fe1; --deep-iris: #9a64c5; --cloudy-lilac: #c4c5e8; --white: #ffffff; }
-      body { font-family: 'Segoe UI', sans-serif; background-color: var(--cloudy-lilac); color: var(--misty-violet); text-align: center; margin: 0; padding: 20px; background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); min-height: 100vh; }
+      /* --- THÈME "PLUIE DE JUIN" --- */
+      :root { 
+        --misty-violet: #5f5baf; 
+        --rainy-blue: #568de4; 
+        --rain-purple: #ba9fe1; 
+        --deep-iris: #9a64c5; 
+        --cloudy-lilac: #c4c5e8; 
+        --white: #ffffff; 
+        --soft-bg: #fcfaff;
+      }
       
-      h1 { color: var(--misty-violet); margin-top: 100px; font-size: 2.5em; text-shadow: 2px 2px 0px rgba(255,255,255,0.4); }
-      .phrase { font-style: italic; color: var(--deep-iris); margin-bottom: 30px; font-weight: 500; }
+      body { 
+        font-family: 'Segoe UI', sans-serif; 
+        background-color: var(--cloudy-lilac); 
+        color: var(--misty-violet); 
+        text-align: center; 
+        margin: 0; 
+        padding: 20px; 
+        background-image: linear-gradient(to bottom, #c4c5e8 0%, #dce0f5 100%); 
+        min-height: 100vh; 
+      }
       
-      /* --- MENU UNIVERSEL --- */
-      .top-nav { position: fixed; top: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 8px; z-index: 1000; background: rgba(255,255,255,0.6); padding: 8px; border-radius: 15px; backdrop-filter: blur(5px); justify-content: flex-end; }
-      .btn-nav, .btn-logout { border: none; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1); transition: 0.3s; text-decoration: none; font-size: 0.85em; display: flex; align-items: center; justify-content: center; }
-      /* Couleurs du menu adaptées au thème Violet */
-      .btn-nav { background: var(--misty-violet); color: var(--white); }
-      .btn-nav:hover { background: var(--deep-iris); transform: translateY(-2px); }
-      .btn-logout { background: #90a4ae; color: white; }
-      .btn-logout:hover { background: #78909c; }
+      h1 { 
+        color: var(--misty-violet); 
+        margin-top: 80px; 
+        font-size: 2.2em; 
+        text-shadow: 2px 2px 0px rgba(255,255,255,0.4); 
+        margin-bottom: 5px;
+      }
+      
+      .phrase { 
+        font-style: italic; 
+        color: var(--deep-iris); 
+        margin-bottom: 30px; 
+        font-weight: 500; 
+      }
+      
+      /* --- NAVIGATION --- */
+      .top-nav { 
+        position: fixed; top: 10px; right: 10px; left: 10px; /* Centré sur mobile */
+        display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; z-index: 1000; 
+      }
+      @media (min-width: 600px) { .top-nav { left: auto; justify-content: flex-end; } }
 
-      /* Le reste du style reste identique */
-      .input-zone { background: var(--white); padding: 25px; border-radius: 20px; max-width: 600px; margin: 0 auto 40px auto; box-shadow: 0 10px 25px rgba(95, 91, 175, 0.15); border: 2px solid var(--rain-purple); }
-      input[type="text"], input[type="number"], input[type="date"] { padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--rain-purple); width: 90%; font-family: inherit; color: var(--misty-violet); background: #fcfaff; }
+      .btn-nav, .btn-logout { 
+        border: none; padding: 8px 15px; border-radius: 20px; 
+        cursor: pointer; font-weight: bold; 
+        box-shadow: 0 4px 10px rgba(95, 91, 175, 0.1); 
+        transition: 0.3s; text-decoration: none; font-size: 0.85em; 
+        display: flex; align-items: center; justify-content: center; gap: 5px;
+        backdrop-filter: blur(5px);
+      }
+      
+      .btn-nav { background: rgba(255,255,255,0.8); color: var(--misty-violet); }
+      .btn-nav:hover { background: var(--white); transform: translateY(-2px); }
+      
+      .btn-logout { background: #ffcdd2; color: #c62828; opacity: 0.9; }
+      .btn-logout:hover { background: #ef9a9a; }
+
+      /* --- ZONE DE SAISIE --- */
+      .input-zone { 
+        background: var(--white); 
+        padding: 25px; 
+        border-radius: 25px; 
+        max-width: 500px; 
+        margin: 0 auto 40px auto; 
+        box-shadow: 0 10px 30px rgba(95, 91, 175, 0.2); 
+        border: 2px solid rgba(255,255,255,0.5);
+      }
+
+      /* Champs de texte stylisés */
+      input[type="text"], input[type="number"], input[type="date"] { 
+        padding: 12px 15px; border-radius: 12px; margin-top: 10px; 
+        border: 2px solid var(--cloudy-lilac); width: 100%; box-sizing: border-box;
+        font-family: inherit; color: var(--misty-violet); background: var(--soft-bg);
+        transition: 0.2s;
+      }
       input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
-      #categories { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-      #categories label { font-size: 0.9em; cursor: pointer; background: var(--cloudy-lilac); padding: 5px 10px; border-radius: 15px; color: var(--misty-violet); transition: 0.2s; border: 1px solid transparent; }
-      #categories label:hover { background: var(--rain-purple); color: white; }
-      #categories input { margin-right: 5px; accent-color: var(--misty-violet); }
-      button.add { background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; padding: 12px 30px; border-radius: 12px; margin-top: 20px; font-size: 16px; font-weight: bold; width: 100%; max-width: 300px; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3); }
+
+      /* Catégories façon "Pillules" */
+      #categories { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+      
+      /* On cache la checkbox moche par défaut */
+      #categories input[type="checkbox"] { display: none; }
+      
+      #categories label { 
+        font-size: 0.85em; cursor: pointer; 
+        background: var(--soft-bg); padding: 8px 12px; 
+        border-radius: 20px; color: var(--misty-violet); 
+        transition: 0.2s; border: 1px solid var(--cloudy-lilac); 
+        user-select: none;
+      }
+      
+      /* Style quand coché */
+      #categories input[type="checkbox"]:checked + label {
+        background: var(--misty-violet); color: white; border-color: var(--misty-violet);
+        transform: scale(1.05); box-shadow: 0 2px 5px rgba(95, 91, 175, 0.3);
+      }
+
+      /* Ligne Date + Prix */
+      .row-inputs { display: flex; gap: 10px; margin-top: 5px; }
+      .row-inputs > * { flex: 1; }
+
+      button.add { 
+        background: var(--rainy-blue); color: var(--white); cursor: pointer; border: none; 
+        padding: 12px 30px; border-radius: 15px; margin-top: 20px; font-size: 16px; 
+        font-weight: bold; width: 100%; transition: transform 0.2s; 
+        box-shadow: 0 5px 15px rgba(86, 141, 228, 0.3); 
+      }
       button.add:hover { background: var(--misty-violet); transform: translateY(-2px); }
-      #sorties { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; }
-      .carte { background: var(--white); width: 260px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 5px solid var(--rainy-blue); }
+
+      /* --- LISTE DES CARTES --- */
+      #sorties { 
+        display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; 
+        padding-bottom: 50px; max-width: 1200px; margin: 0 auto;
+      }
+      
+      .carte { 
+        background: var(--white); width: 280px; padding: 20px; 
+        border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); 
+        text-align: left; transition: transform 0.2s; position: relative; 
+        border-top: 6px solid var(--rainy-blue); 
+        display: flex; flex-direction: column; justify-content: space-between;
+      }
       .carte:hover { transform: translateY(-5px); }
-      .carte h3 { margin: 0 0 10px 0; color: var(--misty-violet); font-size: 1.3em; }
-      .carte p { color: #666; line-height: 1.5; font-size: 0.95em; margin: 5px 0; }
-      .badge-cat { font-size: 0.8em; background: var(--cloudy-lilac); padding: 3px 8px; border-radius: 10px; color: var(--misty-violet); font-weight: bold; }
-      .btn-delete { background: #ffcdd2; color: #c62828; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 12px; font-weight: bold; float: right; transition: 0.2s; }
-      .btn-delete:hover { background: #ef9a9a; }
+      
+      .carte h3 { margin: 0 0 5px 0; color: var(--misty-violet); font-size: 1.2em; }
+      .carte p { color: #666; font-size: 0.9em; margin: 5px 0; display: flex; align-items: center; gap: 5px; }
+      
+      .tags-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+      .badge-cat { font-size: 0.75em; background: var(--cloudy-lilac); padding: 3px 8px; border-radius: 10px; color: var(--white); font-weight: bold; background: var(--misty-violet); }
+      
+      .infos-footer { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--cloudy-lilac); display: flex; justify-content: space-between; align-items: center;}
+      .date-display { color: var(--rainy-blue); font-weight: bold; font-size: 0.9em; }
+
+      .btn-delete { 
+        background: none; border: none; cursor: pointer; font-size: 1.1em; 
+        color: #e57373; transition: 0.2s; padding: 5px; border-radius: 50%;
+      }
+      .btn-delete:hover { background: #ffebee; color: #c62828; }
+
     </style>
   </head>
   <body>
+
     <div class="top-nav">
         <a href="musees.html" class="btn-nav">🏛️ Musées</a>
         <a href="sorties.html" class="btn-nav">🎭 Spectacles</a>
-        <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒</button>
+        <button class="btn-logout" onclick="deconnexion()">🔒 Déconnexion</button>
     </div>
 
-    <h1>🥰 Idées de sorties 🥰</h1>
+    <h1>🥰 Idées de sorties</h1>
     <div class="phrase">Pour nos moments à nous...</div>
 
     <div class="input-zone">
-      <input type="text" id="nouvelleIdee" placeholder="✨ Propose une idée..." />
+      <input type="text" id="nouvelleIdee" placeholder="✨ Titre (ex: Resto Italien...)" />
+      
       <div id="categories">
-        <label><input type="checkbox" value="Resto"> 🍜 Resto</label>
-        <label><input type="checkbox" value="Ciné"> 🍿 Ciné</label>
-        <label><input type="checkbox" value="Balade"> 🌳 Balade</label>
-        <label><input type="checkbox" value="Maison"> 🏠 Maison</label>
-        <label><input type="checkbox" value="Activité"> 🎨 Activité</label>
-        <label><input type="checkbox" value="Surprise"> 🎁 Surprise</label>
+        <input type="checkbox" id="cat1" value="Resto"><label for="cat1">🍜 Resto</label>
+        <input type="checkbox" id="cat2" value="Ciné"><label for="cat2">🍿 Ciné</label>
+        <input type="checkbox" id="cat3" value="Balade"><label for="cat3">🌳 Balade</label>
+        <input type="checkbox" id="cat4" value="Maison"><label for="cat4">🏠 Maison</label>
+        <input type="checkbox" id="cat5" value="Activité"><label for="cat5">🎨 Activité</label>
+        <input type="checkbox" id="cat6" value="Surprise"><label for="cat6">🎁 Surprise</label>
       </div>
-      <div style="display:flex; gap:10px;">
+
+      <div class="row-inputs">
           <input type="date" id="dateIdee" title="Date prévue" />
           <input type="number" id="prixIdee" placeholder="Prix (€)" />
       </div>
-      <input type="text" id="lieuIdee" placeholder="📍 Lieu (ex: Paris...)" />
+      
+      <input type="text" id="lieuIdee" placeholder="📍 Lieu (ex: Paris, Canapé...)" />
+      
       <button class="add" onclick="ajouterIdee()">Ajouter à la liste</button>
     </div>
 
-    <div id="sorties">Chargement...</div>
+    <div id="sorties">
+        <p style="color: var(--misty-violet); font-style: italic;">Chargement des idées...</p>
+    </div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", authDomain: "date-d927b.firebaseapp.com", projectId: "date-d927b", storageBucket: "date-d927b.appspot.com", messagingSenderId: "353304192798", appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", measurementId: "G-T4N8PMNC3G" };
-        if (typeof firebase !== 'undefined' && !firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        let db; try { db = firebase.firestore(); } catch (e) { console.error("Erreur:", e); }
-        function chargerIdees() { const container = document.getElementById('sorties'); db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => { container.innerHTML = ""; if(snapshot.empty) { container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic;'>Pas encore d'idées... Lance-toi ! ✨</p>"; return; } snapshot.forEach((doc) => { const data = doc.data(); const id = doc.id; const nom = data.texte || data.nom || "Idée mystère"; const cats = data.categories ? data.categories.join(" ") : ""; const prix = data.prix ? `${data.prix}€` : ""; const date = data.date ? `📅 ${data.date}` : ""; const lieu = data.lieu ? `📍 ${data.lieu}` : ""; const carte = document.createElement("div"); carte.className = "carte"; carte.innerHTML = `<h3>${nom}</h3><p>${cats ? `<span class="badge-cat">${cats}</span>` : ""}</p><p>${lieu} ${prix ? `| 💸 ${prix}` : ""}</p><p style="color:var(--rainy-blue); font-weight:bold;">${date}</p><button class="btn-delete" onclick="supprimerIdee('${id}')">Supprimer</button>`; container.appendChild(carte); }); }); }
-        function ajouterIdee() { const texte = document.getElementById("nouvelleIdee").value; const date = document.getElementById("dateIdee").value; const prix = document.getElementById("prixIdee").value; const lieu = document.getElementById("lieuIdee").value; const checkboxes = document.querySelectorAll('#categories input:checked'); let categories = []; checkboxes.forEach((checkbox) => { categories.push(checkbox.value); }); if (texte === "") { alert("Écris quelque chose !"); return; } db.collection("dates").add({ texte: texte, categories: categories, date: date, prix: prix, lieu: lieu, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => { document.getElementById("nouvelleIdee").value = ""; document.getElementById("dateIdee").value = ""; document.getElementById("prixIdee").value = ""; document.getElementById("lieuIdee").value = ""; checkboxes.forEach(cb => cb.checked = false); }).catch((error) => { console.error("Erreur : ", error); }); }
-        function supprimerIdee(id) { if(confirm("Supprimer cette idée ?")) { db.collection("dates").doc(id).delete(); } }
-        document.addEventListener('DOMContentLoaded', () => { chargerIdees(); });
-    </script>
-  </body>
-</html>
+        // --- 1. CONFIGURATION FIREBASE ---
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
+            authDomain: "date-d927b.firebaseapp.com", 
+            projectId: "date-d927b", 
+            storageBucket: "date-d927b.appspot.com", 
+            messagingSenderId: "353304192798", 
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", 
+            measurementId: "G-T4N8PMNC3G" 
+        };
+        
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) { 
+            firebase.initializeApp(firebaseConfig); 
+        }
+        let db; 
+        try { db = firebase.firestore(); } catch (e) { console.error("Erreur Firebase:", e); }
+
+        // --- 2. FONCTIONS ---
+
+        function chargerIdees() { 
+            const container = document.getElementById('sorties'); 
+            
+            // On écoute la collection 'dates' en temps réel
+            db.collection("dates").orderBy("timestamp", "desc").onSnapshot((snapshot) => { 
+                container.innerHTML = ""; 
+                
+                if(snapshot.empty) { 
+                    container.innerHTML = "<p style='color:var(--misty-violet); font-style:italic; margin-top:20px;'>Pas encore d'idées... Lance-toi ! ✨</p>"; 
+                    return; 
+                } 
+                
+                snapshot.forEach((doc) => { 
+                    const data = doc.data(); 
+                    const id = doc.id;
