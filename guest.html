@@ -22,7 +22,7 @@
         <h1>🖋️ Ton avis compte !</h1>
         <p>Choisis une sortie qu'on a faite ensemble :</p>
         
-        <div id="loading">Chargement des souvenirs...</div>
+        <div id="loading">Recherche des souvenirs...</div>
         
         <div id="formulaire" style="display:none;">
             <label style="font-weight:bold; display:block; text-align:left;">1. Quelle sortie ?</label>
@@ -39,7 +39,7 @@
             <button onclick="envoyerAvis()">💌 Envoyer l'avis</button>
         </div>
         
-        <button class="back-btn" onclick="window.location.href='login.html'">Retour</button>
+        <button class="back-btn" onclick="window.location.href='login.html'">Retour connexion</button>
     </div>
 
     <script>
@@ -47,7 +47,6 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ON CHERCHE PARTOUT (Musées ET Spectacles)
         Promise.all([
             db.collection('musees').get(),
             db.collection('sorties').get()
@@ -57,15 +56,24 @@
             const select = document.getElementById('choixExpo');
             let count = 0;
 
-            // 1. LES MUSEES
+            // 1. LES MUSEES (Avec le correctif "Traducteur" !)
             museesSnapshot.forEach(doc => {
-                const data = doc.data();
+                let data = doc.data();
+                
+                // --- LE CORRECTIF EST ICI ---
+                // Si c'est un "vieux" format de donnée, on le transforme en nouveau format pour le lire
+                if (!data.expositions || !Array.isArray(data.expositions)) {
+                    data.expositions = [{
+                        nom: data.expo || "Expo Principale",
+                        estVisite: data.estVisite || false // On récupère l'info ici
+                    }];
+                }
+                // ----------------------------
+
                 if(data.expositions) {
                     data.expositions.forEach((expo, index) => {
-                        // On vérifie si c'est visité (true ou "true")
                         if(expo.estVisite) {
                             let option = document.createElement('option');
-                            // On stocke l'info : C'est un MUSEE
                             option.value = JSON.stringify({ 
                                 type: 'musee',
                                 id: doc.id, 
@@ -80,13 +88,11 @@
                 }
             });
 
-            // 2. LES SPECTACLES (SORTIES)
+            // 2. LES SPECTACLES
             sortiesSnapshot.forEach(doc => {
                 const data = doc.data();
-                // Si la sortie est marquée comme FAITE
                 if(data.estFait) {
                     let option = document.createElement('option');
-                    // On stocke l'info : C'est une SORTIE
                     option.value = JSON.stringify({ 
                         type: 'sortie',
                         id: doc.id, 
@@ -102,7 +108,7 @@
             if(count > 0) {
                 document.getElementById('formulaire').style.display = 'block';
             } else {
-                document.getElementById('loading').innerHTML = "Aucune visite terminée trouvée... <br>😢<br><small>(L'admin doit cocher 'C'est fait' sur une carte)</small>";
+                document.getElementById('loading').innerHTML = "Aucune visite terminée trouvée... 😢<br><small>(Vérifie que tu as bien coché ✅ sur la carte)</small>";
                 document.getElementById('loading').style.display = 'block';
             }
         });
@@ -112,23 +118,23 @@
             const nom = document.getElementById('nomInvite').value;
             const avis = document.getElementById('avisInvite').value;
 
-            if(!selection || !nom || !avis) { alert("Remplis tout s'il te plaît !"); return; }
+            if(!selection || !nom || !avis) { alert("Il faut tout remplir !"); return; }
 
             const dataSelect = JSON.parse(selection);
 
-            // On envoie dans la boite de réception
+            // Envoi vers la boîte de réception Admin
             db.collection('propositions').add({
                 typeCible: 'avis_invite', 
-                sourceType: dataSelect.type, // 'musee' ou 'sortie'
-                docId: dataSelect.id,        // ID du document parent
-                expoIndex: dataSelect.expoIndex, // Index si c'est un musée (sinon undefined)
+                sourceType: dataSelect.type, 
+                docId: dataSelect.id,       
+                expoIndex: dataSelect.expoIndex, 
                 titreContext: dataSelect.titre, 
                 auteur: nom,
                 commentaire: avis,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert("Merci " + nom + " ! Ton avis a été envoyé. ✨");
-                window.location.href = "login.html"; // Retour accueil
+                alert("Merci " + nom + " ! Ton mot doux a été envoyé. ✨");
+                window.location.href = "login.html"; 
             });
         }
     </script>
