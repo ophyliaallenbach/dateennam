@@ -10,11 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-        /* --- THÈME "PLUIE DE JUIN" --- */
         :root { 
             --misty-violet: #5f5baf; --rainy-blue: #568de4; --deep-iris: #9a64c5; 
             --cloudy-lilac: #c4c5e8; --white: #ffffff; --bg-soft: #f4f6ff;
-            /* Couleurs Plateformes */
             --netflix: #e50914; --disney: #113ccf; --canal: #000000; --hbo: #3C005A;
             --paramount: #0064FF; --crunchyroll: #F47521; --appletv: #444444; --autre: #999999;
         }
@@ -33,7 +31,6 @@
         .btn-nav { background: rgba(255,255,255,0.8); padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; color: var(--misty-violet); transition: 0.3s; }
         .btn-nav:hover { background: white; transform: translateY(-2px); }
 
-        /* FORMULAIRE */
         .add-box { 
             background: white; max-width: 500px; margin: 0 auto 40px auto; 
             padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(95, 91, 175, 0.2); 
@@ -48,7 +45,6 @@
         .row { display: flex; gap: 10px; }
         .hidden { display: none; }
 
-        /* Inputs dynamiques saisons */
         #dynamicSeasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
         .mini-input-saison { width: 80px !important; font-size: 0.8em; text-align: center; }
 
@@ -58,18 +54,16 @@
             cursor: pointer; margin-top: 15px; transition: 0.2s;
         }
         button.add-btn:hover { background: var(--misty-violet); }
-        button.add-btn.mode-edit { background: var(--deep-iris); } /* Couleur différente en mode édition */
+        button.add-btn.mode-edit { background: var(--deep-iris); }
 
-        /* Bouton Annuler (visible seulement en édition) */
+      
         #cancelBtn {
             background: #ccc; color: #555; border:none; padding: 10px; width: 100%; 
             border-radius: 10px; cursor: pointer; margin-top: 5px; display: none; font-weight: bold;
         }
 
-        /* GRID */
         #watchlistGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
 
-        /* CARTE */
         .card { 
             background: white; width: 320px; border-radius: 20px; padding: 20px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.05); text-align: left; position: relative;
@@ -91,7 +85,6 @@
         .plat-Apple { background: var(--appletv); }
         .plat-Autre { background: var(--autre); }
 
-        /* CHECKBOXES */
         .check-zone { 
             background: var(--bg-soft); padding: 10px; border-radius: 12px; margin: 10px 0; 
             display: flex; justify-content: space-around; align-items: center; border: 1px dashed var(--cloudy-lilac);
@@ -99,7 +92,6 @@
         .check-col { cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.85em; font-weight: bold; color: var(--deep-iris); user-select: none; }
         input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--rainy-blue); cursor: pointer; margin-bottom: 5px; }
 
-        /* SERIE COMPTEUR */
         .series-counter { 
             display: flex; justify-content: space-between; align-items: center; 
             background: #eef2ff; padding: 8px; border-radius: 10px; margin-bottom: 10px;
@@ -109,14 +101,12 @@
             width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold;
         }
 
-        /* NOTATION */
         .rating-zone { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
         .rating-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; color: #666; margin-bottom: 5px; }
         .stars { cursor: pointer; letter-spacing: 2px; }
         .star-filled { color: #ffc107; }
         .star-empty { color: #ddd; }
 
-        /* ACTIONS (Edit / Delete) */
         .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
         .action-btn { background: none; border: none; font-size: 1.1em; cursor: pointer; opacity: 0.4; transition: 0.2s; }
         .action-btn:hover { opacity: 1; transform: scale(1.1); }
@@ -174,7 +164,7 @@
     <div id="watchlistGrid">Chargement...</div>
 
     <script>
-        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
+        // SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
         if (!localStorage.getItem("estConnecte")) {
             window.location.href = "login.html";
         }
@@ -193,7 +183,6 @@
 
         let globalWatchlistData = {}; // Pour stocker les données et faciliter l'édition
 
-        // --- GESTION DU FORMULAIRE ---
         function toggleSeriesFields() {
             const type = document.getElementById('type').value;
             const fields = document.getElementById('seriesFields');
@@ -224,17 +213,14 @@
             }
         }
 
-        // --- PREPARER L'EDITION ---
         function preparerEdition(id) {
             const data = globalWatchlistData[id];
             if(!data) return;
 
-            // Remplir les champs de base
             document.getElementById('editId').value = id;
             document.getElementById('titre').value = data.titre;
             document.getElementById('type').value = data.type;
             
-            // Gestion plateforme
             const selectPlat = document.getElementById('plateforme');
             let isStandard = false;
             for(let i=0; i<selectPlat.options.length; i++) {
@@ -249,7 +235,6 @@
                 document.getElementById('autrePlateforme').value = data.platform;
             }
 
-            // Gestion Série
             if(data.type === 'Série') {
                 document.getElementById('nbSaisons').value = data.totalSaisons;
                 genererChampsSaisons(data.episodesParSaison || []);
@@ -258,7 +243,7 @@
                 document.getElementById('dynamicSeasons').innerHTML = "";
             }
 
-            // UI Updates
+
             toggleSeriesFields();
             toggleAutreField();
             
@@ -266,8 +251,6 @@
             document.getElementById('btnSubmit').textContent = "Modifier la carte";
             document.getElementById('btnSubmit').classList.add('mode-edit');
             document.getElementById('cancelBtn').style.display = "block";
-
-            // Scroll vers le haut pour voir le formulaire
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -289,7 +272,6 @@
             document.getElementById('cancelBtn').style.display = "none";
         }
 
-        // --- AJOUTER OU MODIFIER ---
         function ajouterWatchlist() {
             const idEdit = document.getElementById('editId').value;
             const titre = document.getElementById('titre').value;
@@ -322,7 +304,6 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            // Initialisation des champs seulement si création
             if (!idEdit) {
                 dataToSave.currentSaison = 1;
                 dataToSave.currentEpisode = 1;
@@ -332,31 +313,28 @@
             }
 
             if (idEdit) {
-                // UPDATE
                 db.collection('watchlist').doc(idEdit).update(dataToSave)
                 .then(() => { alert("Modifié !"); resetForm(); })
                 .catch(e => alert("Erreur : " + e.message));
             } else {
-                // CREATE
                 db.collection('watchlist').add(dataToSave)
                 .then(() => { alert("Ajouté !"); resetForm(); })
                 .catch(e => alert("Erreur : " + e.message));
             }
         }
 
-        // --- AFFICHAGE ---
         function chargerWatchlist() {
             const grid = document.getElementById('watchlistGrid');
             db.collection('watchlist').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
                 grid.innerHTML = "";
-                globalWatchlistData = {}; // Reset local data store
+                globalWatchlistData = {};
 
                 if(snapshot.empty) { grid.innerHTML = "<p>Rien à regarder...</p>"; return; }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
-                    globalWatchlistData[id] = data; // Stockage pour édition
+                    globalWatchlistData[id] = data;
 
                     const sNum = data.currentSaison || 1;
                     const epNum = data.currentEpisode || 1;
@@ -380,7 +358,7 @@
                         if(data.episodesParSaison && Array.isArray(data.episodesParSaison)) {
                             maxEp = data.episodesParSaison[sNum - 1] || 99; 
                         } else {
-                            maxEp = data.totalEpisodes || 99; // Fallback vieux format
+                            maxEp = data.totalEpisodes || 99;
                         }
 
                         const seriesData = JSON.stringify({
@@ -446,7 +424,6 @@
             });
         }
 
-        // --- NAVIGATION ET LOGIQUE ---
         function navSeries(id, delta, data) {
             let newS = data.s;
             let newE = data.e + delta;
