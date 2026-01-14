@@ -5,7 +5,6 @@
     <title>Connexion</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* FOND ANIME */
         body {
             margin: 0;
             padding: 0;
@@ -15,7 +14,6 @@
             align-items: center;
             height: 100vh;
             color: #333;
-            /* Le fameux dégradé qui bouge */
             background: linear-gradient(-45deg, #c4c5e8, #9a64c5, #568de4, #a9cbe0);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -61,7 +59,7 @@
             box-shadow: 0 0 10px rgba(154, 100, 197, 0.2);
         }
         
-        /* BOUTON ADMIN */
+        /* BOUTON */
         .btn-admin {
             width: 100%;
             padding: 14px;
@@ -78,7 +76,7 @@
         }
         .btn-admin:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(95, 91, 175, 0.4); }
         
-        /* ZONE LIENS PUBLICS */
+        /*ZONE LIENS PUBLICS*/
         .public-links {
             border-top: 1px solid #eee;
             padding-top: 20px;
@@ -104,7 +102,7 @@
 </head>
 <body>
     <div class="login-box">
-        <h1>🔐 Accès Privé</h1>
+        <h1>Accès Privé</h1>
         <p>Espace réservé aux administrateurs</p>
         
         <input type="password" id="passcode" placeholder="Code secret..." onkeypress="checkEnter(event)">
@@ -125,14 +123,16 @@
             const err = document.getElementById("error");
             
             if (code === "060317") { 
-                // Code pour les DATES / IDEES
                 localStorage.setItem("estConnecte", "true");
                 window.location.href = "index.html"; 
             } 
             else if (code === "171103") { 
-                // Code pour les MUSEES
                 localStorage.setItem("estConnecte", "true");
                 window.location.href = "musees.html"; 
+            } 
+            else if (code === "260404") { 
+                localStorage.setItem("estConnecte", "true");
+                window.location.href = "watchlist.html"; 
             } 
             else {
                 err.style.display = "block";
