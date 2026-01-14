@@ -10,13 +10,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <style>
-        /* --- PALETTE "ARC-EN-CIEL DOUX" (Ton design chaleureux) --- */
+
         :root {
-            --lilac: #9f99d1;   /* Titres */
-            --blue: #86bada;    /* Boutons, Musées */
-            --pink: #dbaad7;    /* Bordures, Sorties */
-            --peach: #f6beb0;   /* Actions, Alertes */
-            --cream: #ffe3b3;   /* Fond */
+            --lilac: #9f99d1;   
+            --blue: #86bada;   
+            --pink: #dbaad7;   
+            --peach: #f6beb0;   
+            --cream: #ffe3b3;   
             --text-dark: #4a4a4a;
             --white: #ffffff;
         }
@@ -39,7 +39,6 @@
             font-size: 2.2em;
         }
 
-        /* --- FORMULAIRE --- */
         .proposition-box { 
             background: var(--white); 
             border: 3px dashed var(--pink); 
@@ -71,7 +70,6 @@
         }
         button.btn-propose:hover { background: var(--lilac); transform: translateY(-2px); }
 
-        /* --- LISTES --- */
         .section-title { 
             border-bottom: 3px solid var(--cream); padding-bottom: 10px; 
             margin-top: 50px; color: var(--lilac); font-size: 1.5em; 
@@ -90,7 +88,6 @@
         
         .row-infos { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; margin-top: 5px; }
 
-        /* TAGS */
         .tag { font-size: 0.7em; padding: 4px 8px; border-radius: 20px; font-weight: bold; text-transform: uppercase; color: white; letter-spacing: 0.5px; }
         .tag-musee { background: var(--blue); }
         .tag-sortie { background: var(--pink); }
@@ -101,7 +98,6 @@
         .status-fait { color: var(--blue); background: #eef7fc; padding: 5px 10px; border-radius: 10px; font-weight: bold; font-size: 0.9em; }
         .status-todo { color: var(--peach); background: #fff2ee; padding: 5px 10px; border-radius: 10px; font-weight: bold; font-size: 0.9em; }
 
-        /* BOUTON DATE */
         .btn-date { 
             background-color: var(--peach); color: white; border: none; 
             padding: 8px 15px; border-radius: 25px; cursor: pointer; 
@@ -110,7 +106,6 @@
         }
         .btn-date:hover { background-color: var(--pink); transform: scale(1.05); }
 
-        /* NAV */
         .top-nav { position: fixed; top: 10px; right: 10px; }
         .btn-login { text-decoration: none; background: rgba(255,255,255,0.5); padding: 8px 15px; border-radius: 20px; font-size: 0.8em; color: var(--lilac); font-weight: bold; }
 
@@ -168,7 +163,6 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. ENVOYER UNE PROPOSITION
         function envoyerProposition() {
             const type = document.getElementById('propType').value;
             const titre = document.getElementById('propTitre').value;
@@ -197,7 +191,6 @@
             });
         }
 
-        // 2. PROPOSER UNE DATE
         function proposerDate(nomItem, typeCollection) {
             const qui = prompt("C'est qui ? (Ton prénom)");
             if(!qui) return;
@@ -217,7 +210,6 @@
             });
         }
 
-        // 3. CHARGEMENT UNIFIÉ (Musées + Sorties)
         async function chargerTout() {
             const divAFaire = document.getElementById('listeAFaire');
             const divFait = document.getElementById('listeFait');
@@ -225,7 +217,6 @@
 
             let items = [];
 
-            // A. Charger les Musées
             const snapMusees = await db.collection('musees').orderBy('timestamp', 'desc').get();
             snapMusees.forEach(doc => {
                 const d = doc.data();
@@ -241,7 +232,6 @@
                 });
             });
 
-            // B. Charger les Sorties
             const snapSorties = await db.collection('sorties').orderBy('timestamp', 'desc').get();
             snapSorties.forEach(doc => {
                 const d = doc.data();
@@ -263,14 +253,11 @@
                  return;
             }
 
-            // C. Afficher tout le monde
             items.forEach(item => {
-                // Déterminer le tag type
                 const tagType = item.type === 'musee' 
                     ? '<span class="tag tag-musee">🏛️ Musée</span>' 
                     : '<span class="tag tag-sortie">🎭 Sortie</span>';
 
-                // Gestion Prix
                 let prixHtml = "";
                 if(item.prix && !item.prix.includes('0') && !item.prix.toLowerCase().includes('gratuit')) {
                     prixHtml = `<span class="badge-prix">${item.prix.includes('€') ? item.prix : item.prix + '€'}</span>`;
@@ -278,13 +265,11 @@
                     prixHtml = `<span class="badge-prix" style="background:#81c784;">Gratuit</span>`;
                 }
 
-                // Gestion Tags (Musées)
                 let tagsHtml = "";
                 if(item.tags && item.tags.length > 0) {
                     tagsHtml = item.tags.map(t => `<span class="badge-gratuit">${t}</span>`).join(" ");
                 }
 
-                // Bouton Dispo (Seulement si pas fait)
                 let btnDateHtml = "";
                 if (!item.fait) {
                     const nomClean = item.nom.replace(/'/g, "\\'"); 
@@ -315,7 +300,6 @@
             });
         }
 
-        // Lancer le chargement au démarrage
         document.addEventListener('DOMContentLoaded', () => { chargerTout(); });
     </script>
 </body>
