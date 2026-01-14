@@ -9,19 +9,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        /* PALETTE "CASA CHROMATICA" */
         :root { --midnight-orchid: #312A44; --dusky-lilac: #88709E; --iris-mist: #BAB0C8; --plum-blossom: #D7C5D6; --silver-wisteria: #DAD4DF; --white: #ffffff; --drama-red: #b71c1c; }
         body { background-color: var(--silver-wisteria); color: var(--midnight-orchid); font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; background-image: linear-gradient(to top, #d4d0d8 0%, #e8e4ec 100%); min-height: 100vh; }
         
         h1 { text-align: center; color: var(--midnight-orchid); margin-bottom: 30px; margin-top: 100px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); border-bottom: 3px solid var(--dusky-lilac); display: inline-block; padding-bottom: 10px; position: relative; left: 50%; transform: translateX(-50%); }
-        
-        /* MENU */
+
         .top-nav { position: fixed; top: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 8px; z-index: 1000; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 15px; backdrop-filter: blur(5px); justify-content: flex-end; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-nav, .btn-logout { border: none; padding: 8px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(49, 42, 68, 0.1); transition: 0.2s; text-decoration: none; font-size: 0.85em; display: flex; align-items: center; justify-content: center; }
         .btn-nav { background-color: var(--midnight-orchid); color: white; }
         .btn-logout { background-color: var(--plum-blossom); color: var(--midnight-orchid); }
 
-        /* LAYOUT & RESPONSIVE */
         .top-section { display: flex; flex-wrap: wrap; gap: 25px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; min-width: 300px; background: var(--white); padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(49, 42, 68, 0.1); position: sticky; top: 80px; border: 1px solid var(--plum-blossom); z-index: 10; }
         .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 400px; background: rgba(255,255,255,0.5); border-radius: 25px; padding: 15px; border: 3px dotted var(--iris-mist); }
@@ -36,18 +33,15 @@
             .card-tinder { max-width: 90%; }
         }
 
-        /* Elements internes */
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         .card-tinder { background: var(--white); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(49, 42, 68, 0.15); border-top: 5px solid var(--dusky-lilac); text-align: center; animation: fadeIn 0.5s ease; position: relative; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .arrow-btn { background: var(--iris-mist); color: white; border: none; min-width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         
-        /* HISTORIQUE */
         .history-section { background: var(--white); padding: 20px; border-radius: 25px; margin-top: 40px; }
         .history-section h2 { color: var(--midnight-orchid); border-bottom: 2px solid var(--silver-wisteria); padding-bottom: 10px; text-align: left; }
         .visite-row { border-bottom: 1px solid var(--silver-wisteria); padding: 15px; background: #fdfdfd; border-radius: 10px; margin-bottom: 10px; border-left: 3px solid var(--iris-mist); }
-        
-        /* STYLE AVIS INVITE */
+
         .guest-review { background-color: #f3e5f5; border-left: 4px solid #8e24aa; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 0.9em; color: #4a148c; }
         
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 2px solid var(--iris-mist); border-radius: 10px; box-sizing: border-box; font-family: inherit; background: #faf9fb; color: var(--midnight-orchid); font-weight: 500; }
@@ -162,7 +156,7 @@
     </div>
 
     <script>
-        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
+        // SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
         if (!localStorage.getItem("estConnecte")) {
             window.location.href = "login.html";
         }
