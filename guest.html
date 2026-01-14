@@ -57,37 +57,37 @@
             const select = document.getElementById('choixExpo');
             let count = 0;
 
-            // 1. LES MUSEES (Logique blindée grâce à ta capture d'écran)
+            //LES MUSEES
             museesSnapshot.forEach(doc => {
                 const data = doc.data();
                 
-                // CAS A : Format "Liste d'expos" (Le nouveau standard)
+                // CAS A : Format Liste d'expos
                 if(data.expositions && Array.isArray(data.expositions)) {
                     data.expositions.forEach((expo, index) => {
                         if(expo.estVisite) {
                             ajouterOption(select, {
                                 type: 'musee',
                                 id: doc.id,
-                                expoIndex: index, // On garde l'index pour savoir laquelle c'est
+                                expoIndex: index,
                                 titre: data.nom + " (" + expo.nom + ")"
                             }, `🏛️ ${data.nom} - ${expo.nom}`);
                             count++;
                         }
                     });
                 } 
-                // CAS B : Format "Plat" (Celui de ta capture d'écran - Monnaie de Paris)
+                // CAS B : Format Plat
                 else if (data.estVisite === true) {
                     ajouterOption(select, {
                         type: 'musee',
                         id: doc.id,
-                        expoIndex: 0, // Par défaut c'est la première
+                        expoIndex: 0,
                         titre: data.nom + " (" + (data.expo || "Expo") + ")"
                     }, `🏛️ ${data.nom} - ${data.expo || "Visite"}`);
                     count++;
                 }
             });
 
-            // 2. LES SPECTACLES
+            //LES SPECTACLES
             sortiesSnapshot.forEach(doc => {
                 const data = doc.data();
                 if(data.estFait) {
@@ -125,7 +125,7 @@
 
             const dataSelect = JSON.parse(selection);
 
-            // Envoi vers la boîte de réception Admin
+            // Envoi vers la boîte de réception Admin ~ musees.html
             db.collection('propositions').add({
                 typeCible: 'avis_invite', 
                 sourceType: dataSelect.type, 
