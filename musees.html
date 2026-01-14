@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        /* PALETTE "BLUE AGATE" */
         :root { --abyss: #092C56; --lapis: #225688; --slate: #668CA9; --glacier: #A9CBE0; --quartz: #F0F5F4; --white: #ffffff; --danger-soft: #e57373; --urgent: #f0ad4e; --guest: #00838f; }
         body { background-color: var(--quartz); color: var(--abyss); font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; background-image: linear-gradient(to bottom right, var(--quartz), #e1eef5); min-height: 100vh; }
         
@@ -22,12 +21,10 @@
         .btn-sort { background-color: var(--urgent); color: white; }
         .btn-logout { background-color: var(--slate); color: white; }
 
-        /* FILTRES */
         .filter-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
         .filter-btn { background: var(--white); border: 2px solid var(--slate); color: var(--slate); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .filter-btn:hover, .filter-btn.active { background: var(--lapis); color: white; border-color: var(--lapis); transform: scale(1.05); }
 
-        /* LAYOUT & RESPONSIVE */
         .top-section { display: flex; flex-wrap: wrap; gap: 25px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
         .form-container { flex: 1; min-width: 300px; background: var(--white); padding: 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(9, 44, 86, 0.1); position: sticky; top: 80px; border: 1px solid var(--glacier); z-index: 10; }
         .carousel-container { flex: 1; min-width: 300px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 400px; background: rgba(255,255,255,0.5); border-radius: 25px; padding: 15px; border: 3px dotted var(--slate); }
@@ -40,22 +37,18 @@
             .top-nav { top: 5px; right: 5px; left: 5px; justify-content: center; }
         }
 
-        /* Elements internes */
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0 15px 0; border: 2px solid var(--slate); border-radius: 10px; box-sizing: border-box; font-family: inherit; background: var(--quartz); color: var(--abyss); font-weight: 500; }
         .gratuites-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; }
         .gratuites-container label { background: var(--quartz); color: var(--abyss); padding: 6px 10px; border-radius: 20px; font-size: 0.85em; display: flex; align-items: center; border: 2px solid var(--slate); font-weight: bold; }
         .badge-gratuit { display: inline-block; background: var(--lapis); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em; margin: 2px; }
         button.btn-save { width: 100%; padding: 14px; background-color: var(--lapis); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
         
-        /* HISTORIQUE & AVIS */
         .history-section { background: var(--white); padding: 20px; border-radius: 25px; margin-top: 40px; border: 2px solid var(--glacier); }
         .visite-row { border-bottom: 1px solid var(--quartz); padding: 15px; background: #f8faff; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--lapis); display: flex; justify-content: space-between; gap: 10px; }
         
-        /* STYLE DU COMMENTAIRE INVITE */
         .guest-review { background-color: #e0f2f1; border-left: 4px solid #00897b; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 0.9em; color: #004d40; position: relative; }
         .guest-review strong { color: #00695c; }
-        
-        /* INBOX */
+
         #inbox-container { display:none; margin: 20px 0; }
         .inbox-alert { background: var(--white); padding: 15px; border-radius: 15px; border: 2px dashed var(--slate); }
         .prop-item { background: var(--quartz); padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 4px solid var(--lapis); display:flex; justify-content:space-between; align-items:center;}
@@ -63,7 +56,6 @@
         .btn-accept { background: var(--lapis); color: white; border:none; padding:5px 10px; border-radius:6px; margin-right:5px; cursor:pointer;}
         .btn-reject { background: var(--slate); color: white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer;}
 
-        /* CARTES */
         #zoneCarteUnique { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
         .card-tinder { background: var(--white); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; box-shadow: 0 15px 30px rgba(9, 44, 86, 0.15); border-top: 5px solid var(--lapis); text-align: center; animation: fadeIn 0.5s ease; position: relative; }
         .expo-item { background: var(--quartz); border-radius: 8px; padding: 10px; margin-bottom: 8px; border-left: 4px solid var(--lapis); text-align: left;}
@@ -143,7 +135,7 @@
     </div>
 
     <script>
-        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
+        // SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
         if (!localStorage.getItem("estConnecte")) {
             window.location.href = "login.html";
         }
