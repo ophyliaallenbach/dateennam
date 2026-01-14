@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Idées de sorties ✨</title>
+    <title>Idées de sorties</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥰</text></svg>">
     
@@ -70,8 +70,7 @@
       button.add:hover { background: var(--misty-violet); transform: translateY(-2px); }
 
       /* --- LISTE DES CARTES --- */
-      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
-      
+      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; } 
       .carte { background: var(--white); width: 280px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 6px solid var(--rainy-blue); display: flex; flex-direction: column; justify-content: space-between; }
       .carte:hover { transform: translateY(-5px); }
       
@@ -97,7 +96,7 @@
         <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒 Déco</button>
     </div>
 
-    <h1>🥰 Idées de sorties</h1>
+    <h1>Idées de sorties</h1>
     <div class="phrase">Pour nos moments à nous...</div>
 
     <div class="input-zone">
@@ -127,12 +126,12 @@
     </div>
 
     <script>
-        // 🛑 1. SÉCURITÉ : Vérifie si connecté, sinon renvoie au login
+        //SÉCURITÉ : Vérifie si connecté, sinon renvoie au login
         if (!localStorage.getItem("estConnecte")) {
             window.location.href = "login.html";
         }
 
-        // --- 2. CONFIGURATION FIREBASE ---
+        //CONFIGURATION FIREBASE
         const firebaseConfig = { 
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
             authDomain: "date-d927b.firebaseapp.com", 
@@ -149,12 +148,12 @@
         let db; 
         try { db = firebase.firestore(); } catch (e) { console.error("Erreur Firebase:", e); }
 
-        // --- 3. FONCTIONS ---
+        // FONCTIONS
 
         function chargerIdees() { 
             const container = document.getElementById('sorties'); 
             
-            // On récupère la collection 'dates'
+            //Collection 'dates'
             db.collection("dates").onSnapshot((snapshot) => { 
                 container.innerHTML = ""; 
                 
@@ -168,7 +167,7 @@
                     items.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Tri : Les plus récents en haut (ceux sans date à la fin)
+                // Tri : Les plus récents en haut
                 items.sort((a, b) => {
                     let timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
                     let timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
@@ -231,7 +230,7 @@
             
             if (texte === "") { alert("Il faut au moins un titre !"); return; } 
             
-            // Note: On utilise bien la collection 'dates' pour garder tes données
+            // Note: On utilise bien la collection 'dates' pour garder les données
             db.collection("dates").add({ 
                 texte: texte,
                 nom: texte,
