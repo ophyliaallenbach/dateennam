@@ -19,6 +19,7 @@
         --cloudy-lilac: #c4c5e8; 
         --white: #ffffff; 
         --soft-bg: #fcfaff;
+        --success-green: #48bb78; /* Nouvelle couleur pour "Prévu" */
       }
       
       body { 
@@ -58,6 +59,14 @@
       input[type="text"], input[type="number"], input[type="date"] { padding: 12px 15px; border-radius: 12px; margin-top: 10px; border: 2px solid var(--cloudy-lilac); width: 100%; box-sizing: border-box; font-family: inherit; color: var(--misty-violet); background: var(--soft-bg); transition: 0.2s; }
       input:focus { outline: none; border-color: var(--rainy-blue); background: #fff; }
 
+      .prevu-toggle {
+          display: flex; align-items: center; justify-content: center; gap: 10px;
+          margin: 15px 0 5px 0; background: #e6fffa; padding: 10px; border-radius: 12px;
+          border: 1px dashed var(--success-green);
+      }
+      .prevu-toggle input { width: auto; margin: 0; transform: scale(1.3); accent-color: var(--success-green); cursor: pointer; }
+      .prevu-toggle label { font-weight: bold; color: #2c7a7b; cursor: pointer; user-select: none; }
+
       #categories { margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
       #categories input[type="checkbox"] { display: none; }
       #categories label { font-size: 0.85em; cursor: pointer; background: var(--soft-bg); padding: 8px 12px; border-radius: 20px; color: var(--misty-violet); transition: 0.2s; border: 1px solid var(--cloudy-lilac); user-select: none; }
@@ -70,15 +79,21 @@
       button.add:hover { background: var(--misty-violet); transform: translateY(-2px); }
 
       /* --- LISTE DES CARTES --- */
-      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; } 
+      #sorties { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; }
+      
       .carte { background: var(--white); width: 280px; padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(95, 91, 175, 0.1); text-align: left; transition: transform 0.2s; position: relative; border-top: 6px solid var(--rainy-blue); display: flex; flex-direction: column; justify-content: space-between; }
       .carte:hover { transform: translateY(-5px); }
       
+      /* Style spécifique pour les sorties PRÉVUES */
+      .carte.planned { border-top: 6px solid var(--success-green); background: #f0fff4; }
+      .carte.planned h3 { color: #2f855a; }
+
       .carte h3 { margin: 0 0 5px 0; color: var(--misty-violet); font-size: 1.2em; }
       .carte p { color: #666; font-size: 0.9em; margin: 5px 0; display: flex; align-items: center; gap: 5px; }
       
       .tags-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
       .badge-cat { font-size: 0.75em; background: var(--misty-violet); padding: 3px 8px; border-radius: 10px; color: var(--white); font-weight: bold; }
+      .carte.planned .badge-cat { background: #2f855a; } /* Badges verts si prévu */
       
       .infos-footer { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--cloudy-lilac); display: flex; justify-content: space-between; align-items: center;}
       .date-display { color: var(--rainy-blue); font-weight: bold; font-size: 0.9em; }
@@ -96,7 +111,7 @@
         <button class="btn-logout" onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';">🔒 Déco</button>
     </div>
 
-    <h1>Idées de sorties</h1>
+    <h1>🥰 Idées de sorties</h1>
     <div class="phrase">Pour nos moments à nous...</div>
 
     <div class="input-zone">
@@ -109,6 +124,11 @@
         <input type="checkbox" id="cat4" value="Maison"><label for="cat4">🏠 Maison</label>
         <input type="checkbox" id="cat5" value="Activité"><label for="cat5">🎨 Activité</label>
         <input type="checkbox" id="cat6" value="Surprise"><label for="cat6">🎁 Surprise</label>
+      </div>
+
+      <div class="prevu-toggle">
+          <input type="checkbox" id="estPrevu">
+          <label for="estPrevu">C'est calé ! (Confirmé) ✅</label>
       </div>
 
       <div class="row-inputs">
@@ -126,12 +146,12 @@
     </div>
 
     <script>
-        //SÉCURITÉ : Vérifie si connecté, sinon renvoie au login
+        // 🛑 SÉCURITÉ : VÉRIFICATION DE LA CONNEXION
         if (!localStorage.getItem("estConnecte")) {
             window.location.href = "login.html";
         }
 
-        //CONFIGURATION FIREBASE
+        // --- 2. CONFIGURATION FIREBASE ---
         const firebaseConfig = { 
             apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
             authDomain: "date-d927b.firebaseapp.com", 
@@ -148,12 +168,11 @@
         let db; 
         try { db = firebase.firestore(); } catch (e) { console.error("Erreur Firebase:", e); }
 
-        // FONCTIONS
+        // --- 3. FONCTIONS ---
 
         function chargerIdees() { 
             const container = document.getElementById('sorties'); 
             
-            //Collection 'dates'
             db.collection("dates").onSnapshot((snapshot) => { 
                 container.innerHTML = ""; 
                 
@@ -167,8 +186,13 @@
                     items.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Tri : Les plus récents en haut
+                // TRI : Les "Prévus" en premier, puis par date de création
                 items.sort((a, b) => {
+                    // Si l'un est prévu et l'autre non
+                    if (a.estPrevu && !b.estPrevu) return -1;
+                    if (!a.estPrevu && b.estPrevu) return 1;
+                    
+                    // Sinon, tri standard (plus récent en haut)
                     let timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
                     let timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
                     return timeB - timeA;
@@ -181,6 +205,9 @@
                         const lieu = data.lieu ? `📍 ${data.lieu}` : "";
                         const prix = data.prix ? `💸 ${data.prix}€` : "";
                         
+                        // Classe CSS spéciale si c'est prévu
+                        const classCarte = data.estPrevu ? "carte planned" : "carte";
+                        
                         let tagsHtml = "";
                         if (data.categories && Array.isArray(data.categories)) {
                             tagsHtml = data.categories.map(c => `<span class="badge-cat">${c}</span>`).join("");
@@ -189,7 +216,11 @@
                         }
 
                         let dateHtml = "";
-                        if (data.date) {
+                        if (data.estPrevu && data.date) {
+                            // Affichage spécial "PRÉVU"
+                            dateHtml = `<span style="color:#2f855a; font-weight:800; font-size:1.1em;">✅ Prévu le ${data.date}</span>`;
+                        } else if (data.date) {
+                            // Affichage date indicative
                             const today = new Date().toISOString().split('T')[0];
                             const color = data.date < today ? '#e57373' : 'var(--rainy-blue)';
                             const icon = data.date < today ? '⚠️' : '📅';
@@ -197,7 +228,7 @@
                         }
 
                         const carte = document.createElement("div"); 
-                        carte.className = "carte"; 
+                        carte.className = classCarte; 
                         carte.innerHTML = `
                             <div>
                                 <div class="tags-container">${tagsHtml}</div>
@@ -223,6 +254,7 @@
             const date = document.getElementById("dateIdee").value; 
             const prix = document.getElementById("prixIdee").value; 
             const lieu = document.getElementById("lieuIdee").value; 
+            const estPrevu = document.getElementById("estPrevu").checked; // On récupère la case
             
             const checkboxes = document.querySelectorAll('#categories input:checked'); 
             let categories = []; 
@@ -230,7 +262,8 @@
             
             if (texte === "") { alert("Il faut au moins un titre !"); return; } 
             
-            // Note: On utilise bien la collection 'dates' pour garder les données
+            if (estPrevu && !date) { alert("Si c'est prévu, il faut mettre une date ! 📅"); return; }
+
             db.collection("dates").add({ 
                 texte: texte,
                 nom: texte,
@@ -238,12 +271,15 @@
                 date: date, 
                 prix: prix, 
                 lieu: lieu, 
+                estPrevu: estPrevu, // On sauvegarde le statut
                 timestamp: firebase.firestore.FieldValue.serverTimestamp() 
             }).then(() => { 
+                // Reset complet
                 document.getElementById("nouvelleIdee").value = ""; 
                 document.getElementById("dateIdee").value = ""; 
                 document.getElementById("prixIdee").value = ""; 
                 document.getElementById("lieuIdee").value = ""; 
+                document.getElementById("estPrevu").checked = false;
                 checkboxes.forEach(cb => cb.checked = false); 
             }).catch((error) => { 
                 console.error("Erreur : ", error); 
