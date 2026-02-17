@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Planning Admin 🛠️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        /* THÈME "SWEET MEMORIES" */
+        :root { 
+            --primary: #d53f8c; --secondary: #805ad5; --bg-soft: #fff5f7; 
+            --white: #ffffff; --text-main: #2d3748;
+            --type-visite: #e9d8fd; --type-manger: #fefcbf; --type-trajet: #edf2f7;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-soft); color: var(--text-main); margin: 0; padding: 20px; background-image: linear-gradient(to bottom right, #fff5f7 0%, #ebf4ff 100%); min-height: 100vh; }
+        .top-nav { position: fixed; top: 10px; right: 10px; display: flex; gap: 10px; z-index: 100; justify-content: center; }
+        .btn-nav { background: rgba(255,255,255,0.8); padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; color: var(--secondary); transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn-nav:hover { background: white; transform: translateY(-2px); }
+        h1 { margin-top: 50px; text-align: center; color: var(--primary); font-size: 2em; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-style: italic; color: var(--secondary); margin-bottom: 30px; }
+        #calendarContainer { max-width: 800px; margin: 0 auto; padding-bottom: 80px; }
+        
+        /* TIMELINE */
+        .day-header { background: var(--primary); color: white; padding: 10px 20px; border-radius: 15px; margin: 30px 0 15px 0; font-size: 1.2em; font-weight: bold; text-align: center; position: sticky; top: 60px; z-index: 50; }
+        .timeline-item { display: flex; gap: 15px; margin-bottom: 15px; position: relative; }
+        .time-col { min-width: 60px; text-align: right; font-weight: bold; color: var(--secondary); font-size: 0.9em; padding-top: 15px; }
+        .content-col { flex: 1; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border-left: 5px solid #ddd; position: relative; }
+        .type-visite { border-left-color: var(--secondary); background: white; }
+        .type-manger { border-left-color: #ecc94b; background: #fffff0; }
+        .type-trajet { border-left-color: #cbd5e0; background: #f7fafc; color: #718096; }
+        .item-title { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-main); }
+        .item-info { font-size: 0.85em; color: #718096; margin-bottom: 10px; display: flex; gap: 10px; }
+        .badge-prix { background: #fed7e2; color: #9b2c2c; padding: 2px 6px; border-radius: 5px; font-weight: bold; }
+        .participants-zone { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+        .avatar { background: var(--secondary); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
+        .avatar:hover { opacity: 0.8; text-decoration: line-through; }
+        .btn-join { background: none; border: 1px solid var(--secondary); color: var(--secondary); padding: 3px 10px; border-radius: 12px; font-size: 0.8em; cursor: pointer; font-weight: bold; }
+        
+        /* BOUTONS ADMIN */
+        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; opacity: 0.5; transition: 0.2s; }
+        .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+        .locked-style { opacity: 0.6; background-color: #eee; border-left-color: #aaa; }
+
+        /* FORM EDIT */
+        #editOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:none; justify-content:center; align-items:center; }
+        .edit-box { background:white; padding:20px; border-radius:15px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
+        .edit-box input, .edit-box select { width: 100%; padding: 10px; margin: 5px 0; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
+        .btn-save { width: 100%; background: var(--primary); color: white; padding: 10px; border-radius: 10px; border:none; font-weight:bold; cursor:pointer; margin-top:10px; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="btn-nav">🏠 Accueil</a>
+        <a href="watchlist.html" class="btn-nav">🍿 Watchlist</a>
+        <button onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';" class="btn-nav" style="border:none; cursor:pointer;">🔒</button>
+    </div>
+
+    <h1>🛠️ Admin Programme</h1>
+    <div class="subtitle">Modifie, verrouille, organise !</div>
+
+    <div id="calendarContainer">Chargement...</div>
+
+    <div id="editOverlay">
+        <div class="edit-box">
+            <h3 style="margin-top:0; color:var(--primary);">Modifier l'activité</h3>
+            <input type="hidden" id="editId">
+            <input type="text" id="editTitre" placeholder="Titre">
+            <input type="text" id="editPrix" placeholder="Prix">
+            <input type="text" id="editInfo" placeholder="Info (ex: RDV à 20h)">
+            <input type="time" id="editHeure">
+            <button class="btn-save" onclick="sauvegarderModif()">Enregistrer</button>
+            <button onclick="fermerEdit()" style="width:100%; background:none; border:none; color:#718096; margin-top:10px; cursor:pointer;">Annuler</button>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem("estConnecte")) { window.location.href = "login.html"; }
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
+            authDomain: "date-d927b.firebaseapp.com", 
+            projectId: "date-d927b", 
+            storageBucket: "date-d927b.appspot.com", 
+            messagingSenderId: "353304192798", 
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", 
+            measurementId: "G-T4N8PMNC3G" 
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function chargerPlanning() {
+            db.collection("planning_visite").orderBy("sortKey", "asc").onSnapshot(snapshot => {
+                const container = document.getElementById("calendarContainer");
+                container.innerHTML = "";
+                let currentDay = "";
+
+                if(snapshot.empty) { container.innerHTML = "<p>Rien...</p>"; return; }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+
+                    if (data.jour !== currentDay) {
+                        currentDay = data.jour;
+                        container.innerHTML += `<div class="day-header">${currentDay}</div>`;
+                    }
+
+                    let typeClass = "type-visite";
+                    if (data.type === "manger") typeClass = "type-manger";
+                    if (data.type === "trajet") typeClass = "type-trajet";
+                    
+                    // Si verrouillé, style grisé
+                    let lockClass = data.verrouille ? "locked-style" : "";
+                    let lockIcon = data.verrouille ? "🔒" : "🔓";
+
+                    let prixBadge = data.prix ? `<span class="badge-prix">${data.prix}</span>` : "";
+                    
+                    let partsHtml = "";
+                    if (data.participants) {
+                        partsHtml = data.participants.map(p => 
+                            `<span class="avatar" onclick="retirer('${id}', '${p}')">${p}</span>`
+                        ).join("");
+                    }
+
+                    const item = document.createElement("div");
+                    item.className = "timeline-item";
+                    item.innerHTML = `
+                        <div class="time-col">${data.heure}</div>
+                        <div class="content-col ${typeClass} ${lockClass}">
+                            <div class="admin-controls">
+                                <button class="btn-icon" onclick="preparerEdit('${id}')">✏️</button>
+                                <button class="btn-icon" onclick="toggleVerrou('${id}', ${data.verrouille})">${lockIcon}</button>
+                                <button class="btn-icon" onclick="supprimer('${id}')" style="color:#feb2b2;">🗑️</button>
+                            </div>
+
+                            <h3 class="item-title">${data.activite} ${data.verrouille ? '(Fermé)' : ''}</h3>
+                            <div class="item-info">
+                                ${prixBadge}
+                                <span>${data.info || ""}</span>
+                            </div>
+                            
+                            <div class="participants-zone">
+                                ${partsHtml}
+                                <button class="btn-join" onclick="rejoindre('${id}')">+ Moi</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            });
+        }
+
+        // --- ADMIN FONCTIONS ---
+        function preparerEdit(id) {
+            db.collection("planning_visite").doc(id).get().then(doc => {
+                const d = doc.data();
+                document.getElementById('editId').value = id;
+                document.getElementById('editTitre').value = d.activite;
+                document.getElementById('editPrix').value = d.prix || "";
+                document.getElementById('editInfo').value = d.info || "";
+                document.getElementById('editHeure').value = d.heure || "";
+                document.getElementById('editOverlay').style.display = "flex";
+            });
+        }
+
+        function sauvegarderModif() {
+            const id = document.getElementById('editId').value;
+            const titre = document.getElementById('editTitre').value;
+            const prix = document.getElementById('editPrix').value;
+            const info = document.getElementById('editInfo').value;
+            const heure = document.getElementById('editHeure').value;
+
+            db.collection("planning_visite").doc(id).update({
+                activite: titre, prix: prix, info: info, heure: heure
+            }).then(() => { fermerEdit(); });
+        }
+
+        function fermerEdit() { document.getElementById('editOverlay').style.display = "none"; }
+
+        function toggleVerrou(id, etatActuel) {
+            // Inverse l'état du verrou
+            db.collection("planning_visite").doc(id).update({ verrouille: !etatActuel });
+        }
+
+        function supprimer(id) {
+            if(confirm("Supprimer définitivement ?")) db.collection("planning_visite").doc(id).delete();
+        }
+
+        function rejoindre(id) {
+            const prenom = prompt("Ajouter qui ?");
+            if(prenom) db.collection("planning_visite").doc(id).update({ participants: firebase.firestore.FieldValue.arrayUnion(prenom) });
+        }
+
+        function retirer(id, prenom) {
+            if(confirm("Retirer " + prenom + " ?")) db.collection("planning_visite").doc(id).update({ participants: firebase.firestore.FieldValue.arrayRemove(prenom) });
+        }
+
+        document.addEventListener('DOMContentLoaded', chargerPlanning);
+    </script>
+</body>
+</html>
