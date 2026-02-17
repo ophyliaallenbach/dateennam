@@ -102,8 +102,6 @@
 <body>
 
     <div class="top-nav">
-        <a href="index.html" class="btn-nav">🏠 Accueil</a>
-        <a href="watchlist.html" class="btn-nav">🍿 Watchlist</a>
         <button onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';" class="btn-nav" style="border:none; cursor:pointer;">🔒</button>
     </div>
 
@@ -218,10 +216,6 @@
                 db.collection("planning_visite").doc(id).delete();
             }
         }
-
-        // --- OUTIL D'IMPORTATION (Basé sur ton image Excel) ---
-        function importerProgrammeImage() {
-            if(!confirm("⚠️ Attention : Cela va ajouter tout le programme Excel dans la base de données. Continuer ?")) return;
 
             // Données transcrites depuis ton image
             const programme = [
