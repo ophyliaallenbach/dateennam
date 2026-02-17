@@ -16,75 +16,36 @@
             --white: #ffffff; --text-main: #2d3748;
             --type-visite: #e9d8fd; --type-manger: #fefcbf; --type-trajet: #edf2f7;
         }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-soft); color: var(--text-main); margin: 0; padding: 20px; background-image: linear-gradient(to bottom right, #fff5f7 0%, #ebf4ff 100%); min-height: 100vh; }
         
-        body { 
-            font-family: 'Segoe UI', sans-serif; background-color: var(--bg-soft); 
-            color: var(--text-main); margin: 0; padding: 20px; 
-            background-image: linear-gradient(to bottom right, #fff5f7 0%, #ebf4ff 100%); 
-            min-height: 100vh;
-        }
-
-        /* NAVIGATION SIMPLIFIÉE (Juste Déco) */
         .top-nav { position: fixed; top: 10px; right: 10px; z-index: 100; }
-        .btn-logout { 
-            border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; 
-            font-weight: bold; background: #feb2b2; color: #c53030; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
-        }
+        .btn-logout { border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; background: #feb2b2; color: #c53030; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s; }
         .btn-logout:hover { background: #fc8181; transform: translateY(-2px); }
 
         h1 { margin-top: 50px; text-align: center; color: var(--primary); font-size: 2em; margin-bottom: 5px; }
         .subtitle { text-align: center; font-style: italic; color: var(--secondary); margin-bottom: 30px; }
-
-        /* CALENDRIER CONTAINER */
         #calendarContainer { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
 
-        /* JOUR */
-        .day-header { 
-            background: var(--primary); color: white; padding: 10px 20px; 
-            border-radius: 15px; margin: 30px 0 15px 0; font-size: 1.2em; font-weight: bold;
-            text-align: center; box-shadow: 0 4px 10px rgba(213, 63, 140, 0.3);
-            position: sticky; top: 10px; z-index: 50; /* Top réduit car pas de menu */
-        }
-
-        /* TIMELINE */
+        .day-header { background: var(--primary); color: white; padding: 10px 20px; border-radius: 15px; margin: 30px 0 15px 0; font-size: 1.2em; font-weight: bold; text-align: center; position: sticky; top: 10px; z-index: 50; }
         .timeline-item { display: flex; gap: 15px; margin-bottom: 15px; position: relative; }
-        .time-col {
-            min-width: 60px; text-align: right; font-weight: bold; color: var(--secondary);
-            font-size: 0.9em; padding-top: 15px;
-        }
-        .content-col {
-            flex: 1; background: white; border-radius: 15px; padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03); border-left: 5px solid #ddd;
-            transition: transform 0.2s; position: relative;
-        }
+        .time-col { min-width: 60px; text-align: right; font-weight: bold; color: var(--secondary); font-size: 0.9em; padding-top: 15px; }
+        .content-col { flex: 1; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border-left: 5px solid #ddd; position: relative; }
         
-        /* COULEURS SELON TYPE */
         .type-visite { border-left-color: var(--secondary); background: white; }
         .type-manger { border-left-color: #ecc94b; background: #fffff0; }
         .type-trajet { border-left-color: #cbd5e0; background: #f7fafc; color: #718096; }
+        .locked-bg { opacity: 0.7; background-color: #f7f7f7; }
 
         .item-title { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-main); }
         .item-info { font-size: 0.85em; color: #718096; margin-bottom: 10px; display: flex; gap: 10px; }
         .badge-prix { background: #fed7e2; color: #9b2c2c; padding: 2px 6px; border-radius: 5px; font-weight: bold; }
-
-        /* PARTICIPANTS */
-        .participants-zone { 
-            margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; 
-            display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
-        }
-        .avatar { 
-            background: var(--secondary); color: white; padding: 3px 10px; 
-            border-radius: 12px; font-size: 0.8em; font-weight: bold; cursor: pointer;
-        }
-        .avatar:hover { opacity: 0.8; text-decoration: line-through; }
         
-        .btn-join {
-            background: none; border: 1px solid var(--secondary); color: var(--secondary);
-            padding: 3px 10px; border-radius: 12px; font-size: 0.8em; cursor: pointer; font-weight: bold;
-        }
+        .participants-zone { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+        .avatar { background: var(--secondary); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
+        .avatar:hover { opacity: 0.8; text-decoration: line-through; }
+        .btn-join { background: none; border: 1px solid var(--secondary); color: var(--secondary); padding: 3px 10px; border-radius: 12px; font-size: 0.8em; cursor: pointer; font-weight: bold; }
         .btn-join:hover { background: var(--secondary); color: white; }
-
+        .msg-locked { font-size: 0.8em; color: #e53e3e; font-weight: bold; display: flex; align-items: center; gap: 5px; }
     </style>
 </head>
 <body>
@@ -99,7 +60,6 @@
     <div id="calendarContainer">Chargement...</div>
 
     <script>
-        // 🛑 SÉCURITÉ
         if (!localStorage.getItem("estConnecte")) { window.location.href = "login.html"; }
 
         const firebaseConfig = { 
@@ -114,38 +74,31 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- AFFICHAGE (Lecture Seule) ---
         function chargerPlanning() {
             db.collection("planning_visite").orderBy("sortKey", "asc").onSnapshot(snapshot => {
                 const container = document.getElementById("calendarContainer");
                 container.innerHTML = "";
-                
-                if(snapshot.empty) { container.innerHTML = "<p style='text-align:center;'>Le programme arrive bientôt !</p>"; return; }
-
                 let currentDay = "";
+
+                if(snapshot.empty) { container.innerHTML = "<p>Le programme arrive bientôt !</p>"; return; }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
 
-                    // En-tête jour
                     if (data.jour !== currentDay) {
                         currentDay = data.jour;
-                        const header = document.createElement("div");
-                        header.className = "day-header";
-                        header.innerText = currentDay;
-                        container.appendChild(header);
+                        container.innerHTML += `<div class="day-header">${currentDay}</div>`;
                     }
 
-                    // Style
                     let typeClass = "type-visite";
                     if (data.type === "manger") typeClass = "type-manger";
                     if (data.type === "trajet") typeClass = "type-trajet";
-
-                    // Info Prix
+                    
+                    // Gestion du visuel Verrouillé
+                    let lockClass = data.verrouille ? "locked-bg" : "";
                     let prixBadge = data.prix ? `<span class="badge-prix">${data.prix}</span>` : "";
 
-                    // Participants
                     let partsHtml = "";
                     if (data.participants) {
                         partsHtml = data.participants.map(p => 
@@ -153,11 +106,21 @@
                         ).join("");
                     }
 
+                    // Logique bouton rejoindre vs message fermé
+                    let actionHtml = "";
+                    if (data.type !== 'trajet') {
+                        if (data.verrouille) {
+                            actionHtml = `<span class="msg-locked">🔒 Inscriptions fermées / Complet</span>`;
+                        } else {
+                            actionHtml = `<button class="btn-join" onclick="rejoindre('${id}')">+ Moi</button>`;
+                        }
+                    }
+
                     const item = document.createElement("div");
                     item.className = "timeline-item";
                     item.innerHTML = `
                         <div class="time-col">${data.heure}</div>
-                        <div class="content-col ${typeClass}">
+                        <div class="content-col ${typeClass} ${lockClass}">
                             <h3 class="item-title">${data.activite}</h3>
                             <div class="item-info">
                                 ${prixBadge}
@@ -167,7 +130,7 @@
                             ${data.type !== 'trajet' ? `
                             <div class="participants-zone">
                                 ${partsHtml}
-                                <button class="btn-join" onclick="rejoindre('${id}')">+ Moi</button>
+                                ${actionHtml}
                             </div>` : ''}
                         </div>
                     `;
@@ -176,22 +139,13 @@
             });
         }
 
-        // --- INTERACTIONS LIMITÉES ---
         function rejoindre(id) {
             const prenom = prompt("C'est qui ? (Ton prénom)");
-            if(prenom) {
-                db.collection("planning_visite").doc(id).update({
-                    participants: firebase.firestore.FieldValue.arrayUnion(prenom)
-                });
-            }
+            if(prenom) db.collection("planning_visite").doc(id).update({ participants: firebase.firestore.FieldValue.arrayUnion(prenom) });
         }
 
         function retirer(id, prenom) {
-            if(confirm(`Retirer ${prenom} de cette activité ?`)) {
-                db.collection("planning_visite").doc(id).update({
-                    participants: firebase.firestore.FieldValue.arrayRemove(prenom)
-                });
-            }
+            if(confirm("Te retirer de cette activité ?")) db.collection("planning_visite").doc(id).update({ participants: firebase.firestore.FieldValue.arrayRemove(prenom) });
         }
 
         document.addEventListener('DOMContentLoaded', chargerPlanning);
