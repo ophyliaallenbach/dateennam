@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Planning Visite 🎉</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        /* THÈME "SWEET MEMORIES" */
+        :root { 
+            --primary: #d53f8c; --secondary: #805ad5; --bg-soft: #fff5f7; 
+            --white: #ffffff; --text-main: #2d3748;
+            --type-visite: #e9d8fd; --type-manger: #fefcbf; --type-trajet: #edf2f7;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; background-color: var(--bg-soft); 
+            color: var(--text-main); margin: 0; padding: 20px; 
+            background-image: linear-gradient(to bottom right, #fff5f7 0%, #ebf4ff 100%); 
+            min-height: 100vh;
+        }
+
+        .top-nav { position: fixed; top: 10px; right: 10px; display: flex; gap: 10px; z-index: 100; justify-content: center; }
+        .btn-nav { background: rgba(255,255,255,0.8); padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; color: var(--secondary); transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn-nav:hover { background: white; transform: translateY(-2px); }
+
+        h1 { margin-top: 50px; text-align: center; color: var(--primary); font-size: 2em; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-style: italic; color: var(--secondary); margin-bottom: 30px; }
+
+        /* CALENDRIER CONTAINER */
+        #calendarContainer { max-width: 800px; margin: 0 auto; }
+
+        /* JOUR */
+        .day-header { 
+            background: var(--primary); color: white; padding: 10px 20px; 
+            border-radius: 15px; margin: 30px 0 15px 0; font-size: 1.2em; font-weight: bold;
+            text-align: center; box-shadow: 0 4px 10px rgba(213, 63, 140, 0.3);
+            position: sticky; top: 60px; z-index: 50;
+        }
+
+        /* TIMELINE */
+        .timeline-item {
+            display: flex; gap: 15px; margin-bottom: 15px; position: relative;
+        }
+        .time-col {
+            min-width: 60px; text-align: right; font-weight: bold; color: var(--secondary);
+            font-size: 0.9em; padding-top: 15px;
+        }
+        .content-col {
+            flex: 1; background: white; border-radius: 15px; padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03); border-left: 5px solid #ddd;
+            transition: transform 0.2s; position: relative;
+        }
+        .content-col:hover { transform: translateX(5px); }
+
+        /* COULEURS SELON TYPE */
+        .type-visite { border-left-color: var(--secondary); background: white; }
+        .type-manger { border-left-color: #ecc94b; background: #fffff0; }
+        .type-trajet { border-left-color: #cbd5e0; background: #f7fafc; color: #718096; }
+
+        .item-title { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-main); }
+        .item-info { font-size: 0.85em; color: #718096; margin-bottom: 10px; display: flex; gap: 10px; }
+        .badge-prix { background: #fed7e2; color: #9b2c2c; padding: 2px 6px; border-radius: 5px; font-weight: bold; }
+
+        /* PARTICIPANTS */
+        .participants-zone { 
+            margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; 
+            display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+        }
+        .avatar { 
+            background: var(--secondary); color: white; padding: 3px 10px; 
+            border-radius: 12px; font-size: 0.8em; font-weight: bold; cursor: pointer;
+        }
+        .avatar:hover { opacity: 0.8; text-decoration: line-through; }
+        
+        .btn-join {
+            background: none; border: 1px solid var(--secondary); color: var(--secondary);
+            padding: 3px 10px; border-radius: 12px; font-size: 0.8em; cursor: pointer; font-weight: bold;
+        }
+        .btn-join:hover { background: var(--secondary); color: white; }
+
+        /* BOUTON SUPPRIMER EVENT (caché, visible au survol) */
+        .btn-del-event {
+            position: absolute; top: 5px; right: 5px; background: none; border: none; 
+            color: #feb2b2; cursor: pointer; opacity: 0; transition: 0.2s;
+        }
+        .content-col:hover .btn-del-event { opacity: 1; }
+
+        /* BOUTON ADMIN FLOTTANT */
+        .fab-add {
+            position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
+            background: var(--primary); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; border: none; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="btn-nav">🏠 Accueil</a>
+        <a href="watchlist.html" class="btn-nav">🍿 Watchlist</a>
+        <button onclick="localStorage.removeItem('estConnecte'); window.location.href='login.html';" class="btn-nav" style="border:none; cursor:pointer;">🔒</button>
+    </div>
+
+    <h1>📅 Le Programme</h1>
+    <div class="subtitle">On s'inscrit aux activités !</div>
+
+    <div id="calendarContainer">Chargement...</div>
+
+    <div style="text-align:center; margin-top:50px;">
+        <button onclick="importerProgrammeImage()" style="background:#e2e8f0; border:none; padding:10px; border-radius:10px; cursor:pointer; color:#718096; font-size:0.8em;">📥 Importer le programme Excel (Automatique)</button>
+    </div>
+
+    <script>
+        // 🛑 SÉCURITÉ
+        if (!localStorage.getItem("estConnecte")) { window.location.href = "login.html"; }
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD9bzSuQY8CR9RVnQMu6WI4plznzQrfBC4", 
+            authDomain: "date-d927b.firebaseapp.com", 
+            projectId: "date-d927b", 
+            storageBucket: "date-d927b.appspot.com", 
+            messagingSenderId: "353304192798", 
+            appId: "1:353304192798:web:1511fa87bfbf11bdda0b0f", 
+            measurementId: "G-T4N8PMNC3G" 
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- AFFICHAGE ---
+        function chargerPlanning() {
+            db.collection("planning_visite").orderBy("sortKey", "asc").onSnapshot(snapshot => {
+                const container = document.getElementById("calendarContainer");
+                container.innerHTML = "";
+                
+                if(snapshot.empty) { container.innerHTML = "<p style='text-align:center;'>Aucune activité. Clique sur le bouton 'Importer' en bas ! 👇</p>"; return; }
+
+                let currentDay = "";
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+
+                    // Affichage de l'en-tête de jour si ça change
+                    if (data.jour !== currentDay) {
+                        currentDay = data.jour;
+                        const header = document.createElement("div");
+                        header.className = "day-header";
+                        header.innerText = currentDay;
+                        container.appendChild(header);
+                    }
+
+                    // Définition du style selon le type
+                    let typeClass = "type-visite";
+                    if (data.type === "manger") typeClass = "type-manger";
+                    if (data.type === "trajet") typeClass = "type-trajet";
+
+                    // Badge prix
+                    let prixBadge = data.prix ? `<span class="badge-prix">${data.prix}</span>` : "";
+
+                    // Liste participants
+                    let partsHtml = "";
+                    if (data.participants) {
+                        partsHtml = data.participants.map(p => 
+                            `<span class="avatar" onclick="retirer('${id}', '${p}')" title="Retirer">${p}</span>`
+                        ).join("");
+                    }
+
+                    const item = document.createElement("div");
+                    item.className = "timeline-item";
+                    item.innerHTML = `
+                        <div class="time-col">${data.heure}</div>
+                        <div class="content-col ${typeClass}">
+                            <button class="btn-del-event" onclick="supprimer('${id}')">×</button>
+                            <h3 class="item-title">${data.activite}</h3>
+                            <div class="item-info">
+                                ${prixBadge}
+                                <span>${data.info || ""}</span>
+                            </div>
+                            
+                            ${data.type !== 'trajet' ? `
+                            <div class="participants-zone">
+                                ${partsHtml}
+                                <button class="btn-join" onclick="rejoindre('${id}')">+ Moi</button>
+                            </div>` : ''}
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            });
+        }
+
+        // --- ACTIONS ---
+        function rejoindre(id) {
+            const prenom = prompt("Ton prénom ?");
+            if(prenom) {
+                db.collection("planning_visite").doc(id).update({
+                    participants: firebase.firestore.FieldValue.arrayUnion(prenom)
+                });
+            }
+        }
+
+        function retirer(id, prenom) {
+            if(confirm(`Enlever ${prenom} ?`)) {
+                db.collection("planning_visite").doc(id).update({
+                    participants: firebase.firestore.FieldValue.arrayRemove(prenom)
+                });
+            }
+        }
+
+        function supprimer(id) {
+            if(confirm("Supprimer cette ligne du planning ?")) {
+                db.collection("planning_visite").doc(id).delete();
+            }
+        }
+
+        // --- OUTIL D'IMPORTATION (Basé sur ton image Excel) ---
+        function importerProgrammeImage() {
+            if(!confirm("⚠️ Attention : Cela va ajouter tout le programme Excel dans la base de données. Continuer ?")) return;
+
+            // Données transcrites depuis ton image
+            const programme = [
+                // MERCREDI
+                { jour: "Mercredi", heure: "11:30", activite: "Manger", type: "manger", prix: "", sortKey: "1-1130" },
+                { jour: "Mercredi", heure: "12:30", activite: "Grande galerie de l'évolution", type: "visite", prix: "0€", sortKey: "1-1230" },
+                { jour: "Mercredi", heure: "14:00", activite: "Thé à la Grande Mosquée", type: "visite", prix: "5€", sortKey: "1-1400" },
+                { jour: "Mercredi", heure: "15:00", activite: "Trajet ~20min à pied", type: "trajet", prix: "", sortKey: "1-1500" },
+                { jour: "Mercredi", heure: "16:00", activite: "Panthéon", type: "visite", prix: "0€", sortKey: "1-1600" },
+                { jour: "Mercredi", heure: "17:30", activite: "Trajet ~20min bus", type: "trajet", prix: "", sortKey: "1-1730" },
+                { jour: "Mercredi", heure: "19:00", activite: "Louvre", type: "visite", prix: "0€", sortKey: "1-1900" },
+
+                // JEUDI
+                { jour: "Jeudi", heure: "08:30", activite: "Trajet ~60min RER", type: "trajet", prix: "", sortKey: "2-0830" },
+                { jour: "Jeudi", heure: "10:00", activite: "Musée Guimet", type: "visite", prix: "", sortKey: "2-1000" },
+                { jour: "Jeudi", heure: "11:30", activite: "Manger", type: "manger", prix: "", sortKey: "2-1130" },
+                { jour: "Jeudi", heure: "12:30", activite: "Musée de l'homme", type: "visite", prix: "0€", sortKey: "2-1230" },
+                { jour: "Jeudi", heure: "15:00", activite: "Musée des égouts", type: "visite", prix: "0€", sortKey: "2-1500" },
+                { jour: "Jeudi", heure: "16:00", activite: "Fluctuart", type: "visite", prix: "", sortKey: "2-1600" },
+                { jour: "Jeudi", heure: "20:00", activite: "Musée d'Orsay", type: "visite", prix: "0€", sortKey: "2-2000" },
+
+                // VENDREDI
+                { jour: "Vendredi", heure: "08:30", activite: "Trajet ~50min RER", type: "trajet", prix: "", sortKey: "3-0830" },
+                { jour: "Vendredi", heure: "10:30", activite: "Visite guidée Montmartre (RDV Robert)", type: "visite", prix: "15€", sortKey: "3-1030" },
+                { jour: "Vendredi", heure: "13:30", activite: "Manger", type: "manger", prix: "", sortKey: "3-1330" },
+                { jour: "Vendredi", heure: "15:00", activite: "Musée Gustave Moreau", type: "visite", prix: "0€", sortKey: "3-1500" },
+                { jour: "Vendredi", heure: "18:00", activite: "Musée des arts et métiers", type: "visite", prix: "0€", sortKey: "3-1800" },
+
+                // SAMEDI
+                { jour: "Samedi", heure: "09:00", activite: "Trajet ~50min RER B", type: "trajet", prix: "", sortKey: "4-0900" },
+                { jour: "Samedi", heure: "10:30", activite: "La Conciergerie", type: "visite", prix: "0€", sortKey: "4-1030" },
+                { jour: "Samedi", heure: "12:30", activite: "Manger", type: "manger", prix: "", sortKey: "4-1230" },
+                { jour: "Samedi", heure: "14:30", activite: "Musée de la poste", type: "visite", prix: "0€", sortKey: "4-1430" },
+                { jour: "Samedi", heure: "17:00", activite: "Quai Branly", type: "visite", prix: "0€", sortKey: "4-1700" },
+                { jour: "Samedi", heure: "19:00", activite: "Resto Vimiam", type: "manger", prix: "10-15€", sortKey: "4-1900" }
+            ];
+
+            let batch = db.batch();
+            programme.forEach(item => {
+                let ref = db.collection("planning_visite").doc();
+                batch.set(ref, {
+                    ...item,
+                    participants: [],
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+
+            batch.commit().then(() => alert("Programme importé avec succès ! 🎉")).catch(e => alert("Erreur: " + e));
+        }
+
+        document.addEventListener('DOMContentLoaded', chargerPlanning);
+    </script>
+</body>
+</html>
