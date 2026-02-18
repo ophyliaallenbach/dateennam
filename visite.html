@@ -45,8 +45,6 @@
         .type-visite { border-left-color: var(--secondary); background: white; }
         .type-manger { border-left-color: #ecc94b; background: #fffff0; }
         .type-trajet { border-left-color: #cbd5e0; background: #f7fafc; color: #718096; }
-        
-        /* STYLE VERROUILLÉ */
         .locked-style { opacity: 0.7; background-color: #f0f0f0; border-left-color: #a0aec0; }
 
         .item-title { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-main); }
@@ -164,7 +162,7 @@
         // MODE ACTUEL (add ou edit)
         let mode = 'add'; 
 
-        // --- AFFICHAGE ---
+        // --- AFFICHAGE ROBUSTE ---
         function chargerPlanning() {
             db.collection("planning_visite").orderBy("sortKey", "asc").onSnapshot(snapshot => {
                 const container = document.getElementById("calendarContainer");
@@ -177,10 +175,14 @@
                     const data = doc.data();
                     const id = doc.id;
 
-                    // Gestion Jour
+                    // Gestion Jour (Affichage Header)
+                    // Utilisation de createElement pour éviter les bugs de innerHTML
                     if (data.jour !== currentDay) {
                         currentDay = data.jour;
-                        container.innerHTML += `<div class="day-header">${currentDay}</div>`;
+                        const header = document.createElement("div");
+                        header.className = "day-header";
+                        header.textContent = currentDay;
+                        container.appendChild(header);
                     }
 
                     // Styles
@@ -252,9 +254,22 @@
                     document.getElementById('info').value = d.info || "";
                     document.getElementById('heure').value = d.heure || "";
                     document.getElementById('type').value = d.type || "visite";
-                    // Pour la date, on essaie de la retrouver si stockée, sinon date du jour
-                    // Note: Dans l'import Excel, la date précise n'était pas stockée, juste le jour "Lundi".
-                    // Si tu utilises le formulaire manuel, la date précise sera utilisée pour le tri.
+                    
+                    // Récupération de la date (si dispo dans sortKey ou ailleurs)
+                    // Si sortKey format "YYYYMMDD-HHMM", on essaie de l'extraire
+                    if(d.sortKey && d.sortKey.length >= 8) {
+                        const y = d.sortKey.substring(0,4);
+                        const m = d.sortKey.substring(4,6);
+                        const day = d.sortKey.substring(6,8);
+                        // On vérifie si c'est des nombres pour éviter les crashs sur anciens formats
+                        if(!isNaN(y) && !isNaN(m) && !isNaN(day)) {
+                            document.getElementById('date').value = `${y}-${m}-${day}`;
+                        } else {
+                            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                        }
+                    } else {
+                        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                    }
                 });
             }
         }
@@ -270,34 +285,39 @@
             const timeStr = document.getElementById('heure').value; // HH:MM
 
             if(!titre) return alert("Il faut un titre !");
+            if(!dateStr) return alert("Il faut une date !"); // Sécurité anti-disparition
 
-            // Calcul du Jour (Lundi, Mardi...) pour l'affichage
-            const dateObj = new Date(dateStr);
-            const options = { weekday: 'long' };
-            const jourNom = new Intl.DateTimeFormat('fr-FR', options).format(dateObj);
-            const jourCapitalized = jourNom.charAt(0).toUpperCase() + jourNom.slice(1);
+            try {
+                // Calcul du Jour (Lundi, Mardi...)
+                const dateObj = new Date(dateStr);
+                const options = { weekday: 'long' };
+                const jourNom = new Intl.DateTimeFormat('fr-FR', options).format(dateObj);
+                const jourCapitalized = jourNom.charAt(0).toUpperCase() + jourNom.slice(1);
 
-            // Clé de tri pour l'ordre chrono (ex: 20240520-1430)
-            const sortKey = dateStr.replace(/-/g, '') + '-' + timeStr.replace(':', '');
+                // Clé de tri (ex: 20240520-1430)
+                const sortKey = dateStr.replace(/-/g, '') + '-' + timeStr.replace(':', '');
 
-            const data = {
-                activite: titre,
-                type: type,
-                prix: prix,
-                info: info,
-                heure: timeStr,
-                jour: jourCapitalized,
-                sortKey: sortKey
-            };
+                const data = {
+                    activite: titre,
+                    type: type,
+                    prix: prix,
+                    info: info,
+                    heure: timeStr,
+                    jour: jourCapitalized,
+                    sortKey: sortKey
+                };
 
-            if (mode === 'add') {
-                data.participants = [];
-                data.verrouille = false;
-                data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
-                db.collection("planning_visite").add(data).then(() => fermerModal());
-            } else {
-                const id = document.getElementById('itemId').value;
-                db.collection("planning_visite").doc(id).update(data).then(() => fermerModal());
+                if (mode === 'add') {
+                    data.participants = [];
+                    data.verrouille = false;
+                    data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    db.collection("planning_visite").add(data).then(() => fermerModal());
+                } else {
+                    const id = document.getElementById('itemId').value;
+                    db.collection("planning_visite").doc(id).update(data).then(() => fermerModal());
+                }
+            } catch (err) {
+                alert("Erreur lors de la sauvegarde : " + err.message);
             }
         }
 
