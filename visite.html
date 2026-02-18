@@ -16,41 +16,82 @@
             --white: #ffffff; --text-main: #2d3748;
             --type-visite: #e9d8fd; --type-manger: #fefcbf; --type-trajet: #edf2f7;
         }
+        
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-soft); color: var(--text-main); margin: 0; padding: 20px; background-image: linear-gradient(to bottom right, #fff5f7 0%, #ebf4ff 100%); min-height: 100vh; }
+        
         .top-nav { position: fixed; top: 10px; right: 10px; display: flex; gap: 10px; z-index: 100; justify-content: center; }
         .btn-nav { background: rgba(255,255,255,0.8); padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: bold; color: var(--secondary); transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .btn-nav:hover { background: white; transform: translateY(-2px); }
+
         h1 { margin-top: 50px; text-align: center; color: var(--primary); font-size: 2em; margin-bottom: 5px; }
         .subtitle { text-align: center; font-style: italic; color: var(--secondary); margin-bottom: 30px; }
-        #calendarContainer { max-width: 800px; margin: 0 auto; padding-bottom: 80px; }
         
-        /* TIMELINE */
-        .day-header { background: var(--primary); color: white; padding: 10px 20px; border-radius: 15px; margin: 30px 0 15px 0; font-size: 1.2em; font-weight: bold; text-align: center; position: sticky; top: 60px; z-index: 50; }
+        #calendarContainer { max-width: 800px; margin: 0 auto; padding-bottom: 80px; }
+
+        /* JOUR */
+        .day-header { background: var(--primary); color: white; padding: 10px 20px; border-radius: 15px; margin: 30px 0 15px 0; font-size: 1.2em; font-weight: bold; text-align: center; position: sticky; top: 60px; z-index: 50; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* TIMELINE ITEM */
         .timeline-item { display: flex; gap: 15px; margin-bottom: 15px; position: relative; }
         .time-col { min-width: 60px; text-align: right; font-weight: bold; color: var(--secondary); font-size: 0.9em; padding-top: 15px; }
-        .content-col { flex: 1; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border-left: 5px solid #ddd; position: relative; }
+        
+        .content-col { 
+            flex: 1; background: white; border-radius: 15px; padding: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03); border-left: 5px solid #ddd; 
+            position: relative; transition: 0.2s;
+        }
+        
+        /* TYPES COULEURS */
         .type-visite { border-left-color: var(--secondary); background: white; }
         .type-manger { border-left-color: #ecc94b; background: #fffff0; }
         .type-trajet { border-left-color: #cbd5e0; background: #f7fafc; color: #718096; }
+        
+        /* STYLE VERROUILLÉ */
+        .locked-style { opacity: 0.7; background-color: #f0f0f0; border-left-color: #a0aec0; }
+
         .item-title { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-main); }
-        .item-info { font-size: 0.85em; color: #718096; margin-bottom: 10px; display: flex; gap: 10px; }
-        .badge-prix { background: #fed7e2; color: #9b2c2c; padding: 2px 6px; border-radius: 5px; font-weight: bold; }
+        .item-info { font-size: 0.9em; color: #718096; margin-bottom: 10px; display: flex; flex-wrap:wrap; gap: 10px; align-items: center; }
+        .badge-prix { background: #fed7e2; color: #9b2c2c; padding: 2px 6px; border-radius: 5px; font-weight: bold; font-size: 0.85em;}
+        .badge-info { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 5px; font-style: italic; }
+
+        /* ADMIN CONTROLS */
+        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; opacity: 0.5; transition: 0.2s; }
+        .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+
+        /* PARTICIPANTS */
         .participants-zone { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
         .avatar { background: var(--secondary); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
         .avatar:hover { opacity: 0.8; text-decoration: line-through; }
         .btn-join { background: none; border: 1px solid var(--secondary); color: var(--secondary); padding: 3px 10px; border-radius: 12px; font-size: 0.8em; cursor: pointer; font-weight: bold; }
-        
-        /* BOUTONS ADMIN */
-        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1em; opacity: 0.5; transition: 0.2s; }
-        .btn-icon:hover { opacity: 1; transform: scale(1.1); }
-        .locked-style { opacity: 0.6; background-color: #eee; border-left-color: #aaa; }
 
-        /* FORM EDIT */
-        #editOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:none; justify-content:center; align-items:center; }
-        .edit-box { background:white; padding:20px; border-radius:15px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
-        .edit-box input, .edit-box select { width: 100%; padding: 10px; margin: 5px 0; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; }
-        .btn-save { width: 100%; background: var(--primary); color: white; padding: 10px; border-radius: 10px; border:none; font-weight:bold; cursor:pointer; margin-top:10px; }
+        /* BOUTON FLOTTANT AJOUTER */
+        .fab-add {
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
+            background: var(--primary); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; box-shadow: 0 4px 15px rgba(213, 63, 140, 0.4); 
+            cursor: pointer; border: none; z-index: 90; transition: transform 0.2s;
+        }
+        .fab-add:hover { transform: scale(1.1) rotate(90deg); }
+
+        /* POPUP MODAL (Add/Edit) */
+        .modal-overlay { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background:rgba(0,0,0,0.5); z-index:200; display:none; 
+            justify-content:center; align-items:center; 
+        }
+        .modal-box { background:white; padding:25px; border-radius:20px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; color: var(--primary); }
+        
+        .form-row { display: flex; gap: 10px; }
+        .form-row > * { flex: 1; }
+        
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
+        
+        .btn-save { width: 100%; background: var(--primary); color: white; padding: 12px; border-radius: 12px; border:none; font-weight:bold; cursor:pointer; margin-top:15px; font-size: 1em; }
+        .btn-cancel { width:100%; background:none; border:none; color:#718096; margin-top:10px; cursor:pointer; }
+
     </style>
 </head>
 <body>
@@ -62,20 +103,46 @@
     </div>
 
     <h1>🛠️ Admin Programme</h1>
-    <div class="subtitle">Modifie, verrouille, organise !</div>
+    <div class="subtitle">Organise tout dans les moindres détails !</div>
 
     <div id="calendarContainer">Chargement...</div>
 
-    <div id="editOverlay">
-        <div class="edit-box">
-            <h3 style="margin-top:0; color:var(--primary);">Modifier l'activité</h3>
-            <input type="hidden" id="editId">
-            <input type="text" id="editTitre" placeholder="Titre">
-            <input type="text" id="editPrix" placeholder="Prix">
-            <input type="text" id="editInfo" placeholder="Info (ex: RDV à 20h)">
-            <input type="time" id="editHeure">
-            <button class="btn-save" onclick="sauvegarderModif()">Enregistrer</button>
-            <button onclick="fermerEdit()" style="width:100%; background:none; border:none; color:#718096; margin-top:10px; cursor:pointer;">Annuler</button>
+    <button class="fab-add" onclick="ouvrirModal('add')">＋</button>
+
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalTitle">Ajouter une activité</h3>
+            <input type="hidden" id="itemId">
+            
+            <label style="font-size:0.8em; font-weight:bold; color:var(--secondary);">Quoi ?</label>
+            <input type="text" id="titre" placeholder="Titre (ex: Resto Italien)">
+            
+            <div class="form-row">
+                <div>
+                    <label style="font-size:0.8em; font-weight:bold; color:var(--secondary);">Type</label>
+                    <select id="type">
+                        <option value="visite">🏛️ Visite</option>
+                        <option value="manger">🍴 Repas</option>
+                        <option value="trajet">🚇 Trajet</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.8em; font-weight:bold; color:var(--secondary);">Prix</label>
+                    <input type="text" id="prix" placeholder="ex: 15€">
+                </div>
+            </div>
+
+            <label style="font-size:0.8em; font-weight:bold; color:var(--secondary);">Quand ?</label>
+            <div class="form-row">
+                <input type="date" id="date">
+                <input type="time" id="heure">
+            </div>
+
+            <label style="font-size:0.8em; font-weight:bold; color:var(--secondary);">Détails (Trajet, Infos...)</label>
+            <input type="text" id="info" placeholder="ex: Prendre la ligne 6, RDV devant...">
+
+            <button class="btn-save" onclick="sauvegarder()">Enregistrer</button>
+            <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
         </div>
     </div>
 
@@ -94,38 +161,43 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // MODE ACTUEL (add ou edit)
+        let mode = 'add'; 
+
+        // --- AFFICHAGE ---
         function chargerPlanning() {
             db.collection("planning_visite").orderBy("sortKey", "asc").onSnapshot(snapshot => {
                 const container = document.getElementById("calendarContainer");
                 container.innerHTML = "";
                 let currentDay = "";
 
-                if(snapshot.empty) { container.innerHTML = "<p>Rien...</p>"; return; }
+                if(snapshot.empty) { container.innerHTML = "<p>Aucune activité. Clique sur le gros ➕ !</p>"; return; }
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const id = doc.id;
 
+                    // Gestion Jour
                     if (data.jour !== currentDay) {
                         currentDay = data.jour;
                         container.innerHTML += `<div class="day-header">${currentDay}</div>`;
                     }
 
+                    // Styles
                     let typeClass = "type-visite";
                     if (data.type === "manger") typeClass = "type-manger";
                     if (data.type === "trajet") typeClass = "type-trajet";
                     
-                    // Si verrouillé, style grisé
                     let lockClass = data.verrouille ? "locked-style" : "";
                     let lockIcon = data.verrouille ? "🔒" : "🔓";
 
                     let prixBadge = data.prix ? `<span class="badge-prix">${data.prix}</span>` : "";
-                    
+                    let infoBadge = data.info ? `<span class="badge-info">${data.info}</span>` : "";
+
+                    // Participants
                     let partsHtml = "";
                     if (data.participants) {
-                        partsHtml = data.participants.map(p => 
-                            `<span class="avatar" onclick="retirer('${id}', '${p}')">${p}</span>`
-                        ).join("");
+                        partsHtml = data.participants.map(p => `<span class="avatar" onclick="retirer('${id}', '${p}')">${p}</span>`).join("");
                     }
 
                     const item = document.createElement("div");
@@ -134,15 +206,14 @@
                         <div class="time-col">${data.heure}</div>
                         <div class="content-col ${typeClass} ${lockClass}">
                             <div class="admin-controls">
-                                <button class="btn-icon" onclick="preparerEdit('${id}')">✏️</button>
+                                <button class="btn-icon" onclick="ouvrirModal('edit', '${id}')">✏️</button>
                                 <button class="btn-icon" onclick="toggleVerrou('${id}', ${data.verrouille})">${lockIcon}</button>
                                 <button class="btn-icon" onclick="supprimer('${id}')" style="color:#feb2b2;">🗑️</button>
                             </div>
 
-                            <h3 class="item-title">${data.activite} ${data.verrouille ? '(Fermé)' : ''}</h3>
+                            <h3 class="item-title">${data.activite} ${data.verrouille ? '<small>(Fermé)</small>' : ''}</h3>
                             <div class="item-info">
-                                ${prixBadge}
-                                <span>${data.info || ""}</span>
+                                ${prixBadge} ${infoBadge}
                             </div>
                             
                             <div class="participants-zone">
@@ -156,47 +227,88 @@
             });
         }
 
-        // --- ADMIN FONCTIONS ---
-        function preparerEdit(id) {
-            db.collection("planning_visite").doc(id).get().then(doc => {
-                const d = doc.data();
-                document.getElementById('editId').value = id;
-                document.getElementById('editTitre').value = d.activite;
-                document.getElementById('editPrix').value = d.prix || "";
-                document.getElementById('editInfo').value = d.info || "";
-                document.getElementById('editHeure').value = d.heure || "";
-                document.getElementById('editOverlay').style.display = "flex";
-            });
+        // --- GESTION MODAL (AJOUT / EDIT) ---
+        function ouvrirModal(action, id = null) {
+            mode = action;
+            document.getElementById('modalOverlay').style.display = 'flex';
+            
+            if (mode === 'add') {
+                document.getElementById('modalTitle').innerText = "Ajouter une activité";
+                document.getElementById('itemId').value = "";
+                document.getElementById('titre').value = "";
+                document.getElementById('prix').value = "";
+                document.getElementById('info').value = "";
+                document.getElementById('heure').value = "";
+                document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('type').value = "visite";
+            } else {
+                document.getElementById('modalTitle').innerText = "Modifier l'activité";
+                // Récupérer les infos
+                db.collection("planning_visite").doc(id).get().then(doc => {
+                    const d = doc.data();
+                    document.getElementById('itemId').value = id;
+                    document.getElementById('titre').value = d.activite;
+                    document.getElementById('prix').value = d.prix || "";
+                    document.getElementById('info').value = d.info || "";
+                    document.getElementById('heure').value = d.heure || "";
+                    document.getElementById('type').value = d.type || "visite";
+                    // Pour la date, on essaie de la retrouver si stockée, sinon date du jour
+                    // Note: Dans l'import Excel, la date précise n'était pas stockée, juste le jour "Lundi".
+                    // Si tu utilises le formulaire manuel, la date précise sera utilisée pour le tri.
+                });
+            }
         }
 
-        function sauvegarderModif() {
-            const id = document.getElementById('editId').value;
-            const titre = document.getElementById('editTitre').value;
-            const prix = document.getElementById('editPrix').value;
-            const info = document.getElementById('editInfo').value;
-            const heure = document.getElementById('editHeure').value;
+        function fermerModal() { document.getElementById('modalOverlay').style.display = 'none'; }
 
-            db.collection("planning_visite").doc(id).update({
-                activite: titre, prix: prix, info: info, heure: heure
-            }).then(() => { fermerEdit(); });
+        function sauvegarder() {
+            const titre = document.getElementById('titre').value;
+            const type = document.getElementById('type').value;
+            const prix = document.getElementById('prix').value;
+            const info = document.getElementById('info').value;
+            const dateStr = document.getElementById('date').value; // YYYY-MM-DD
+            const timeStr = document.getElementById('heure').value; // HH:MM
+
+            if(!titre) return alert("Il faut un titre !");
+
+            // Calcul du Jour (Lundi, Mardi...) pour l'affichage
+            const dateObj = new Date(dateStr);
+            const options = { weekday: 'long' };
+            const jourNom = new Intl.DateTimeFormat('fr-FR', options).format(dateObj);
+            const jourCapitalized = jourNom.charAt(0).toUpperCase() + jourNom.slice(1);
+
+            // Clé de tri pour l'ordre chrono (ex: 20240520-1430)
+            const sortKey = dateStr.replace(/-/g, '') + '-' + timeStr.replace(':', '');
+
+            const data = {
+                activite: titre,
+                type: type,
+                prix: prix,
+                info: info,
+                heure: timeStr,
+                jour: jourCapitalized,
+                sortKey: sortKey
+            };
+
+            if (mode === 'add') {
+                data.participants = [];
+                data.verrouille = false;
+                data.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                db.collection("planning_visite").add(data).then(() => fermerModal());
+            } else {
+                const id = document.getElementById('itemId').value;
+                db.collection("planning_visite").doc(id).update(data).then(() => fermerModal());
+            }
         }
 
-        function fermerEdit() { document.getElementById('editOverlay').style.display = "none"; }
-
-        function toggleVerrou(id, etatActuel) {
-            // Inverse l'état du verrou
-            db.collection("planning_visite").doc(id).update({ verrouille: !etatActuel });
-        }
-
-        function supprimer(id) {
-            if(confirm("Supprimer définitivement ?")) db.collection("planning_visite").doc(id).delete();
-        }
-
+        // --- AUTRES ACTIONS ---
+        function toggleVerrou(id, etat) { db.collection("planning_visite").doc(id).update({ verrouille: !etat }); }
+        function supprimer(id) { if(confirm("Supprimer ?")) db.collection("planning_visite").doc(id).delete(); }
+        
         function rejoindre(id) {
             const prenom = prompt("Ajouter qui ?");
             if(prenom) db.collection("planning_visite").doc(id).update({ participants: firebase.firestore.FieldValue.arrayUnion(prenom) });
         }
-
         function retirer(id, prenom) {
             if(confirm("Retirer " + prenom + " ?")) db.collection("planning_visite").doc(id).update({ participants: firebase.firestore.FieldValue.arrayRemove(prenom) });
         }
